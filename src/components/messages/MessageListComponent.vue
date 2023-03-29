@@ -13,21 +13,21 @@ import { useRoomStore } from "@/stores/RoomStore";
 import { useNotificationStore } from "@/stores/NotificationStore";
 import ChatBoxComponent from "@/components/messages/ChatBoxComponent.vue";
 
-const route = useRoute();
-
-const channelID = computed((): string => {
-  return route.params.channelID?.toString();
-});
-
 const messagesRef = ref<HTMLElement>();
 const commonData = storeToRefs(useCommonStore());
+const roomStore = useRoomStore();
+const channelStore = useChannelStore();
 
 const channelData = computed(() => {
   return {
-    channelID: channelID.value,
-    messages: useChannelStore().getChannelMessages(channelID.value),
+    channelID: props.channelID,
+    messages: useChannelStore().getChannelMessages(props.channelID),
   };
 });
+
+const props = defineProps<{
+  channelID: string;
+}>();
 
 const emits = defineEmits<{
   (e: "edit"): void;
@@ -35,10 +35,12 @@ const emits = defineEmits<{
 
 const triggerInteract = (messageID: string) => {
   const roomOwner =
-    useRoomStore().rooms[useChannelStore().channels[channelID.value].room]
-      .creatorID === commonData.activeUserData.value?.id;
+    roomStore.rooms[channelStore.channels[props.channelID].room].creatorID ===
+      commonData.activeUserData.value?.id &&
+    !roomStore.rooms[channelStore.channels[props.channelID].room].friendship;
+
   const messageSender =
-    useChannelStore().channels[channelID.value].messages[messageID].sender ==
+    useChannelStore().channels[props.channelID].messages[messageID].sender ==
     commonData.activeUserData.value?.id;
 
   useCommonStore().showModal([
@@ -88,19 +90,19 @@ const triggerInteract = (messageID: string) => {
 };
 
 const scrollMethod = async () => {
-  commonData.commonData.value.channelScroll[channelID.value] =
+  commonData.commonData.value.channelScroll[props.channelID] =
     messagesRef.value?.scrollTop ?? 0;
 
   if (
-    !commonData.commonData.value.fetchingMessages[channelID.value] &&
+    !commonData.commonData.value.fetchingMessages[props.channelID] &&
     (messagesRef.value?.scrollTop ?? 0) < 300
   ) {
-    commonData.commonData.value.fetchingMessages[channelID.value] = true;
+    commonData.commonData.value.fetchingMessages[props.channelID] = true;
 
     const oldHeight = messagesRef.value?.scrollHeight ?? 0;
 
     const newMessages = await useChannelStore().fetchMoreMessages(
-      channelID.value
+      props.channelID
     );
 
     if (newMessages) {
@@ -108,7 +110,7 @@ const scrollMethod = async () => {
       messagesRef.value!.scroll({
         top: (messagesRef.value?.scrollTop ?? 0) + (newHeight - oldHeight),
       });
-      commonData.commonData.value.fetchingMessages[channelID.value] = false;
+      commonData.commonData.value.fetchingMessages[props.channelID] = false;
     }
   }
 };
@@ -117,18 +119,18 @@ onMounted(async () => {
   await nextTick();
 
   messagesRef.value!.scrollTop =
-    commonData.commonData.value.channelScroll[channelID.value] ??
+    commonData.commonData.value.channelScroll[props.channelID] ??
     messagesRef.value!.scrollHeight ??
     0;
   messagesRef.value?.addEventListener("scroll", scrollMethod);
 
-  watch(channelID, async () => {
+  watch(props, async () => {
     await nextTick();
     const scrollHeight = messagesRef.value?.scrollHeight ?? 0;
 
     messagesRef.value?.scroll({
       top:
-        commonData.commonData.value.channelScroll[channelID.value] ??
+        commonData.commonData.value.channelScroll[props.channelID] ??
         scrollHeight,
     });
   });
@@ -146,7 +148,7 @@ onMounted(async () => {
     const scroll = scrollHeight - (scrollTop + offsetHeight);
 
     const bottom =
-      commonData.commonData.value.channelScroll[channelID.value] ===
+      commonData.commonData.value.channelScroll[props.channelID] ===
         undefined || scroll < 1000;
 
     if (bottom)
@@ -155,7 +157,7 @@ onMounted(async () => {
       });
     else
       messagesRef.value?.scroll({
-        top: commonData.commonData.value.channelScroll[channelID.value],
+        top: commonData.commonData.value.channelScroll[props.channelID],
       });
   });
 });
@@ -192,6 +194,8 @@ const chatBox = ref({
 </template>
 
 <style lang="less" scoped>
+@import "@/assets/base.less";
+
 .messages {
   width: 100%;
   display: flex;

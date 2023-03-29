@@ -3,15 +3,18 @@
   "include": [
     "env.d.ts",
     "src/**/*",
-    "src/**/*.vue"
-, "public/worker.js"  ],
+    "src/**/*.vue",
+    "public/worker.js"
+  ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "target": "ES2017",
+    "module": "CommonJS"
   },
   "references": [
     {

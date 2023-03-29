@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Notification } from "@/stores/NotificationStore";
+import { computed } from "vue";
 
 const props = defineProps<{
   notification: Notification;
@@ -8,6 +9,15 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "kill"): void;
 }>();
+
+const pureContent = computed(() => {
+  const el = document.createElement("nyaa");
+  el.innerHTML = props.notification.message;
+
+  const pure = el.innerText;
+  el.remove();
+  return pure;
+});
 </script>
 
 <template>
@@ -36,9 +46,9 @@ const emit = defineEmits<{
         <span>
           <h2>{{ notification.extra?.user }}</h2>
           -
-          {{ notification.extra?.room + "/" + notification.extra?.channel }}
+          {{ notification.extra?.channel }}
         </span>
-        <p>{{ notification.message }}</p>
+        <p>{{ pureContent }}</p>
       </div>
     </div>
   </div>
@@ -90,53 +100,54 @@ const emit = defineEmits<{
     }
   }
 
-  // &.message {
-  //   display: flex;
-  //   flex-direction: row;
-  //   border: @accent 2px solid;
-  //   column-gap: 0.5rem;
-  //   padding: 0.5em;
+  &.message {
+    display: flex;
+    flex-direction: row;
+    border: @accent 2px solid;
+    column-gap: 0.3rem;
+    padding: 0.5em;
+    align-items: center;
 
-  //   .content {
-  //     display: flex;
-  //     flex-direction: column;
-  //     row-gap: 0.5rem;
-  //     text-overflow: ellipsis;
-  //     overflow: hidden;
-  //     white-space: nowrap;
+    .content {
+      display: flex;
+      flex-direction: column;
+      row-gap: 0.2rem;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
 
-  //     span {
-  //       display: flex;
-  //       flex-direction: row;
-  //       align-items: center;
-  //       column-gap: 0.5em;
+      span {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        column-gap: 0.5em;
 
-  //       h2 {
-  //         font-size: 15px;
-  //         font-weight: 600;
-  //       }
-  //       font-size: 13px;
-  //     }
+        h2 {
+          font-size: 0.45rem;
+          font-weight: 600;
+        }
+        font-size: 0.45rem;
+      }
 
-  //     p {
-  //       font-size: 14px;
-  //       text-overflow: ellipsis;
-  //       overflow: hidden;
-  //       white-space: nowrap;
-  //     }
-  //   }
-  //   .pfp {
-  //     width: 40px;
-  //     height: 40px;
-  //     min-height: 40px;
-  //     min-width: 40px;
-  //     img {
-  //       width: 100%;
-  //       height: 100%;
-  //       object-fit: cover;
-  //       border-radius: 1000px;
-  //     }
-  //   }
-  // }
+      p {
+        font-size: 0.45rem;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+    }
+    .pfp {
+      width: 1.1rem;
+      height: 1.1rem;
+      min-height: 1.1rem;
+      min-width: 1.1rem;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 1000px;
+      }
+    }
+  }
 }
 </style>

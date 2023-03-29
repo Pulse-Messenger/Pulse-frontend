@@ -10,6 +10,7 @@ const ProfileView = () => import("@/views/Settings/ProfileView.vue");
 const SessionsView = () => import("@/views/Settings/SessionsView.vue");
 const FriendsView = () => import("@/views/Home/FriendsView.vue");
 const MeView = () => import("@/views/Home/MeView.vue");
+const DMView = () => import("@/views/Home/DMView.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,8 +33,8 @@ const router = createRouter({
               name: "Friends",
             },
             {
-              path: "/:DMID",
-              component: () => {},
+              path: ":DMID",
+              component: DMView,
               name: "DM",
             },
           ],

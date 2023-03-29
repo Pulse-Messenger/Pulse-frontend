@@ -9,6 +9,7 @@ const channels = storeToRefs(useChannelStore()).channels;
 const inputValue = ref({
   name: "",
   description: "",
+  category: "",
 });
 const waiting = ref(false);
 
@@ -26,6 +27,7 @@ watch(props, () => {
   if (props.show && !creating.value) {
     inputValue.value.name = channels.value[props.channelID!].name;
     inputValue.value.description = channels.value[props.channelID!].description;
+    inputValue.value.category = channels.value[props.channelID!].category;
   }
 });
 
@@ -36,6 +38,7 @@ const action = async () => {
       description: inputValue.value.description,
       name: inputValue.value.name,
       roomID: props.roomID,
+      category: inputValue.value.category.trim(),
     });
     waiting.value = false;
 
@@ -46,6 +49,7 @@ const action = async () => {
       channelID: props.channelID as string,
       description: inputValue.value.description,
       name: inputValue.value.name,
+      category: inputValue.value.category.trim(),
     });
     waiting.value = false;
 
@@ -56,6 +60,7 @@ const action = async () => {
 const exit = () => {
   inputValue.value.description = "";
   inputValue.value.name = "";
+  inputValue.value.category = "";
   waiting.value = false;
 
   emit("close");
@@ -63,10 +68,10 @@ const exit = () => {
 
 const checkInput = computed(() => {
   return (
-    inputValue.value.name.length >= 1 &&
-    inputValue.value.name.length <= 32 &&
-    inputValue.value.description.length >= 1 &&
-    inputValue.value.description.length <= 50
+    inputValue.value.name.trim().length >= 1 &&
+    inputValue.value.name.trim().length <= 32 &&
+    inputValue.value.description.trim().length >= 1 &&
+    inputValue.value.description.trim().length <= 50
   );
 });
 
@@ -93,6 +98,12 @@ const creating = computed(() => {
             v-model="inputValue.description"
             type="text"
             placeholder="Channel Description"
+          />
+          <input
+            class="input-common"
+            v-model="inputValue.category"
+            type="text"
+            placeholder="Channel category"
           />
 
           <div class="buttons">

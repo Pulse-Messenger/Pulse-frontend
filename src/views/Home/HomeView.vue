@@ -15,10 +15,7 @@ const route = useRoute();
 const rooms = storeToRefs(useRoomStore()).rooms;
 
 const toRoom = async (roomID: string) => {
-  if (!rooms.value[roomID].loaded) {
-    await useRoomStore().loadRoom(roomID);
-    rooms.value[roomID].loaded = true;
-  }
+  if (!rooms.value[roomID].loaded) await useRoomStore().loadRoom(roomID);
 
   const channel = Object.keys(useRoomStore().getRoomChannels(roomID))[0];
   if (channel)

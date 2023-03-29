@@ -107,6 +107,7 @@ export const useChannelStore = defineStore("channel", () => {
     name: string;
     description: string;
     roomID: string;
+    category?: string;
   }) => {
     try {
       await APIInstance.request({
@@ -114,7 +115,7 @@ export const useChannelStore = defineStore("channel", () => {
         url: `/channels/create/`,
         data: {
           ...data,
-          category: "Welcome",
+          category: data.category ?? "",
         },
       });
       return true;
@@ -139,6 +140,7 @@ export const useChannelStore = defineStore("channel", () => {
     channelID: string;
     name: string;
     description: string;
+    category?: string;
   }) => {
     try {
       await APIInstance.request({
@@ -147,7 +149,7 @@ export const useChannelStore = defineStore("channel", () => {
         data: {
           name: data.name,
           description: data.description,
-          category: "Welcome",
+          category: data.category ?? channels.value[data.channelID].category,
         },
       });
       return true;

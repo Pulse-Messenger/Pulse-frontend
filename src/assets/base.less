@@ -29,15 +29,15 @@ Common Vars
 }
 
 #app.light {
-  --background: linear-gradient(-45deg, #9ac7e8, #eda5cd);
-  --background-light: #d6c7e8;
+  --background: #fdf4ff;
+  --background-light: #ffffff;
   --foreground: #14131c;
   --foreground-light: #42404d;
-  --special: #ffffff3a;
-  --accent: #ec76b7;
-  --accent-s: #8879ff;
+  --special: #c7c3c33a;
+  --accent: #c3a3ff;
+  --accent-s: #dd94dd;
 
-  --error: #f76079;
+  --error: #f88295;
   --warn: #f3df6b;
   --info: #ac91dd;
 }
@@ -89,17 +89,17 @@ body,
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px !important;
 }
 
 ::-webkit-scrollbar-track {
-  background: @background-light;
-  border-radius: 5px;
+  background: @background-light !important;
+  border-radius: 5px !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(15deg, @accent, @accent-s);
-  border-radius: 10px;
+  background: @special !important;
+  border-radius: 10px !important;
 }
 
 li {

@@ -60,29 +60,24 @@ export const useAuthStore = defineStore("auth", () => {
   };
 
   const login = async (loginData: LoginData) => {
-    try {
-      const res = await APIInstance.request({
-        method: "POST",
-        url: "/auth/login",
-        data: {
-          username: loginData.username,
-          password: loginData.password,
-        },
-      });
+    const res = await APIInstance.request({
+      method: "POST",
+      url: "/auth/login",
+      data: {
+        username: loginData.username,
+        password: loginData.password,
+      },
+    });
 
-      if (res.status === 200) {
-        isLoggedIn.value = true;
-        token.value = res.data.token;
+    if (res.status === 200) {
+      isLoggedIn.value = true;
+      token.value = res.data.token;
 
-        localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.data.token);
 
-        return true;
-      }
-      return false;
-    } catch (err: any) {
-      if (err.response) throw { errors: err.response.data.errors };
-      else throw err;
+      return true;
     }
+    return false;
   };
 
   const checkPassword = async (password: string) => {

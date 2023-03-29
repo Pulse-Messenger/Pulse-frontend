@@ -25,7 +25,7 @@ const getChannel = computed(() => {
     <div class="head">
       <h2 class="name no-txt-overflow">{{ getChannel?.description }}</h2>
     </div>
-    <MessageListComponent></MessageListComponent>
+    <MessageListComponent :channelID="channelID"></MessageListComponent>
   </div>
 </template>
 
@@ -54,10 +54,6 @@ const getChannel = computed(() => {
       font-weight: 500;
       width: 100%;
     }
-  }
-
-  ::-webkit-scrollbar-track {
-    display: none;
   }
 }
 </style>

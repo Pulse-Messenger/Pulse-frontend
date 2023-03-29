@@ -6,6 +6,7 @@ import { useChannelStore } from "@/stores/ChannelStore";
 import { useUserStore, type User } from "@/stores/UserStore";
 import { useCommonStore } from "@/stores/CommonStore";
 import router from "@/router";
+import { useRoute } from "vue-router";
 
 const loadRoomWebsockets = () => {
   const rooms = storeToRefs(useRoomStore()).rooms;
@@ -30,27 +31,41 @@ const loadRoomWebsockets = () => {
   });
 
   socket.on("rooms:create", async (data: { room: Room }) => {
-    await useRoomStore().getOneRoom(data.room.id);
-    activeUser.value?.rooms.push(data.room.id);
+    const res = await useRoomStore().getOneRoom(data.room.id);
+    if (res) activeUser.value?.rooms.push(data.room.id);
+  });
+
+  socket.on("DMs:create", async (data: { room: Room }) => {
+    const res = await useRoomStore().getOneRoom(data.room.id);
+    if (res) activeUser.value?.DMs.push(data.room.id);
+  });
+
+  socket.on("DMs:deleteOne", async (data: { roomID: string }) => {
+    if (router.currentRoute.value.params.DMID)
+      await router.push({ name: "Me" });
+
+    const DM = rooms.value[data.roomID];
+    DM.channels.forEach((ch) => {
+      delete channels.value[ch];
+    });
+    delete rooms.value[data.roomID];
+
+    const newDMs: string[] = [];
+    activeUser.value?.DMs.forEach((r) => {
+      if (r != data.roomID) newDMs.push(r);
+    });
+    activeUser.value!.DMs = newDMs;
   });
 
   socket.on("rooms:join", async (data: { roomID: string; user: User }) => {
     const room = rooms.value[data.roomID];
 
     if (data.user.id === activeUser.value?.id) {
-      try {
-        await useRoomStore().getOneRoom(data.roomID);
-        activeUser.value.rooms.push(data.roomID);
-      } catch (_) {
-        return;
-      }
+      const res = await useRoomStore().getOneRoom(data.roomID);
+      if (res) activeUser.value.rooms.push(data.roomID);
     } else {
-      try {
-        users.value[data.user.id] = { ...data.user };
-        room.members.push(data.user.id);
-      } catch (_) {
-        return;
-      }
+      users.value[data.user.id] = { ...data.user };
+      room.members.push(data.user.id);
     }
   });
 
@@ -58,34 +73,26 @@ const loadRoomWebsockets = () => {
     const room = rooms.value[data.roomID];
 
     if (data.userID === activeUser.value?.id) {
-      try {
-        await router.push({ name: "Me" });
+      await router.push({ name: "Me" });
 
-        const room = rooms.value[data.roomID];
-        room.channels.forEach((ch) => {
-          delete channels.value[ch];
-        });
-        delete rooms.value[data.roomID];
+      const room = rooms.value[data.roomID];
+      room.channels.forEach((ch) => {
+        delete channels.value[ch];
+      });
+      delete rooms.value[data.roomID];
 
-        const newRooms: string[] = [];
-        activeUser.value?.rooms.forEach((r) => {
-          if (r != data.roomID) newRooms.push(r);
-        });
+      const newRooms: string[] = [];
+      activeUser.value?.rooms.forEach((r) => {
+        if (r != data.roomID) newRooms.push(r);
+      });
 
-        activeUser.value!.rooms = newRooms;
-      } catch (_) {
-        return;
-      }
+      activeUser.value!.rooms = newRooms;
     } else {
-      try {
-        const members: string[] = [];
-        room.members.forEach((m) => {
-          if (m != data.userID) members.push(m);
-        });
-        room.members = members;
-      } catch (_) {
-        return;
-      }
+      const members: string[] = [];
+      room.members.forEach((m) => {
+        if (m != data.userID) members.push(m);
+      });
+      room.members = members;
     }
   });
 };

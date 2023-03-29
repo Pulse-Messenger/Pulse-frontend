@@ -1,7 +1,6 @@
 import { storeToRefs } from "pinia";
 
 import { socket } from "@/utils/Socket";
-import { useCommonStore } from "@/stores/CommonStore";
 import { useNotesStore } from "@/stores/NoteStore";
 
 const loadNoteWebsockets = () => {

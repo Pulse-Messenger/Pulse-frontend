@@ -1,21 +1,119 @@
 <script setup lang="ts">
+import XIcon from "@/icons/XIcon.vue";
 import { useCommonStore } from "@/stores/CommonStore";
+import { useUserStore } from "@/stores/UserStore";
+import NewFriendModalComponent from "@/components/modals/NewFriendModalComponent.vue";
+
 import { storeToRefs } from "pinia";
+import { ref } from "vue";
+import { useRoomStore } from "@/stores/RoomStore";
 
 const friendships = storeToRefs(useCommonStore()).friendsData;
+const users = storeToRefs(useUserStore()).users;
+const roomStore = useRoomStore();
+
+const showModal = ref(false);
+
+const getStatus = (friendshipID: string) => {
+  const fr = friendships.value[friendshipID];
+
+  if (useCommonStore().activeUserData?.id === fr.creator && !fr.accepted)
+    return "pending";
+  else if (useCommonStore().activeUserData?.id !== fr.creator && !fr.accepted)
+    return "accept";
+  else return "message";
+};
+
+const manageFriendship = async (
+  status: "accept" | "message" | "cancel" | "reject",
+  friendID: string
+) => {
+  if (status === "message") {
+    await roomStore.createDM(friendID);
+    return;
+  }
+
+  const data = {
+    userID: friendID,
+    action: status,
+    success: "",
+    error: "",
+  };
+  switch (status) {
+    case "accept":
+      data.success = "Friend request accepted";
+      data.error = "Failed to accept friend request";
+      break;
+    case "cancel":
+      data.success = "Friend removed";
+      data.error = "Failed to remove friend";
+      break;
+    case "reject":
+      data.success = "Friend request rejected";
+      data.error = "Failed to reject friend request";
+      break;
+  }
+
+  await useCommonStore().manageFriendship(data);
+};
 </script>
 
 <template>
   <div class="friendlist">
-    <table>
-      <tr>
-        <td>User</td>
-        <td></td>
-      </tr>
-      <tr v-for="(friend, index) in friendships" :key="index">
-        
-      </tr>
-    </table>
+    <button class="new-friend button-small" @click="showModal = true">
+      Add friend
+    </button>
+    <div v-if="Object.keys(friendships).length === 0">
+      <p>No friends</p>
+    </div>
+    <div class="table">
+      <div class="row" v-for="(friend, id) in friendships" :key="id">
+        <div class="username no-txt-overflow">
+          <div class="pfp">
+            <img :src="users[id].profilePic ?? '/icons/User.svg'" alt="pfp" />
+          </div>
+          <div class="no-txt-overflow">
+            {{ users[id].username }}
+          </div>
+        </div>
+        <div class="status">
+          <button
+            class="button-small"
+            v-if="getStatus(id.toString()) === 'message'"
+            @click="manageFriendship('message', id.toString())"
+          >
+            Message
+          </button>
+          <button
+            class="button-small"
+            v-if="getStatus(id.toString()) === 'accept'"
+            @click="manageFriendship('accept', id.toString())"
+          >
+            Accept
+          </button>
+          <div v-if="getStatus(id.toString()) === 'pending'" class="pending">
+            Pending
+          </div>
+          <div
+            class="remove"
+            @click="
+              () => {
+                if (getStatus(id.toString()) == 'pending')
+                  manageFriendship('reject', id.toString());
+                else manageFriendship('cancel', id.toString());
+              }
+            "
+          >
+            <XIcon></XIcon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <NewFriendModalComponent
+      :show="showModal"
+      @close="showModal = false"
+    ></NewFriendModalComponent>
   </div>
 </template>
 
@@ -23,5 +121,76 @@ const friendships = storeToRefs(useCommonStore()).friendsData;
 @import "@/assets/base.less";
 
 .friendlist {
+  padding: 1rem 2rem;
+  width: 100%;
+  max-width: 30rem;
+  overflow: auto;
+
+  .new-friend {
+    margin: 0.5rem 0;
+  }
+
+  .table {
+    display: flex;
+    flex-direction: column;
+
+    .row {
+      font-size: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      column-gap: 0.3rem;
+      align-items: center;
+      padding: 0.3rem 0;
+
+      border-bottom: 1px solid @special;
+
+      .status {
+        display: flex;
+        align-items: center;
+        column-gap: 0.4rem;
+
+        .pending {
+          color: @warn;
+        }
+
+        .remove {
+          display: flex;
+          align-items: center;
+
+          svg {
+            height: 0.9rem;
+            width: 0.9rem;
+            cursor: pointer;
+          }
+        }
+      }
+
+      .username {
+        display: flex;
+        align-items: center;
+        column-gap: 0.2rem;
+
+        .pfp {
+          width: 1.5rem;
+          height: 1.5rem;
+
+          img {
+            border-radius: 1000px;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+      }
+
+      td {
+        color: @foreground;
+      }
+    }
+
+    .row:last-child {
+      border: none;
+    }
+  }
 }
 </style>

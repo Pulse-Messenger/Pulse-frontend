@@ -2,6 +2,7 @@ import { APIInstance, mediaInstance } from "@/utils/Axios";
 import { defineStore } from "pinia";
 import { ref, shallowReactive, watch, type Component } from "vue";
 import { useNotificationStore } from "./NotificationStore";
+import { useUserStore } from "./UserStore";
 
 export interface CommonData {
   channelScroll: { [key: string]: number };
@@ -67,6 +68,7 @@ export interface UserPreferences {
 }
 
 export interface Friendship {
+  creator: string;
   friend: string;
   accepted: boolean;
 }
@@ -143,11 +145,13 @@ export const useCommonStore = defineStore("common", () => {
         url: "/friendships/get",
       });
 
-      friends.data.friendships.forEach((f: any) => {
+      friends.data.friendships.forEach(async (f: any) => {
         const id =
           f.creator === activeUserData.value?.id ? f.friend : f.creator;
+        await useUserStore().fetchUser(id);
 
         friendsData.value[id] = {
+          creator: f.creator,
           friend: id,
           accepted: f.accepted,
         };

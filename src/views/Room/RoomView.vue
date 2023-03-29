@@ -8,12 +8,12 @@ import { APIInstance } from "@/utils/Axios";
 import { useNotificationStore } from "@/stores/NotificationStore";
 import { useCommonStore } from "@/stores/CommonStore";
 import ChannelModalComponent from "@/components/modals/ChannelModalComponent.vue";
-import SettingIcon from "@/icons/SettingIcon.vue";
+import MenuIcon from "@/icons/MenuIcon.vue";
 import UserIcon from "@/icons/UserIcon.vue";
 import DeleteIcon from "@/icons/DeleteIcon.vue";
 import ExitIcon from "@/icons/ExitIcon.vue";
 import Hashtag from "@/icons/HashtagIcon.vue";
-import { useChannelStore } from "@/stores/ChannelStore";
+import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import PencilIcon from "@/icons/PencilIcon.vue";
 import CopyIcon from "@/icons/CopyIcon.vue";
 import UserModalComponent from "@/components/modals/UserModalComponent.vue";
@@ -26,7 +26,18 @@ const roomID = computed(() => {
 });
 
 const channels = computed(() => {
-  return useRoomStore().getRoomChannels(roomID.value);
+  const chs = useRoomStore().getRoomChannels(roomID.value);
+  const categories: {
+    [key: string]: {
+      [id: string]: Channel;
+    };
+  } = {};
+
+  for (const chID in chs) {
+    if (!categories[chs[chID].category]) categories[chs[chID].category] = {};
+    categories[chs[chID].category][chID] = chs[chID];
+  }
+  return categories;
 });
 
 const channelsRef = ref();
@@ -51,8 +62,6 @@ const channelModal = ref({
   show: false,
   channelID: "",
 });
-
-onMounted(() => {});
 
 const getProfilePic = (uid: string) => {
   return members.value[uid].profilePic ?? "/icons/User.svg";
@@ -165,10 +174,7 @@ const generateInvite = async () => {
     <nav class="room-nav">
       <div class="head">
         <h2 class="name no-txt-overflow">{{ rooms[roomID]?.name }}</h2>
-        <SettingIcon
-          class="room-settings"
-          @click="openRoomOptions"
-        ></SettingIcon>
+        <MenuIcon class="room-settings" @click="openRoomOptions"></MenuIcon>
         <ChannelModalComponent
           :channelID="channelModal.channelID"
           :roomID="roomID"
@@ -182,17 +188,24 @@ const generateInvite = async () => {
         ></ChannelModalComponent>
       </div>
       <div class="channels" ref="channelsRef">
-        <RouterLink
-          :to="toChannel(index.toString())"
-          class="channel no-txt-overflow"
-          v-for="(item, index) in channels"
-          :key="index"
-          :channelID="index"
-          @contextmenu="openChannelOptions(item.id)"
+        <div
+          class="category"
+          v-for="(cat, catIndex) in channels"
+          :key="catIndex"
         >
-          <Hashtag class="channel-tag"></Hashtag>
-          {{ item.name }}
-        </RouterLink>
+          <h3>{{ catIndex ?? "none" }}</h3>
+          <RouterLink
+            :to="toChannel(channelIndex.toString())"
+            class="channel no-txt-overflow"
+            v-for="(channel, channelIndex) in cat"
+            :key="channelIndex"
+            :channelID="channelIndex"
+            @contextmenu="openChannelOptions(channel.id)"
+          >
+            <Hashtag class="channel-tag"></Hashtag>
+            {{ channel.name }}
+          </RouterLink>
+        </div>
       </div>
     </nav>
     <RouterView v-if="useRoute().params['channelID']"></RouterView>
@@ -241,11 +254,21 @@ const generateInvite = async () => {
   height: 100%;
   margin: 0 auto;
 
+  ::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: @special;
+  }
+
   .room-nav {
     width: 7rem;
+    height: 100vh;
     background: @background-light;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
     box-shadow: 5px 3px 5px @background;
     z-index: 10;
 
@@ -253,22 +276,24 @@ const generateInvite = async () => {
       padding: 0.3rem;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       column-gap: 0.5rem;
       box-shadow: 5px 3px 5px @background;
       height: 1.5rem;
 
       .room-settings {
         padding: 0.1rem;
-        width: 0.8rem;
-        height: 0.8rem;
-        min-width: 0.8rem;
-        min-height: 0.8rem;
+        width: 1rem;
+        height: 1rem;
+        min-width: 1rem;
+        min-height: 1rem;
         cursor: pointer;
       }
 
       .name {
         font-size: 0.5rem;
         font-weight: 600;
+        height: fit-content;
       }
     }
 
@@ -277,27 +302,33 @@ const generateInvite = async () => {
       flex-direction: column;
       padding: 0.3rem 0.2rem;
 
-      .channel {
-        width: 100%;
-        padding: 0.2rem 0.2rem;
-        cursor: pointer;
-        font-size: 0.49rem;
-        border-radius: 5px;
-        transition: 0.2s ease all;
-        display: flex;
-        column-gap: 0.2rem;
-        align-items: center;
-        color: @foreground;
-
-        &:hover {
-          background: @background;
+      .category {
+        padding: 0.3rem 0;
+        & > h3 {
+          font-size: 0.45rem;
         }
+        .channel {
+          width: 100%;
+          padding: 0.2rem 0.2rem;
+          cursor: pointer;
+          font-size: 0.49rem;
+          border-radius: 5px;
+          transition: 0.2s ease all;
+          display: flex;
+          column-gap: 0.2rem;
+          align-items: center;
+          color: @foreground;
 
-        .channel-tag {
-          width: 0.5rem;
-          height: 0.5rem;
-          min-width: 0.5rem;
-          min-height: 0.5rem;
+          &:hover {
+            background: @background;
+          }
+
+          .channel-tag {
+            width: 0.5rem;
+            height: 0.5rem;
+            min-width: 0.5rem;
+            min-height: 0.5rem;
+          }
         }
       }
     }

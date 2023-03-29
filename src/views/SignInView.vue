@@ -87,6 +87,10 @@ const register = async () => {
   try {
     await authStore.register(registerData.value);
     mode.value = "login";
+    notificationStore.pushAlert({
+      type: "info",
+      message: "Check your email and confirm it",
+    });
   } catch (errs: any) {
     const { errors } = errs.response?.data.errors ?? errs;
 
@@ -114,7 +118,7 @@ const login = async () => {
   } catch (errs: any) {
     notificationStore.pushAlert({
       type: "error",
-      message: "Wrong username or password",
+      message: errs.response.data.errors[0] ?? "Failed to login",
     });
   }
 };
