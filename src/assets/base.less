@@ -1,0 +1,107 @@
+@import (css)
+  url("https://fonts.googleapis.com/css2?family=Secular+One&display=swap");
+@import (css)
+  url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&display=swap");
+
+:root {
+  font-size: 28px;
+}
+
+/* 
+
+Common Vars
+
+*/
+
+#app,
+#app.dark {
+  --background: #1d1c20;
+  --background-light: #292930;
+  --foreground: #d1cbd3;
+  --foreground-light: #fdfdfd;
+  --special: #fdfdfd3a;
+  --accent: #f84e6a;
+  --accent-s: #5767ff;
+
+  --error: #f8a1b0;
+  --warn: #f8d3b1;
+  --info: #b8effd;
+}
+
+#app.light {
+  --background: #fdf4ff;
+  --background-light: #ffffff;
+  --foreground: #14131c;
+  --foreground-light: #42404d;
+  --special: #c7c3c33a;
+  --accent: #c3a3ff;
+  --accent-s: #dd94dd;
+
+  --error: #f88295;
+  --warn: #f3df6b;
+  --info: #ac91dd;
+}
+
+@accent: var(--accent);
+@accent-s: var(--accent-s);
+@special: var(--special);
+
+@error: var(--error);
+@warn: var(--warn);
+@info: var(--info);
+
+@background: var(--background);
+@background-light: var(--background-light);
+@foreground: var(--foreground);
+@foreground-light: var(--foreground-light);
+
+@common-border: 10px;
+
+@font-normal: 500;
+
+/*
+
+Base Properties
+
+*/
+
+*,
+*::before,
+*::after {
+  padding: 0;
+  margin: 0;
+  font-weight: @font-normal;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: Poppins;
+  color: @foreground-light;
+  user-select: none;
+  position: relative;
+}
+
+html,
+body,
+#app {
+  width: 100vw;
+  height: 100vh;
+  background: @background;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: @background-light !important;
+  border-radius: 5px !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: @special !important;
+  border-radius: 10px !important;
+}
+
+li {
+  list-style-position: inside;
+}
