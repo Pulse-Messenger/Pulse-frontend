@@ -30,3 +30,15 @@ npm preview
 ```bash
 npm run dev
 ```
+
+## Docker
+
+```bash
+# build with
+docker build -t client .
+
+# run with
+docker run 
+  -p 8080:8080
+  --env-file .env
+```

@@ -118,7 +118,7 @@ const login = async () => {
   } catch (errs: any) {
     notificationStore.pushAlert({
       type: "error",
-      message: errs.response.data.errors[0] ?? "Failed to login",
+      message: errs.response?.data.errors[0] ?? "Failed to login",
     });
   }
 };
