@@ -22,7 +22,7 @@ export const useUserStore = defineStore("user", () => {
         url: `/users/getOne/${userID}`,
       });
 
-      users.value.set(data._ID, {
+      users.value.set(data._id, {
         about: data.about,
         displayName: data.displayName,
         globalRoles: data.globalRoles,

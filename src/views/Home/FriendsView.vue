@@ -62,14 +62,14 @@ const manageFriendship = async (
 
 const dmExists = (friendID: string) => {
   let doesntExist = true;
-  for (const id in roomStore.rooms) {
+  roomStore.rooms.forEach((v, id) => {
     if (roomStore.rooms.get(id)?.friendship)
       if (
         roomStore.rooms.get(id)?.friendship?.friendA === friendID ||
         roomStore.rooms.get(id)?.friendship?.friendB === friendID
       )
         doesntExist = false;
-  }
+  });
   return doesntExist;
 };
 </script>
