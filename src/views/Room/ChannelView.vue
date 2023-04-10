@@ -14,7 +14,7 @@ const channelID = computed((): string => {
 });
 
 const getChannel = computed(() => {
-  const channel = channelStore.channels.value[channelID.value];
+  const channel = channelStore.channels.value.get(channelID.value);
 
   return channel;
 });

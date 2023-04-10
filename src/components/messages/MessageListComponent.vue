@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router";
 import { computed, ref, watch, onMounted, nextTick, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 
 import MessageComponent from "@/components/messages/MessageComponent.vue";
-import { useCommonStore } from "@/stores/CommonStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { useChannelStore } from "@/stores/ChannelStore";
 import CopyIcon from "@/icons/CopyIcon.vue";
 import PencilIcon from "@/icons/PencilIcon.vue";
@@ -12,9 +11,11 @@ import DeleteIcon from "@/icons/DeleteIcon.vue";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useNotificationStore } from "@/stores/NotificationStore";
 import ChatBoxComponent from "@/components/messages/ChatBoxComponent.vue";
+import { useCommonStore } from "@/stores/CommonStore";
 
 const messagesRef = ref<HTMLElement>();
-const commonData = storeToRefs(useCommonStore());
+const activeUserData = storeToRefs(useActiveUserStore());
+const commonStore = useCommonStore();
 const roomStore = useRoomStore();
 const channelStore = useChannelStore();
 
@@ -35,15 +36,16 @@ const emits = defineEmits<{
 
 const triggerInteract = (messageID: string) => {
   const roomOwner =
-    roomStore.rooms[channelStore.channels[props.channelID].room].creatorID ===
-      commonData.activeUserData.value?.id &&
-    !roomStore.rooms[channelStore.channels[props.channelID].room].friendship;
+    roomStore.rooms.get(channelStore.channels.get(props.channelID)!.room)
+      ?.creatorID === activeUserData.activeUserData.value?.id &&
+    !roomStore.rooms.get(channelStore.channels.get(props.channelID)!.room)
+      ?.friendship;
 
   const messageSender =
-    useChannelStore().channels[props.channelID].messages[messageID].sender ==
-    commonData.activeUserData.value?.id;
+    useChannelStore().channels.get(props.channelID)?.messages.get(messageID)
+      ?.sender == activeUserData.activeUserData.value?.id;
 
-  useCommonStore().showModal([
+  commonStore.showModal([
     {
       condition: () => roomOwner || messageSender,
       action: async () => await useChannelStore().deleteMessage(messageID),
@@ -90,14 +92,14 @@ const triggerInteract = (messageID: string) => {
 };
 
 const scrollMethod = async () => {
-  commonData.commonData.value.channelScroll[props.channelID] =
+  commonStore.commonData.channelScroll[props.channelID] =
     messagesRef.value?.scrollTop ?? 0;
 
   if (
-    !commonData.commonData.value.fetchingMessages[props.channelID] &&
+    !commonStore.commonData.fetchingMessages[props.channelID] &&
     (messagesRef.value?.scrollTop ?? 0) < 300
   ) {
-    commonData.commonData.value.fetchingMessages[props.channelID] = true;
+    commonStore.commonData.fetchingMessages[props.channelID] = true;
 
     const oldHeight = messagesRef.value?.scrollHeight ?? 0;
 
@@ -110,7 +112,7 @@ const scrollMethod = async () => {
       messagesRef.value!.scroll({
         top: (messagesRef.value?.scrollTop ?? 0) + (newHeight - oldHeight),
       });
-      commonData.commonData.value.fetchingMessages[props.channelID] = false;
+      commonStore.commonData.fetchingMessages[props.channelID] = false;
     }
   }
 };
@@ -119,7 +121,7 @@ onMounted(async () => {
   await nextTick();
 
   messagesRef.value!.scrollTop =
-    commonData.commonData.value.channelScroll[props.channelID] ??
+    commonStore.commonData.channelScroll[props.channelID] ??
     messagesRef.value!.scrollHeight ??
     0;
   messagesRef.value?.addEventListener("scroll", scrollMethod);
@@ -130,8 +132,7 @@ onMounted(async () => {
 
     messagesRef.value?.scroll({
       top:
-        commonData.commonData.value.channelScroll[props.channelID] ??
-        scrollHeight,
+        commonStore.commonData.channelScroll[props.channelID] ?? scrollHeight,
     });
   });
 
@@ -148,8 +149,8 @@ onMounted(async () => {
     const scroll = scrollHeight - (scrollTop + offsetHeight);
 
     const bottom =
-      commonData.commonData.value.channelScroll[props.channelID] ===
-        undefined || scroll < 1000;
+      commonStore.commonData.channelScroll[props.channelID] === undefined ||
+      scroll < 1000;
 
     if (bottom)
       messagesRef.value?.scroll({
@@ -157,7 +158,7 @@ onMounted(async () => {
       });
     else
       messagesRef.value?.scroll({
-        top: commonData.commonData.value.channelScroll[props.channelID],
+        top: commonStore.commonData.channelScroll[props.channelID],
       });
   });
 });
@@ -175,13 +176,13 @@ const chatBox = ref({
 <template>
   <div class="messages" ref="messagesRef">
     <MessageComponent
-      :message="item"
+      :message="item!"
       class="message"
-      v-for="(item, index) in channelData.messages"
+      v-for="(item, index) in channelData.messages.values()"
       :continuing="false"
       :key="index"
-      :messageID="item.id"
-      @contextmenu="triggerInteract(item.id)"
+      :messageID="item!.id"
+      @contextmenu="triggerInteract(item!.id)"
     >
     </MessageComponent>
   </div>
@@ -207,5 +208,10 @@ const chatBox = ref({
   overflow-y: auto;
   overflow-x: hidden;
   align-items: stretch;
+  user-select: text !important;
+
+  :deep(*) {
+    user-select: text !important;
+  }
 }
 </style>

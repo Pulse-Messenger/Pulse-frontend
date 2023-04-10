@@ -1,16 +1,16 @@
 import { storeToRefs } from "pinia";
 
 import { socket } from "@/utils/Socket";
-import { useCommonStore, type Friendship } from "@/stores/CommonStore";
+import { useActiveUserStore, type Friendship } from "@/stores/ActiveUserStore";
 import { useUserStore } from "@/stores/UserStore";
 
 const loadFriendshipWebsockets = () => {
-  const friendsData = storeToRefs(useCommonStore()).friendsData;
+  const friendsData = storeToRefs(useActiveUserStore()).friendsData;
 
   socket.on("friendship:new", async (data: { friendship: Friendship }) => {
     const { friendship } = data;
     const id =
-      friendship.creator === useCommonStore().activeUserData?.id
+      friendship.creator === useActiveUserStore().activeUserData?.id
         ? friendship.friend
         : friendship.creator;
     await useUserStore().fetchUser(id);

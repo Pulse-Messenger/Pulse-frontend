@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 
 import { useRoomStore } from "@/stores/RoomStore";
@@ -17,9 +17,12 @@ import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import PencilIcon from "@/icons/PencilIcon.vue";
 import CopyIcon from "@/icons/CopyIcon.vue";
 import UserModalComponent from "@/components/modals/UserModalComponent.vue";
+import EditRoomModalComponent from "@/components/modals/EditRoomModalComponent.vue";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const rooms = storeToRefs(useRoomStore()).rooms;
-const commonData = useCommonStore();
+const commonStore = useCommonStore();
+const activeUserStore = useActiveUserStore();
 
 const roomID = computed(() => {
   return useRoute().params.roomID.toString();
@@ -33,10 +36,11 @@ const channels = computed(() => {
     };
   } = {};
 
-  for (const chID in chs) {
-    if (!categories[chs[chID].category]) categories[chs[chID].category] = {};
-    categories[chs[chID].category][chID] = chs[chID];
-  }
+  chs.forEach((ch, chID) => {
+    if (!categories[chs.get(chID)!.category])
+      categories[chs.get(chID)!.category] = {};
+    categories[chs.get(chID)!.category][chID] = chs.get(chID)!;
+  });
   return categories;
 });
 
@@ -63,8 +67,13 @@ const channelModal = ref({
   channelID: "",
 });
 
+const roomModal = ref({
+  show: false,
+  roomID: "",
+});
+
 const getProfilePic = (uid: string) => {
-  return members.value[uid].profilePic ?? "/icons/User.svg";
+  return members.value.get(uid)?.profilePic ?? "/icons/User.svg";
 };
 
 const copyChannel = async (channelID: string) => {
@@ -88,10 +97,10 @@ const copyChannel = async (channelID: string) => {
 
 const openRoomOptions = () => {
   const roomOwner =
-    useRoomStore().rooms[roomID.value].creatorID ==
-    commonData.activeUserData?.id;
+    useRoomStore().rooms.get(roomID.value)?.creatorID ==
+    activeUserStore.activeUserData?.id;
 
-  useCommonStore().showModal([
+  commonStore.showModal([
     {
       condition: () => roomOwner,
       action: generateInvite,
@@ -105,6 +114,12 @@ const openRoomOptions = () => {
       },
       icon: Hashtag,
       title: "Create channel",
+    },
+    {
+      condition: () => roomOwner,
+      action: async () => (roomModal.value.show = true),
+      icon: PencilIcon,
+      title: "Edit room",
     },
     {
       condition: () => roomOwner,
@@ -123,10 +138,10 @@ const openRoomOptions = () => {
 
 const openChannelOptions = (channelID: string) => {
   const roomOwner =
-    useRoomStore().rooms[roomID.value].creatorID ==
-    commonData.activeUserData?.id;
+    useRoomStore().rooms.get(roomID.value)?.creatorID ==
+    activeUserStore.activeUserData?.id;
 
-  useCommonStore().showModal([
+  commonStore.showModal([
     {
       condition: () => true,
       action: async () => await copyChannel(channelID),
@@ -164,7 +179,10 @@ const generateInvite = async () => {
       message: "Invite code copied to clipboard",
     });
   } catch (_) {
-    return;
+    useNotificationStore().pushAlert({
+      type: "error",
+      message: "Failed to create invite",
+    });
   }
 };
 </script>
@@ -173,7 +191,7 @@ const generateInvite = async () => {
   <div class="room">
     <nav class="room-nav">
       <div class="head">
-        <h2 class="name no-txt-overflow">{{ rooms[roomID]?.name }}</h2>
+        <h2 class="name no-txt-overflow">{{ rooms.get(roomID)?.name }}</h2>
         <MenuIcon class="room-settings" @click="openRoomOptions"></MenuIcon>
         <ChannelModalComponent
           :channelID="channelModal.channelID"
@@ -213,9 +231,9 @@ const generateInvite = async () => {
     <div class="room-members">
       <div
         class="member"
-        v-for="(item, index) in members"
+        v-for="(item, index) in members.values()"
         :key="index"
-        :memberID="index"
+        :memberID="item.id"
         @click="
           () => {
             userModal.show = true;
@@ -224,7 +242,7 @@ const generateInvite = async () => {
         "
       >
         <div class="member-image">
-          <img :src="getProfilePic(index.toString())" />
+          <img :src="getProfilePic(item.id)" />
         </div>
         <span class="no-txt-overflow">
           {{ item.displayName }}
@@ -241,6 +259,11 @@ const generateInvite = async () => {
         }
       "
     ></UserModalComponent>
+    <EditRoomModalComponent
+      :show="roomModal.show"
+      :roomID="roomID"
+      @close="roomModal.show = false"
+    ></EditRoomModalComponent>
   </div>
 </template>
 

@@ -1,9 +1,9 @@
 import { APIInstance } from "@/utils/Axios";
-import { useCommonStore } from "./CommonStore";
 
 import { defineStore, storeToRefs } from "pinia";
 import { ref } from "vue";
 import { useNotificationStore } from "./NotificationStore";
+import { useActiveUserStore } from "./ActiveUserStore";
 
 interface Note {
   id: string;
@@ -17,7 +17,7 @@ export const useNotesStore = defineStore("note", () => {
     [userID: string]: string;
   }>({});
 
-  const activeUserData = storeToRefs(useCommonStore()).activeUserData;
+  const activeUserData = storeToRefs(useActiveUserStore()).activeUserData;
 
   const saveNote = async (userID: string, note: string) => {
     try {

@@ -5,39 +5,41 @@ import { storeToRefs } from "pinia";
 
 import UserModalComponent from "@/components/modals/UserModalComponent.vue";
 import MessageListComponent from "@/components/messages/MessageListComponent.vue";
-import { useChannelStore } from "@/stores/ChannelStore";
+import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import { useRoomStore } from "@/stores/RoomStore";
-import { useCommonStore } from "@/stores/CommonStore";
 import { useUserStore } from "@/stores/UserStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const channels = storeToRefs(useChannelStore()).channels;
 const users = storeToRefs(useUserStore()).users;
-const activeUserData = storeToRefs(useCommonStore()).activeUserData;
+const activeUserData = storeToRefs(useActiveUserStore()).activeUserData;
 const rooms = storeToRefs(useRoomStore()).rooms;
 const route = useRoute();
 
 const DMID = computed((): string => {
-  return route.params.DMID.toString();
+  return route.params.DMID?.toString();
 });
 
 const DMData = (id: string) => {
   const friend =
-    rooms.value[id]?.friendship?.friendA === activeUserData.value?.id
-      ? rooms.value[id]?.friendship?.friendB
-      : rooms.value[id]?.friendship?.friendA;
+    rooms.value.get(id)?.friendship?.friendA === activeUserData.value?.id
+      ? rooms.value.get(id)?.friendship?.friendB
+      : rooms.value.get(id)?.friendship?.friendA;
 
   return friend ?? "";
 };
 
 const channel = computed(() => {
-  const channel = channels.value[rooms.value[DMID.value].channels[0]] ?? {};
+  const channel =
+    channels.value.get(rooms.value.get(DMID.value)?.channels[0] ?? "") ??
+    ({} as Channel);
 
   return channel;
 });
 
 const userModal = ref({
   show: false,
-  userID: users.value[DMData(DMID.value)].id,
+  userID: users.value.get(DMData(DMID.value))?.id,
 });
 </script>
 
@@ -45,14 +47,14 @@ const userModal = ref({
   <div class="channel">
     <div class="head">
       <h2 class="name no-txt-overflow" @click="userModal.show = true">
-        {{ users[DMData(DMID)].displayName }}
+        {{ users.get(DMData(DMID))?.displayName ?? "" }}
       </h2>
     </div>
     <MessageListComponent :channelID="channel.id"></MessageListComponent>
   </div>
   <UserModalComponent
     :show="userModal.show"
-    :userID="userModal.userID"
+    :userID="userModal.userID!"
     @close="
       () => {
         userModal.show = false;

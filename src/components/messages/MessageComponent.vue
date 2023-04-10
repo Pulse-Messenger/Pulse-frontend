@@ -4,6 +4,7 @@ import { computed } from "vue";
 import { useUserStore } from "@/stores/UserStore";
 import type { User } from "@/stores/UserStore";
 import type { Message } from "@/stores/ChannelStore";
+import { marked } from "marked";
 
 const props = defineProps<{
   message: Message;
@@ -11,7 +12,7 @@ const props = defineProps<{
 }>();
 
 const sender = computed((): User => {
-  return useUserStore().users[props.message.sender] ?? ({} as User);
+  return useUserStore().users.get(props.message.sender) ?? ({} as User);
 });
 
 const messageContent = computed(() => {
@@ -20,7 +21,7 @@ const messageContent = computed(() => {
     '<span class="emoji">$1</span>'
   );
 
-  return msg;
+  return marked(msg);
 });
 </script>
 
@@ -66,7 +67,6 @@ const messageContent = computed(() => {
   }
 
   * {
-    user-select: text !important;
     word-break: break-all;
   }
 
@@ -137,17 +137,23 @@ const messageContent = computed(() => {
       code {
         background: @background-light;
         padding: 0.5em;
-        margin-top: 0.5em;
+        margin: 0.3em 0;
         border-radius: 5px;
         border: 1px solid @special;
-        display: block;
+        display: inline-block;
         overflow-y: scroll;
 
         &,
         & * {
           font-size: 1em !important;
-          font-family: "Monospace" !important;
+          font-family: "Roboto Mono" !important;
           white-space: break-spaces;
+        }
+      }
+
+      pre {
+        code {
+          display: block;
         }
       }
 
@@ -176,7 +182,14 @@ const messageContent = computed(() => {
 
       img {
         display: block;
+        /*
+          height will be overwritten
+          in the message parser once the image is loaded
+          - we need to set a fixed height for autoscroll
+        */
         height: 10rem;
+        max-height: 10rem;
+        max-width: 70%;
         border-radius: 5px;
         overflow: hidden;
       }

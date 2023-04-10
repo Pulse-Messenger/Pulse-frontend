@@ -25,9 +25,11 @@ const emit = defineEmits<{
 
 watch(props, () => {
   if (props.show && !creating.value) {
-    inputValue.value.name = channels.value[props.channelID!].name;
-    inputValue.value.description = channels.value[props.channelID!].description;
-    inputValue.value.category = channels.value[props.channelID!].category;
+    inputValue.value.name = channels.value.get(props.channelID!)!.name;
+    inputValue.value.description = channels.value.get(
+      props.channelID!
+    )!.description;
+    inputValue.value.category = channels.value.get(props.channelID!)!.category;
   }
 });
 
@@ -68,15 +70,24 @@ const exit = () => {
 
 const checkInput = computed(() => {
   return (
-    inputValue.value.name.trim().length >= 1 &&
-    inputValue.value.name.trim().length <= 32 &&
-    inputValue.value.description.trim().length >= 1 &&
-    inputValue.value.description.trim().length <= 50
+    inputValue.value.name.length >= 1 &&
+    inputValue.value.name.length <= 32 &&
+    inputValue.value.description.length >= 1 &&
+    inputValue.value.description.length <= 50
   );
 });
 
 const creating = computed(() => {
   return !(props.channelID && props.channelID.length > 0);
+});
+
+const changed = computed(() => {
+  return (
+    channels.value.get(props.channelID!)?.name !== inputValue.value.name ||
+    channels.value.get(props.channelID!)?.description !==
+      inputValue.value.description ||
+    channels.value.get(props.channelID!)?.category !== inputValue.value.category
+  );
 });
 </script>
 
@@ -89,19 +100,19 @@ const creating = computed(() => {
           <h3>{{ creating ? "Create a channel" : "Edit a channel" }}</h3>
           <input
             class="input-common"
-            v-model="inputValue.name"
+            v-model.trim="inputValue.name"
             type="text"
             placeholder="Channel name"
           />
           <input
             class="input-common"
-            v-model="inputValue.description"
+            v-model.trim="inputValue.description"
             type="text"
             placeholder="Channel Description"
           />
           <input
             class="input-common"
-            v-model="inputValue.category"
+            v-model.trim="inputValue.category"
             type="text"
             placeholder="Channel category"
           />
@@ -110,7 +121,7 @@ const creating = computed(() => {
             <button class="button-small exit" @click="exit()">Cancel</button>
             <button
               class="button-small"
-              :disabled="waiting || !checkInput"
+              :disabled="waiting || !checkInput || !changed"
               @click="action()"
             >
               {{ creating ? "Create" : "Save" }}

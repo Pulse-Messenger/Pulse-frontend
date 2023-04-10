@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { useAuthStore } from "@/stores/AuthStore";
-import { useCommonStore } from "@/stores/CommonStore";
 
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
 
-const activeUser = storeToRefs(useCommonStore()).activeUserData;
+const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 
 const getTimeMessage = computed(() => {
   const currentTime = new Date().getHours();
@@ -14,7 +14,7 @@ const getTimeMessage = computed(() => {
   else if (currentTime >= 12 && currentTime < 18) return "Good afternoon";
   else return "Good evening";
 });
-const categories = ["Profile", "Sessions", "Appearance"];
+const categories = ["Profile", "Sessions", "Appearance", "Notifications"];
 </script>
 
 <template>

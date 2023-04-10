@@ -5,6 +5,7 @@ import SettingModalComponent from "@/components/modals/SettingModalComponent.vue
 import { storeToRefs } from "pinia";
 import { computed, ref, onMounted } from "vue";
 import { useNotificationStore } from "@/stores/NotificationStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 interface ModalData {
   show: boolean;
@@ -15,7 +16,7 @@ interface ModalData {
   source: string;
 }
 
-const activeUser = storeToRefs(useCommonStore()).activeUserData;
+const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 
 const getAboutLength = computed(() => {
   return tempValues.value?.about.length ?? 0;
@@ -79,6 +80,10 @@ const uploadImage = async (fileData: File) => {
   tempValues.value.profilePic = URL.createObjectURL(formData.value.get("file"));
 };
 
+const focusInput = () => {
+  document.querySelector("textarea")?.focus();
+};
+
 const modal = ref<ModalData>({
   show: false,
   placeholder: "",
@@ -109,40 +114,30 @@ const closeModal = () => {
   };
 };
 
-const mailCheck =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
 const userCardOptions = [
   {
     source: "displayName",
     placeholder: "Display name",
     title: "Change your display name",
     inputType: "text",
-    validate: (input: string) => input.length >= 5 && input.length <= 20,
-  },
-  {
-    source: "email",
-    placeholder: "Email",
-    title: "Change your email",
-    inputType: "text",
-    validate: (input: string) => mailCheck.test(input),
+    validate: (input: string) =>
+      input.trim().length >= 5 && input.trim().length <= 20,
   },
   {
     source: "password",
     placeholder: "Password",
     title: "Change your password",
     inputType: "password",
-    validate: (newPassword: string, oldPassword: string) => true,
+    validate: () => true,
   },
 ];
 
 const save = async () => {
   waiting.value = true;
-  const res = await useCommonStore().updateUser({
+  const res = await useActiveUserStore().updateUser({
     about: tempValues.value.about,
     displayName: tempValues.value.displayName,
     profilePic: formData.value,
-    email: tempValues.value.email,
     password:
       tempValues.value.password === fillerPassword
         ? undefined
@@ -183,7 +178,7 @@ const undo = async () => {
             @input="(e: any) => uploadImage(e.target.files[0])"
           />
         </div>
-        <div class="about-wrapper">
+        <div class="about-wrapper" @click="focusInput()">
           <span class="label">About</span>
           <span class="count"
             ><span :class="{ exceed: getAboutLength > 200 }">{{
@@ -194,7 +189,7 @@ const undo = async () => {
           <textarea
             class="about"
             spellcheck="false"
-            v-model="tempValues!.about"
+            v-model.trim="tempValues!.about"
           ></textarea>
         </div>
       </div>
@@ -284,6 +279,7 @@ const undo = async () => {
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto;
+        cursor: text;
 
         .label {
           font-size: 0.5rem;
