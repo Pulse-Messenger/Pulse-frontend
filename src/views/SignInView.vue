@@ -84,6 +84,15 @@ const testInput = async (type: "login" | "register") => {
       return;
     }
 
+    if (registerData.value.password.length <= 5) {
+      notificationStore.pushAlert({
+        type: "warn",
+        message: "Password must be at least 6 characters long",
+      });
+      waitingForRes.value = false;
+      return;
+    }
+
     await register();
     waitingForRes.value = false;
   }

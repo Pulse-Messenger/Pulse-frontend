@@ -39,14 +39,20 @@ const channel = computed(() => {
 
 const userModal = ref({
   show: false,
-  userID: users.value.get(DMData(DMID.value))?.id,
+  userID: DMData(DMID.value),
 });
 </script>
 
 <template>
   <div class="channel">
     <div class="head">
-      <h2 class="name no-txt-overflow" @click="userModal.show = true">
+      <h2
+        class="name no-txt-overflow"
+        @click="
+          userModal.show = true;
+          userModal.userID = users.get(DMData(DMID))!.id;
+        "
+      >
         {{ users.get(DMData(DMID))?.displayName ?? "" }}
       </h2>
     </div>

@@ -39,6 +39,5 @@ docker build -t client .
 
 # run with
 docker run 
-  -p 8080:8080
-  --env-file .env
+  -p 8080:80
 ```
