@@ -3,9 +3,9 @@ import { APIInstance, mediaInstance } from "@/utils/Axios";
 import { ref } from "vue";
 
 import { connect } from "@/utils/Socket";
-import { useCommonStore } from "@/stores/CommonStore";
 import router from "@/router";
 import { useNotesStore } from "./NoteStore";
+import { useActiveUserStore } from "./ActiveUserStore";
 
 export interface User {
   id: string;
@@ -30,8 +30,7 @@ export interface LoginData {
 export const useAuthStore = defineStore("auth", () => {
   const isLoggedIn = ref(false);
   const token = ref("");
-  const activeUser = ref("");
-  const commonStore = useCommonStore();
+  const activeUserStore = useActiveUserStore();
   const noteStore = useNotesStore();
 
   const register = async (registerData: RegisterData) => {
@@ -97,14 +96,6 @@ export const useAuthStore = defineStore("auth", () => {
     }
   };
 
-  const getActiveUser = async () => {
-    const res = await APIInstance.request({
-      method: "GET",
-      url: "/auth/",
-    });
-    if (res) return res.data.uid;
-  };
-
   const checkToken = async () => {
     try {
       const res = await APIInstance.request({
@@ -123,7 +114,6 @@ export const useAuthStore = defineStore("auth", () => {
   const clearLocal = async () => {
     isLoggedIn.value = false;
     token.value = "";
-    activeUser.value = "";
     localStorage.removeItem("token");
 
     await router.push({ name: "SignIn" });
@@ -168,15 +158,14 @@ export const useAuthStore = defineStore("auth", () => {
 
         return false;
       }
-      isLoggedIn.value = true;
-
-      activeUser.value = await getActiveUser();
 
       connect({
         token: `Bearer ${token.value}`,
       });
 
-      await commonStore.fetchActiveUser();
+      isLoggedIn.value = true;
+
+      await activeUserStore.fetchActiveUser();
       await noteStore.fetchNotes();
 
       return true;

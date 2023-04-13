@@ -2,11 +2,11 @@
 import FriendsIcon from "@/icons/FriendsIcon.vue";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useUserStore } from "@/stores/UserStore";
-import { useCommonStore } from "@/stores/CommonStore";
 import XIcon from "@/icons/XIcon.vue";
 
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const router = useRouter();
 const route = useRoute();
@@ -14,13 +14,13 @@ const route = useRoute();
 const rooms = storeToRefs(useRoomStore()).rooms;
 const DMs = storeToRefs(useRoomStore()).DMs;
 const users = storeToRefs(useUserStore()).users;
-const activeUserData = storeToRefs(useCommonStore()).activeUserData;
+const activeUserData = storeToRefs(useActiveUserStore()).activeUserData;
 
 const DMData = (id: string) => {
   const friend =
-    rooms.value[id]?.friendship?.friendA === activeUserData.value?.id
-      ? rooms.value[id]?.friendship?.friendB
-      : rooms.value[id]?.friendship?.friendA;
+    rooms.value.get(id)?.friendship?.friendA === activeUserData.value?.id
+      ? rooms.value.get(id)?.friendship?.friendB
+      : rooms.value.get(id)?.friendship?.friendA;
 
   return friend ?? "";
 };
@@ -30,8 +30,6 @@ const removeDM = async (DMID: string) => {
 };
 
 const toDM = async (DMID: string) => {
-  if (!rooms.value[DMID].loaded) await useRoomStore().loadRoom(DMID);
-
   router.push({
     name: "DM",
     params: { DMID },
@@ -54,15 +52,17 @@ const toDM = async (DMID: string) => {
           @click.stop="toDM(DM)"
         >
           <div class="member-image">
-            <img :src="users[DMData(DM)]?.profilePic ?? '/icons/User.svg'" />
+            <img
+              :src="users.get(DMData(DM))?.profilePic ?? '/icons/User.svg'"
+            />
           </div>
           <span
             class="no-txt-overflow"
             :class="{ 'router-link-exact-active': route.params.DMID === DM }"
           >
-            {{ users[DMData(DM)]?.displayName ?? "Unknown user" }}
+            {{ users.get(DMData(DM))?.displayName ?? "Unknown user" }}
           </span>
-          <XIcon @click="removeDM(DM)"></XIcon>
+          <XIcon @click.stop="removeDM(DM)"></XIcon>
         </div>
       </div>
     </div>

@@ -15,9 +15,7 @@ const route = useRoute();
 const rooms = storeToRefs(useRoomStore()).rooms;
 
 const toRoom = async (roomID: string) => {
-  if (!rooms.value[roomID].loaded) await useRoomStore().loadRoom(roomID);
-
-  const channel = Object.keys(useRoomStore().getRoomChannels(roomID))[0];
+  const channel = [...useRoomStore().getRoomChannels(roomID).keys()][0];
   if (channel)
     router.push({
       name: "Channel",
@@ -59,7 +57,7 @@ const showRoomModal = ref(false);
           :key="item"
           :roomID="item"
         >
-          <img :src="rooms[item]?.profilePic ?? '/icons/Room.svg'" />
+          <img :src="rooms.get(item)?.profilePic ?? '/icons/Room.svg'" />
         </div>
       </div>
       <div class="options">
@@ -119,7 +117,7 @@ main {
     }
 
     .rooms {
-      padding: 0.3rem 0.3rem 0 0.3rem;
+      padding: 0.3rem 0.3rem 0rem 0.3rem;
       display: flex;
       flex-direction: column;
       row-gap: 0.2rem;

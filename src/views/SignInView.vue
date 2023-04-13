@@ -43,11 +43,14 @@ const testInput = async (type: "login" | "register") => {
     await login();
     waitingForRes.value = false;
   } else {
+    waitingForRes.value = true;
+
     if (!mailCheck.test(registerData.value.email)) {
       notificationStore.pushAlert({
         type: "warn",
         message: "Not a valid email address",
       });
+      waitingForRes.value = false;
       return;
     }
 
@@ -56,6 +59,7 @@ const testInput = async (type: "login" | "register") => {
         type: "warn",
         message: "Username must contain only letters, number, _ and -",
       });
+      waitingForRes.value = false;
       return;
     }
 
@@ -67,6 +71,7 @@ const testInput = async (type: "login" | "register") => {
         type: "warn",
         message: "Username must be between 5 and 20 characters",
       });
+      waitingForRes.value = false;
       return;
     }
 
@@ -75,9 +80,19 @@ const testInput = async (type: "login" | "register") => {
         type: "warn",
         message: "Passwords do not match",
       });
+      waitingForRes.value = false;
       return;
     }
-    waitingForRes.value = true;
+
+    if (registerData.value.password.length <= 5) {
+      notificationStore.pushAlert({
+        type: "warn",
+        message: "Password must be at least 6 characters long",
+      });
+      waitingForRes.value = false;
+      return;
+    }
+
     await register();
     waitingForRes.value = false;
   }
@@ -89,7 +104,7 @@ const register = async () => {
     mode.value = "login";
     notificationStore.pushAlert({
       type: "info",
-      message: "Check your email and confirm it",
+      message: "Check your email and confirm your account",
     });
   } catch (errs: any) {
     const { errors } = errs.response?.data.errors ?? errs;

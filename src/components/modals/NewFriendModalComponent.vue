@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCommonStore } from "@/stores/CommonStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { ref, computed } from "vue";
 
 const emit = defineEmits<{
@@ -23,7 +23,7 @@ const validInput = computed(() => {
 
 const action = async () => {
   waiting.value = true;
-  const res = await useCommonStore().manageFriendship({
+  const res = await useActiveUserStore().manageFriendship({
     action: "create",
     success: "Friend request sent",
     error: "User not found",
@@ -49,7 +49,7 @@ const exit = () => {
           <h3>Add a friend</h3>
           <input
             class="input-common"
-            v-model="inputValue"
+            v-model.trim="inputValue"
             type="text"
             placeholder="Username"
           />

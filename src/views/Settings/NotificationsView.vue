@@ -2,49 +2,33 @@
 import { ref } from "vue";
 import { storeToRefs } from "pinia";
 
-import type { Setting } from "@/stores/CommonStore";
 import SubcategoryComponent from "@/components/settings/SubcategoryComponent.vue";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import type { Setting } from "@/stores/CommonStore";
 
 const preferences = storeToRefs(useActiveUserStore()).userPreferences;
 const unsaved = storeToRefs(useActiveUserStore()).unsavedPreferences;
 
 const waiting = ref(false);
 
-const setTheme = (newTheme: "dark" | "light") => {
-  preferences.value!.appearance.theme = newTheme;
-};
-
 const subcategories: { [key: string]: Setting[] } = {
-  Theme: [
+  "Do not disturb": [
     {
-      title: "Lavender",
+      title: "On",
       type: "pickMe",
       pickMeData: {
-        active: () => preferences.value!.appearance.theme === "light",
-        eventCallback: () => setTheme("light"),
+        active: () => preferences.value?.notifications.doNotDisturb,
+        eventCallback: () =>
+          (preferences.value!.notifications.doNotDisturb = true),
       },
     },
     {
-      title: "Eerie Black",
+      title: "Off",
       type: "pickMe",
       pickMeData: {
-        active: () => preferences.value!.appearance.theme === "dark",
-        eventCallback: () => setTheme("dark"),
-      },
-    },
-  ],
-  Scale: [
-    {
-      title: "Global scale",
-      type: "slider",
-      sliderData: {
-        eventCallback: (val: number) =>
-          (preferences.value!.appearance.scale = val),
-        max: 200,
-        min: 50,
-        step: 10,
-        default: preferences.value?.appearance.scale ?? 100,
+        active: () => !preferences.value?.notifications.doNotDisturb,
+        eventCallback: () =>
+          (preferences.value!.notifications.doNotDisturb = false),
       },
     },
   ],

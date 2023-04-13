@@ -11,6 +11,8 @@ const SessionsView = () => import("@/views/Settings/SessionsView.vue");
 const FriendsView = () => import("@/views/Home/FriendsView.vue");
 const MeView = () => import("@/views/Home/MeView.vue");
 const DMView = () => import("@/views/Home/DMView.vue");
+const NotificationsView = () =>
+  import("@/views/Settings/NotificationsView.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -70,6 +72,11 @@ const router = createRouter({
               path: "sessions",
               name: "Sessions",
               component: SessionsView,
+            },
+            {
+              path: "notifications",
+              name: "Notifications",
+              component: NotificationsView,
             },
           ],
         },

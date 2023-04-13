@@ -9,12 +9,11 @@ export interface User {
   profilePic: string;
   about: string;
   globalRoles: string[];
+  active?: boolean;
 }
 
 export const useUserStore = defineStore("user", () => {
-  const users = ref<{
-    [key: string]: User;
-  }>({});
+  const users = ref(new Map<string, User>());
 
   const fetchUser = async (userID: string) => {
     try {
@@ -23,14 +22,14 @@ export const useUserStore = defineStore("user", () => {
         url: `/users/getOne/${userID}`,
       });
 
-      users.value[data._id] = {
+      users.value.set(data._id, {
         about: data.about,
         displayName: data.displayName,
         globalRoles: data.globalRoles,
         id: data._id,
         profilePic: data.profilePic,
         username: data.username,
-      };
+      });
       return true;
     } catch {
       return false;

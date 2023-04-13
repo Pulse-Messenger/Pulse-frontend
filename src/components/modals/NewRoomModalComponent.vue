@@ -36,7 +36,6 @@ const action = async () => {
     waiting.value = false;
     if (res) exit();
   }
-  inputValue.value = "";
 };
 
 const exit = () => {
@@ -56,7 +55,7 @@ const exit = () => {
           <h3>{{ mode === "create" ? "Create a room" : "Join a room" }}</h3>
           <input
             class="input-common"
-            v-model="inputValue"
+            v-model.trim="inputValue"
             type="text"
             :placeholder="mode === 'create' ? 'Room name' : 'Invite code'"
           />
@@ -71,7 +70,8 @@ const exit = () => {
                 class="button-small"
                 :disabled="
                   waiting ||
-                  (inputValue.length < 5 && mode === 'create') ||
+                  ((inputValue.length < 5 || inputValue.length > 20) &&
+                    mode === 'create') ||
                   (inputValue.length === 0 && mode === 'join')
                 "
                 @click="action()"

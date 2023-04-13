@@ -22,6 +22,7 @@ const oldPassword = ref("");
 
 const exit = () => {
   input.value = "";
+  oldPassword.value = "";
   emit("close");
 };
 

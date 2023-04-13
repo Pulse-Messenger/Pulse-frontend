@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
-import { APIInstance } from "@/utils/Axios";
+import { APIInstance, mediaInstance } from "@/utils/Axios";
 import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import { useUserStore, type User } from "@/stores/UserStore";
-import { useCommonStore } from "@/stores/CommonStore";
-import router from "@/router";
 import { useNotificationStore } from "./NotificationStore";
+import router from "@/router";
+import { useActiveUserStore } from "./ActiveUserStore";
 
 export interface Room {
   id: string;
@@ -16,7 +16,6 @@ export interface Room {
   creatorID: string;
   members: string[];
   channels: string[];
-  loaded: boolean;
   friendship?: {
     friendA: string;
     friendB: string;
@@ -24,21 +23,19 @@ export interface Room {
 }
 
 export const useRoomStore = defineStore("room", () => {
-  const rooms = ref<{
-    [key: string]: Room;
-  }>({});
+  const rooms = ref(new Map<string, Room>());
 
   const channelStore = useChannelStore();
   const userStore = useUserStore();
-  const commonStore = useCommonStore();
+  const activeUserStore = useActiveUserStore();
   const notificationStore = useNotificationStore();
 
   const sortedRoom = computed(() => {
-    return commonStore.activeUserData?.rooms;
+    return activeUserStore.activeUserData?.rooms;
   });
 
   const DMs = computed(() => {
-    return commonStore.activeUserData?.DMs;
+    return activeUserStore.activeUserData?.DMs;
   });
 
   const fetchRooms = async () => {
@@ -110,7 +107,7 @@ export const useRoomStore = defineStore("room", () => {
       return false;
     }
 
-    rooms.value[roomID] = {
+    rooms.value.set(roomID, {
       id: roomID,
       name: room.name,
       profilePic: room.profilePic,
@@ -118,16 +115,15 @@ export const useRoomStore = defineStore("room", () => {
       members: room.members,
       channels: room.channels,
       creatorID: room.creatorID,
-      loaded: false,
       friendship: room.friendship ?? null,
-    };
+    });
 
     return true;
   };
 
   const loadRoom = async (roomID: string) => {
     try {
-      const room = rooms.value[roomID];
+      const room = rooms.value.get(roomID);
       if (!room) {
         notificationStore.pushAlert({
           type: "error",
@@ -144,14 +140,14 @@ export const useRoomStore = defineStore("room", () => {
       const channels: any[] = channelsRes.data;
 
       channels.forEach(async (channel) => {
-        channelStore.channels[channel._id] = {
+        channelStore.channels.set(channel._id, {
           id: channel._id,
           name: channel.name ?? "",
           category: channel.category ?? "",
-          messages: {},
+          messages: new Map(),
           description: channel.description ?? "",
           room: channel.room ?? "",
-        };
+        });
 
         await channelStore.fetchMoreMessages(channel._id);
       });
@@ -163,57 +159,54 @@ export const useRoomStore = defineStore("room", () => {
       const users: any[] = usersRes.data;
 
       users.forEach((user) => {
-        if (user) {
-          userStore.users[user._id] = {
-            id: user._id,
-            username: user.username ?? "",
-            displayName: user.displayName ?? "",
-            profilePic: user.profilePic ?? "",
-            about: user.about ?? "",
-            globalRoles: user.globalRoles ?? [],
-          };
-        }
+        userStore.users.set(user._id, {
+          id: user._id,
+          username: user.username ?? "",
+          displayName: user.displayName ?? "",
+          profilePic: user.profilePic ?? "",
+          about: user.about ?? "",
+          globalRoles: user.globalRoles ?? [],
+        });
       });
-      rooms.value[roomID].loaded = true;
 
       return true;
-    } catch (_) {
+    } catch (err) {
+      console.log(err);
       return false;
     }
   };
 
   const getRoomChannels = (roomID: string) => {
-    const room = rooms.value[roomID];
+    const room = rooms.value.get(roomID);
 
-    const channels: { [key: string]: Channel } = {};
+    const channels = new Map<string, Channel>();
 
     room?.channels.forEach((ch: string) => {
-      channels[ch] = {
-        id: channelStore.channels[ch]?.id ?? "",
-        name: channelStore.channels[ch]?.name ?? "",
-        category: channelStore.channels[ch]?.category ?? "",
-        messages: channelStore.channels[ch]?.messages ?? [],
-        description: channelStore.channels[ch]?.description ?? "",
-        room: channelStore.channels[ch]?.room ?? "",
-      };
+      channels.set(ch, {
+        id: channelStore.channels.get(ch)?.id ?? "",
+        name: channelStore.channels.get(ch)?.name ?? "",
+        category: channelStore.channels.get(ch)?.category ?? "",
+        messages: channelStore.channels.get(ch)?.messages ?? new Map(),
+        description: channelStore.channels.get(ch)?.description ?? "",
+        room: channelStore.channels.get(ch)?.room ?? "",
+      });
     });
-
     return channels;
   };
 
   const getRoomMembers = (roomID: string) => {
-    const members: { [key: string]: User } = {};
-    const room = rooms.value[roomID];
+    const members = new Map<string, User>();
+    const room = rooms.value.get(roomID);
 
     room?.members.forEach((memberID) => {
-      members[memberID] = {
-        id: userStore.users[memberID]?.id ?? "",
-        username: userStore.users[memberID]?.username ?? "",
-        displayName: userStore.users[memberID]?.displayName ?? "",
-        profilePic: userStore.users[memberID]?.profilePic ?? "",
-        about: userStore.users[memberID]?.about ?? "",
-        globalRoles: userStore.users[memberID]?.globalRoles ?? [],
-      };
+      members.set(memberID, {
+        id: userStore.users.get(memberID)?.id ?? "",
+        username: userStore.users.get(memberID)?.username ?? "",
+        displayName: userStore.users.get(memberID)?.displayName ?? "",
+        profilePic: userStore.users.get(memberID)?.profilePic ?? "",
+        about: userStore.users.get(memberID)?.about ?? "",
+        globalRoles: userStore.users.get(memberID)?.globalRoles ?? [],
+      });
     });
 
     return members;
@@ -241,7 +234,7 @@ export const useRoomStore = defineStore("room", () => {
 
   const init = async () => {
     try {
-      const rms = (await fetchRooms()).concat(await fetchDMs());
+      const rms: string[] = (await fetchRooms()).concat(await fetchDMs());
       const promises = rms.map((el: string) => getOneRoom(el));
       await Promise.all(promises);
 
@@ -253,10 +246,12 @@ export const useRoomStore = defineStore("room", () => {
         window.location.href.includes("channels/") ||
         window.location.href.includes("me/")
       )
-        if (activeRoom && rooms.value[activeRoom]) {
-          await loadRoom(activeRoom);
-          rooms.value[activeRoom].loaded = true;
-        } else router.replace({ name: "Me" });
+        if (!activeRoom || !rooms.value.get(activeRoom))
+          await router.replace({ name: "Me" });
+
+      rooms.value.forEach(async (rm, id) => {
+        await loadRoom(id);
+      });
 
       return true;
     } catch (errs: any) {
@@ -274,9 +269,16 @@ export const useRoomStore = defineStore("room", () => {
           profilePic: pfp,
         },
       });
-
+      notificationStore.pushAlert({
+        type: "info",
+        message: "Room created",
+      });
       return true;
     } catch (err: any) {
+      notificationStore.pushAlert({
+        type: "error",
+        message: "Failed to create room",
+      });
       return false;
     }
   };
@@ -290,10 +292,52 @@ export const useRoomStore = defineStore("room", () => {
           friendID,
         },
       });
+      notificationStore.pushAlert({
+        type: "info",
+        message: "DM created",
+      });
     } catch (err) {
       notificationStore.pushAlert({
         type: "error",
-        message: "Failed to open DM",
+        message: "Failed to create DM",
+      });
+      return false;
+    }
+  };
+
+  const updateRoom = async (data: {
+    roomID: string;
+    name: string;
+    profilePic?: FormData;
+  }) => {
+    try {
+      await APIInstance.request({
+        method: "POST",
+        url: `/rooms/updateOne/${data.roomID}`,
+        data: {
+          name: data.name,
+        },
+      });
+
+      if (data.profilePic) {
+        await mediaInstance.request({
+          method: "POST",
+          url: `/roomPic/${data.roomID}`,
+          data: data.profilePic,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+      notificationStore.pushAlert({
+        type: "info",
+        message: "Room updated",
+      });
+      return true;
+    } catch (err) {
+      notificationStore.pushAlert({
+        type: "error",
+        message: "Failed to update room",
       });
       return false;
     }
@@ -313,6 +357,7 @@ export const useRoomStore = defineStore("room", () => {
     leaveRoom,
     joinRoom,
     fetchDMs,
+    updateRoom,
     DMs,
     init,
   };

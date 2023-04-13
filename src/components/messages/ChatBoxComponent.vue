@@ -3,11 +3,14 @@ import XIcon from "@/icons/XIcon.vue";
 import UploadIcon from "@/icons/UploadIcon.vue";
 import { useChannelStore } from "@/stores/ChannelStore";
 
-import { ref, onMounted, computed, nextTick } from "vue";
+import { ref, onMounted, computed, nextTick, watch } from "vue";
 import { useNotificationStore } from "@/stores/NotificationStore";
+
+const channelStore = useChannelStore();
 
 const textarea = ref<HTMLTextAreaElement>();
 const messageContent = ref("");
+let sendingMessage = false;
 
 const autoGrow = () => {
   textarea.value!.style.height = "0.65rem";
@@ -15,28 +18,50 @@ const autoGrow = () => {
 };
 
 const processMessage = async (evt: any) => {
-  if (evt.which === 13 && evt.shiftKey) return;
+  if (sendingMessage) return;
 
+  if (evt.which === 13 && evt.shiftKey) return;
   evt.preventDefault();
 
-  if (messageContent.value.length > 2000 || messageContent.value.length === 0)
+  if (
+    messageContent.value.trim().length > 2000 ||
+    messageContent.value.trim().length === 0
+  )
     return;
 
+  sendingMessage = true;
+
   if (!isEditing.value) {
-    await useChannelStore().sendMessage(messageContent.value, props.channelID);
+    await channelStore.sendMessage(messageContent.value, props.channelID);
   } else {
-    await useChannelStore().editMessage(messageContent.value, props.messageID!);
+    await channelStore.editMessage(messageContent.value, props.messageID!);
     emit("cancelEdit");
   }
+  sendingMessage = false;
 
   messageContent.value = "";
   await nextTick();
   autoGrow();
 };
 
-const insertTab = (evt: any) => {
+const insertTab = async (evt: any) => {
   evt.preventDefault();
-  messageContent.value += "    ";
+
+  const cursorPos = textarea.value!.selectionStart;
+  const textBeforeCursor = textarea.value!.value.substring(0, cursorPos);
+  const textAfterCursor = textarea.value!.value.substring(
+    textarea.value!.selectionEnd
+  );
+
+  const tabCharacter = "\t";
+  const newText = textBeforeCursor + tabCharacter + textAfterCursor;
+  messageContent.value = newText;
+
+  await nextTick();
+  textarea.value!.setSelectionRange(
+    cursorPos + tabCharacter.length,
+    cursorPos + tabCharacter.length
+  );
 };
 
 const emit = defineEmits<{
@@ -63,24 +88,52 @@ const uploadFiles = async (files: FileList) => {
   }
 
   const formData = new FormData();
-  for (let i = 0; i < files.length; i++) formData.append("files", files[i]);
+  for (let i = 0; i < files.length; i++) {
+    if (files[i].size > 104_857_600) {
+      useNotificationStore().pushAlert({
+        type: "warn",
+        message: "Max size for files is 100MB",
+      });
+      return;
+    }
+    formData.append("files", files[i]);
+  }
 
-  const fileRes = await useChannelStore().uploadFiles(formData);
+  const fileRes = await channelStore.uploadFiles(formData);
   if (!fileRes) return;
 
-  await useChannelStore().sendMessage(
-    fileRes.files.join("\n"),
-    props.channelID
-  );
+  await channelStore.sendMessage(fileRes.files.join("\n"), props.channelID);
+};
+
+const focusInput = () => {
+  textarea.value?.focus();
 };
 
 onMounted(() => {
   autoGrow();
 });
+
+const cancelEdit = async () => {
+  messageContent.value = "";
+  emit("cancelEdit");
+  await nextTick();
+
+  autoGrow();
+};
+
+watch(props, async () => {
+  if (props.mode === "edit" && props.messageID)
+    messageContent.value =
+      channelStore.channels.get(props.channelID)?.messages.get(props.messageID)
+        ?.content ?? "";
+
+  await nextTick();
+  autoGrow();
+});
 </script>
 
 <template>
-  <div class="chatbox">
+  <div class="chatbox" @click="focusInput()">
     <div class="upload">
       <UploadIcon> </UploadIcon>
       <label>
@@ -95,7 +148,7 @@ onMounted(() => {
     <div class="main">
       <div class="mode" v-if="props.mode === 'edit'">
         <span>Editing message</span
-        ><XIcon @click="emit('cancelEdit')" class="close-edit"></XIcon>
+        ><XIcon @click="cancelEdit" class="close-edit"></XIcon>
       </div>
       <textarea
         id="chatbox"
@@ -110,7 +163,7 @@ onMounted(() => {
           processMessage(evt);
         }
       "
-        @keydown.esc="emit('cancelEdit')"
+        @keydown.esc="cancelEdit"
         @keydown.tab="(evt) => insertTab(evt)"
       ></textarea>
     </div>
@@ -131,6 +184,7 @@ onMounted(() => {
   border: 2px solid @background;
   background: @background-light;
   border-radius: 10px;
+  cursor: text;
 
   &,
   & * {

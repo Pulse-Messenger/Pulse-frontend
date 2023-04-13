@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import XIcon from "@/icons/XIcon.vue";
-import { useCommonStore } from "@/stores/CommonStore";
 import { useUserStore } from "@/stores/UserStore";
 import NewFriendModalComponent from "@/components/modals/NewFriendModalComponent.vue";
 
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
 import { useRoomStore } from "@/stores/RoomStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
-const friendships = storeToRefs(useCommonStore()).friendsData;
+const friendships = storeToRefs(useActiveUserStore()).friendsData;
 const users = storeToRefs(useUserStore()).users;
 const roomStore = useRoomStore();
 
@@ -17,9 +17,12 @@ const showModal = ref(false);
 const getStatus = (friendshipID: string) => {
   const fr = friendships.value[friendshipID];
 
-  if (useCommonStore().activeUserData?.id === fr.creator && !fr.accepted)
+  if (useActiveUserStore().activeUserData?.id === fr.creator && !fr.accepted)
     return "pending";
-  else if (useCommonStore().activeUserData?.id !== fr.creator && !fr.accepted)
+  else if (
+    useActiveUserStore().activeUserData?.id !== fr.creator &&
+    !fr.accepted
+  )
     return "accept";
   else return "message";
 };
@@ -54,7 +57,20 @@ const manageFriendship = async (
       break;
   }
 
-  await useCommonStore().manageFriendship(data);
+  await useActiveUserStore().manageFriendship(data);
+};
+
+const dmExists = (friendID: string) => {
+  let doesntExist = true;
+  roomStore.rooms.forEach((v, id) => {
+    if (roomStore.rooms.get(id)?.friendship)
+      if (
+        roomStore.rooms.get(id)?.friendship?.friendA === friendID ||
+        roomStore.rooms.get(id)?.friendship?.friendB === friendID
+      )
+        doesntExist = false;
+  });
+  return doesntExist;
 };
 </script>
 
@@ -70,16 +86,21 @@ const manageFriendship = async (
       <div class="row" v-for="(friend, id) in friendships" :key="id">
         <div class="username no-txt-overflow">
           <div class="pfp">
-            <img :src="users[id].profilePic ?? '/icons/User.svg'" alt="pfp" />
+            <img
+              :src="users.get(id.toString())?.profilePic ?? '/icons/User.svg'"
+              alt="pfp"
+            />
           </div>
           <div class="no-txt-overflow">
-            {{ users[id].username }}
+            {{ users.get(id.toString())?.displayName }}
           </div>
         </div>
         <div class="status">
           <button
             class="button-small"
-            v-if="getStatus(id.toString()) === 'message'"
+            v-if="
+              getStatus(id.toString()) === 'message' && dmExists(id.toString())
+            "
             @click="manageFriendship('message', id.toString())"
           >
             Message

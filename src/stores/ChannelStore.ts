@@ -8,7 +8,7 @@ export interface Channel {
   id: string;
   name: string;
   category: string;
-  messages: { [key: string]: Message };
+  messages: Map<string, Message>;
   description: string;
   room: string;
 }
@@ -22,15 +22,13 @@ export interface Message {
 }
 
 export const useChannelStore = defineStore("channel", () => {
-  const channels = ref<{
-    [key: string]: Channel;
-  }>({});
+  const channels = ref(new Map<string, Channel>());
 
   const getChannelMessages = (channelID: string) => {
-    if (!channels.value[channelID]) return [];
-    return Object.keys(channels.value[channelID]?.messages)
-      .map((e) => channels.value[channelID].messages[e])
-      .sort((a, b) => a.timestamp - b.timestamp);
+    if (!channels.value.get(channelID)) return [];
+    return [...channels.value.get(channelID)!.messages.keys()]
+      .map((e) => channels.value.get(channelID)?.messages.get(e))
+      .sort((a, b) => (a?.timestamp ?? 0) - (b?.timestamp ?? 0));
   };
 
   const fetchMoreMessages = async (channelID: string) => {
@@ -39,7 +37,7 @@ export const useChannelStore = defineStore("channel", () => {
         await APIInstance.request({
           method: "GET",
           url: `/messages/getChannelMessages/${channelID}/${
-            Object.keys(channels.value[channelID]!.messages).length ?? 0
+            channels.value.get(channelID)?.messages.size ?? 0
           }`,
         })
       ).data ?? [];
@@ -47,13 +45,13 @@ export const useChannelStore = defineStore("channel", () => {
     messages
       .sort((a: any, b: any) => a.timestamp - b.timestamp)
       .forEach((message: any) => {
-        channels.value[channelID]!.messages[message._id] = {
+        channels.value.get(channelID)!.messages.set(message._id, {
           id: message._id,
           content: message.content,
           sender: message.sender,
           timestamp: message.timestamp,
           channel: message.channel,
-        };
+        });
       });
 
     if (messages.length === 0) return false;
@@ -72,6 +70,12 @@ export const useChannelStore = defineStore("channel", () => {
       });
       return true;
     } catch (err: any) {
+      err.response.data.errors?.forEach((errMsg: string) => {
+        useNotificationStore().pushAlert({
+          type: "warn",
+          message: errMsg,
+        });
+      });
       return false;
     }
   };
@@ -149,7 +153,8 @@ export const useChannelStore = defineStore("channel", () => {
         data: {
           name: data.name,
           description: data.description,
-          category: data.category ?? channels.value[data.channelID].category,
+          category:
+            data.category ?? channels.value.get(data.channelID)?.category ?? "",
         },
       });
       return true;
@@ -161,7 +166,7 @@ export const useChannelStore = defineStore("channel", () => {
   const uploadFiles = async (data: FormData) => {
     try {
       const res = await mediaInstance.request({
-        method: "POSt",
+        method: "POST",
         url: "/uploads",
         data: data,
         headers: {

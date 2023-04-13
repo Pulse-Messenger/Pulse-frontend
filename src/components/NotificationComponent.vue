@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Notification } from "@/stores/NotificationStore";
+
 import { computed } from "vue";
 
 const props = defineProps<{
@@ -9,15 +10,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "kill"): void;
 }>();
-
-const pureContent = computed(() => {
-  const el = document.createElement("nyaa");
-  el.innerHTML = props.notification.message;
-
-  const pure = el.innerText;
-  el.remove();
-  return pure;
-});
 </script>
 
 <template>
@@ -48,7 +40,7 @@ const pureContent = computed(() => {
           -
           {{ notification.extra?.channel }}
         </span>
-        <p>{{ pureContent }}</p>
+        <p>{{ notification.message ?? "Content" }}</p>
       </div>
     </div>
   </div>
@@ -105,7 +97,7 @@ const pureContent = computed(() => {
     flex-direction: row;
     border: @accent 2px solid;
     column-gap: 0.3rem;
-    padding: 0.5em;
+    padding: 0.2em;
     align-items: center;
 
     .content {

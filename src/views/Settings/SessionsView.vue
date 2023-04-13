@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { useCommonStore } from "@/stores/CommonStore";
 import { storeToRefs } from "pinia";
 
-const activeUser = storeToRefs(useCommonStore()).activeUserData;
+const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 </script>
 
 <template>
@@ -11,7 +12,7 @@ const activeUser = storeToRefs(useCommonStore()).activeUserData;
       <h3>Devices</h3>
       <button
         class="button-small logout"
-        @click="useCommonStore().deleteAllSessions()"
+        @click="useActiveUserStore().deleteAllSessions()"
       >
         Logout everywhere
       </button>
@@ -27,7 +28,7 @@ const activeUser = storeToRefs(useCommonStore()).activeUserData;
       </div>
       <button
         class="button-small logout"
-        @click="useCommonStore().deleteSession(session.id)"
+        @click="useActiveUserStore().deleteSession(session.id)"
       >
         Logout
       </button>

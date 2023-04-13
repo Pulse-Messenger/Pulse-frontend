@@ -30,7 +30,9 @@ const note = ref("");
 
 const copyUsername = async () => {
   try {
-    await navigator.clipboard.writeText(users.value[props.userID].username);
+    await navigator.clipboard.writeText(
+      users.value.get(props.userID)!.username
+    );
 
     useNotificationStore().pushAlert({
       type: "info",
@@ -67,35 +69,39 @@ watch(props, () => {
           <div class="head">
             <div class="pfp">
               <img
-                :src="users[props.userID].profilePic"
+                :src="users.get(props.userID)?.profilePic"
                 alt="profile picture"
               />
             </div>
-            <div class="info">
-              <div class="names">
-                <p class="display-name">
-                  {{ users[props.userID].displayName }}
+            <div class="info no-txt-overflow">
+              <div class="names no-txt-overflow">
+                <p class="display-name no-txt-overflow">
+                  {{ users.get(props.userID)?.displayName }}
                 </p>
                 &nbsp;-&nbsp;
-                <p class="username" @click="copyUsername">
-                  @{{ users[props.userID].username }}
+                <p class="username no-txt-overflow" @click="copyUsername">
+                  @{{ users.get(props.userID)?.username }}
                 </p>
               </div>
               <div
                 class="badges"
-                v-if="users[props.userID].globalRoles?.length > 0"
+                v-if="users.get(props.userID)!.globalRoles?.length > 0"
               >
                 <VIPBadgeIcon
-                  v-if="users[props.userID].globalRoles.includes('vip')"
+                  v-if="users.get(props.userID)?.globalRoles.includes('vip')"
                 ></VIPBadgeIcon>
                 <DeveloperBadgeIcon
-                  v-if="users[props.userID].globalRoles.includes('developer')"
+                  v-if="
+                    users.get(props.userID)?.globalRoles.includes('developer')
+                  "
                 ></DeveloperBadgeIcon>
                 <ModeratorBadgeIcon
-                  v-if="users[props.userID].globalRoles.includes('moderator')"
+                  v-if="
+                    users.get(props.userID)?.globalRoles.includes('moderator')
+                  "
                 ></ModeratorBadgeIcon>
                 <AdminBadgeIcon
-                  v-if="users[props.userID].globalRoles.includes('admin')"
+                  v-if="users.get(props.userID)?.globalRoles.includes('admin')"
                 ></AdminBadgeIcon>
               </div>
 
@@ -103,18 +109,18 @@ watch(props, () => {
                 <span class="title">Note</span>
                 <textarea
                   maxlength="250"
-                  v-model="note"
+                  v-model.trim="note"
                   @focusout="saveNote()"
                   spellcheck="false"
                 ></textarea>
               </div>
             </div>
           </div>
-          <div class="body" v-if="users[props.userID]?.about">
+          <div class="body" v-if="users.get(props.userID)?.about">
             <div class="hr" />
 
             <div class="about">
-              {{ users[props.userID]?.about }}
+              {{ users.get(props.userID)?.about }}
             </div>
           </div>
         </div>
