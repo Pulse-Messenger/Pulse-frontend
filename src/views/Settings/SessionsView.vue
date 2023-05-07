@@ -2,7 +2,9 @@
 import { storeToRefs } from "pinia";
 
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
-import { useCommonStore } from "@/stores/CommonStore";
+import { useModalStore } from "@/stores/ModalStore";
+
+const modalStore = useModalStore();
 
 const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 </script>
@@ -13,7 +15,13 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
       <h3>Devices</h3>
       <button
         class="button-small logout"
-        @click="useActiveUserStore().deleteAllSessions()"
+        @click="
+          () =>
+            modalStore.showConfirmModal(
+              'Are you sure you want to log out everywhere?',
+              () => useActiveUserStore().deleteAllSessions(),
+            )
+        "
       >
         Logout everywhere
       </button>
@@ -29,7 +37,12 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
       </div>
       <button
         class="button-small logout"
-        @click="useActiveUserStore().deleteSession(session.id)"
+        @click="
+          modalStore.showConfirmModal(
+            'Are you sure you want to log out this device?',
+            () => useActiveUserStore().deleteSession(session.id),
+          )
+        "
       >
         Logout
       </button>

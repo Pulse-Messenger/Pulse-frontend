@@ -105,13 +105,21 @@ const openRoomOptions = () => {
     },
     {
       condition: () => roomOwner,
-      action: async () => await useRoomStore().deleteRoom(roomID.value),
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this room?",
+          async () => await useRoomStore().deleteRoom(roomID.value),
+        ),
       icon: DeleteIcon,
       title: "Delete room",
     },
     {
       condition: () => !roomOwner,
-      action: async () => await useRoomStore().leaveRoom(roomID.value),
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to leave this room?",
+          async () => await useRoomStore().leaveRoom(roomID.value),
+        ),
       icon: ExitIcon,
       title: "Leave room",
     },
@@ -140,7 +148,11 @@ const openChannelOptions = (channelID: string) => {
     },
     {
       condition: () => roomOwner,
-      action: async () => await useChannelStore().deleteChannel(channelID),
+      action: () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this channel?",
+          async () => await useChannelStore().deleteChannel(channelID),
+        ),
       icon: DeleteIcon,
       title: "Delete channel",
     },

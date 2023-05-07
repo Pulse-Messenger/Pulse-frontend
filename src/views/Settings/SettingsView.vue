@@ -4,6 +4,7 @@ import { computed } from "vue";
 
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { useAuthStore } from "@/stores/AuthStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 
@@ -28,7 +29,15 @@ const categories = ["Profile", "Sessions", "Appearance", "Notifications"];
         >{{ category }}</RouterLink
       >
       <hr />
-      <div class="category-link logout" @click="useAuthStore().logout()">
+      <div
+        class="category-link logout"
+        @click="
+          useModalStore().showConfirmModal(
+            'Are you sure you want to log out?',
+            () => useAuthStore().logout(),
+          )
+        "
+      >
         Log Out
       </div>
     </div>
@@ -51,10 +60,11 @@ const categories = ["Profile", "Sessions", "Appearance", "Notifications"];
   column-gap: 1rem;
   justify-content: center;
   width: 100%;
-  padding: 5vh 2rem 0 3rem;
+  padding: 0 2rem 0 3rem;
   max-width: 50rem;
 
   .categories {
+    margin-top: 5vh;
     display: flex;
     flex-direction: column;
     padding: 0.3rem 0.2rem;
@@ -91,6 +101,8 @@ const categories = ["Profile", "Sessions", "Appearance", "Notifications"];
     height: 100vh;
     overflow-y: auto;
     padding-bottom: 1rem;
+    padding-top: 5vh;
+
     .category {
       height: 100%;
       padding-right: 1rem;

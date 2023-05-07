@@ -7,6 +7,7 @@ import { useRoomStore } from "@/stores/RoomStore";
 import { useUserStore } from "@/stores/UserStore";
 import XIcon from "@/icons/XIcon.vue";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 const router = useRouter();
 const route = useRoute();
@@ -63,7 +64,14 @@ const toDM = async (DMID: string) => {
           >
             {{ users.get(DMData(DM))?.displayName ?? "Unknown user" }}
           </span>
-          <XIcon @click.stop="removeDM(DM)"></XIcon>
+          <XIcon
+            @click.stop="
+              useModalStore().showConfirmModal(
+                'Are you sure you want to delete this DM?',
+                () => removeDM(DM),
+              )
+            "
+          ></XIcon>
         </div>
       </div>
     </div>

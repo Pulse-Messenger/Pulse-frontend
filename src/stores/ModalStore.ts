@@ -37,6 +37,12 @@ export interface UserModalData {
   userID: string;
 }
 
+export interface ConfirmModalData {
+  show: boolean;
+  title: string;
+  callback: Function;
+}
+
 export const useModalStore = defineStore("modal", () => {
   const interactModalData = shallowReactive<InteractModalData>({
     show: false,
@@ -66,6 +72,18 @@ export const useModalStore = defineStore("modal", () => {
     show: false,
     userID: "",
   });
+
+  const confirmModalData = ref<ConfirmModalData>({
+    show: false,
+    title: "",
+    callback: () => {},
+  });
+
+  const showConfirmModal = (title: string, callback: Function) => {
+    confirmModalData.value.show = true;
+    confirmModalData.value.title = title;
+    confirmModalData.value.callback = callback;
+  };
 
   const showNewRoomModal = () => {
     newRoomModalData.value.show = true;
@@ -106,7 +124,8 @@ export const useModalStore = defineStore("modal", () => {
       | "editRoom"
       | "newFriend"
       | "newRoom"
-      | "user",
+      | "user"
+      | "confirm",
   ) => {
     switch (type) {
       case "interact":
@@ -127,6 +146,10 @@ export const useModalStore = defineStore("modal", () => {
       case "user":
         userModalData.value.show = false;
         break;
+      case "confirm":
+        confirmModalData.value.show = false;
+        confirmModalData.value.callback = () => {};
+        break;
     }
   };
 
@@ -144,5 +167,7 @@ export const useModalStore = defineStore("modal", () => {
     newRoomModalData,
     userModalData,
     showUserModal,
+    confirmModalData,
+    showConfirmModal,
   };
 });

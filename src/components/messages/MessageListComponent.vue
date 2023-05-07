@@ -50,7 +50,11 @@ const triggerInteract = (messageID: string) => {
   modalStore.showInteractModal([
     {
       condition: () => roomOwner || messageSender,
-      action: async () => await useChannelStore().deleteMessage(messageID),
+      action: () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this message?",
+          async () => useChannelStore().deleteMessage(messageID),
+        ),
       icon: DeleteIcon,
       title: "Delete Message",
     },

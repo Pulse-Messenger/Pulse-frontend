@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 import XIcon from "@/icons/XIcon.vue";
 import { useUserStore } from "@/stores/UserStore";
@@ -121,8 +121,14 @@ const dmExists = (friendID: string) => {
             @click="
               () => {
                 if (getStatus(id.toString()) == 'pending')
-                  manageFriendship('reject', id.toString());
-                else manageFriendship('cancel', id.toString());
+                  useModalStore().showConfirmModal(
+                    'Cancel friend request?',
+                    () => manageFriendship('reject', id.toString()),
+                  );
+                else
+                  useModalStore().showConfirmModal('Remove friend?', () =>
+                    manageFriendship('cancel', id.toString()),
+                  );
               }
             "
           >
