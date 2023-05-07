@@ -24,6 +24,7 @@ const registerData = ref<RegisterData>({
   email: "",
   password: "",
   repeatedPassword: "",
+  agreeToTOS: false,
 });
 
 const loginData = ref<LoginData>({
@@ -192,7 +193,17 @@ const login = async () => {
         }
       "
         ></InputComponent>
-        <p class="switch-mode" @click="mode = 'login'">Login instead?</p>
+        <div class="agree">
+          <p>
+            Do you agree with our
+            <a
+              target="_blank"
+              href="https://s3.eu-central-2.wasabisys.com/cdn.pulse-messenger.com/misc/USER_AGREEMENT.pdf"
+              >Terms Of Service</a
+            >?
+          </p>
+          <input type="checkbox" v-model="registerData.agreeToTOS" />
+        </div>
         <ButtonComponent
           @click="testInput('register')"
           :disabled="
@@ -200,12 +211,14 @@ const login = async () => {
             registerData.password.length === 0 ||
             registerData.username.length === 0 ||
             registerData.repeatedPassword.length === 0 ||
+            !registerData.agreeToTOS ||
             waitingForRes
           "
           :class="{ waiting: waitingForRes }"
         >
           Register
         </ButtonComponent>
+        <p class="switch-mode" @click="mode = 'login'">Login instead?</p>
       </form>
     </template>
     <template v-if="mode === 'login'">
@@ -238,8 +251,6 @@ const login = async () => {
         }
       "
         ></InputComponent>
-        <p class="switch-mode" @click="mode = 'register'">Register instead?</p>
-
         <ButtonComponent
           @click="testInput('login')"
           :disabled="
@@ -251,6 +262,7 @@ const login = async () => {
         >
           Login
         </ButtonComponent>
+        <p class="switch-mode" @click="mode = 'register'">Register instead?</p>
       </form>
     </template>
   </main>
@@ -284,6 +296,62 @@ main {
     display: flex;
     flex-direction: column;
     row-gap: 0.5rem;
+  }
+
+  .agree {
+    display: flex;
+    align-items: center;
+
+    p {
+      font-size: 0.5rem;
+      color: @foreground;
+      a {
+        color: @accent;
+        cursor: pointer;
+        width: fit-content;
+      }
+    }
+
+    input[type="checkbox"] {
+      display: inline-block;
+      position: relative;
+      appearance: none;
+      content: "";
+      width: 0.7rem;
+      height: 0.7rem;
+      min-width: 0.7rem;
+      min-height: 0.7rem;
+      border-radius: 5px;
+      cursor: pointer;
+      background: @background;
+      transition: 0.1s ease;
+      border: 2px solid @accent-s;
+      outline: none;
+
+      &:checked {
+        background: @accent;
+        border: 2px solid @accent;
+      }
+
+      &:checked::before {
+        background: @foreground-light;
+      }
+
+      &::before {
+        content: "";
+        position: absolute;
+        display: inline-block;
+        width: 0.4rem;
+        height: 0.4rem;
+        min-width: 0.4rem;
+        min-height: 0.4rem;
+        content: "";
+        border-radius: 2px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
   }
 
   .switch-mode {
