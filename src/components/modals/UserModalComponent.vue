@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
 
 import { useUserStore } from "@/stores/UserStore";
 import { useNotificationStore } from "@/stores/NotificationStore";
@@ -9,21 +9,14 @@ import DeveloperBadgeIcon from "@/icons/DeveloperBadgeIcon.vue";
 import ModeratorBadgeIcon from "@/icons/ModeratorBadgeIcon.vue";
 import AdminBadgeIcon from "@/icons/AdminBadgeIcon.vue";
 import VIPBadgeIcon from "@/icons/VIPBadgeIcon.vue";
+import { useModalStore } from "@/stores/ModalStore";
 
 const users = storeToRefs(useUserStore()).users;
 const notes = storeToRefs(useNotesStore()).notes;
-
-const emit = defineEmits<{
-  (e: "close"): void;
-}>();
-
-const props = defineProps<{
-  show: boolean;
-  userID: string;
-}>();
+const modalData = storeToRefs(useModalStore()).userModalData;
 
 const exit = () => {
-  emit("close");
+  useModalStore().hideModal("user");
 };
 
 const note = ref("");
@@ -31,7 +24,7 @@ const note = ref("");
 const copyUsername = async () => {
   try {
     await navigator.clipboard.writeText(
-      users.value.get(props.userID)!.username
+      users.value.get(modalData.value.userID)!.username,
     );
 
     useNotificationStore().pushAlert({
@@ -48,60 +41,65 @@ const copyUsername = async () => {
 };
 
 const saveNote = async () => {
-  await useNotesStore().saveNote(props.userID, note.value);
+  await useNotesStore().saveNote(modalData.value.userID, note.value);
 };
 
 onMounted(() => {
-  note.value = notes.value?.[props.userID] ?? "";
+  note.value = notes.value?.[modalData.value.userID] ?? "";
 });
 
-watch(props, () => {
-  note.value = notes.value?.[props.userID] ?? "";
+watch(modalData.value, () => {
+  note.value = notes.value?.[modalData.value.userID] ?? "";
 });
 </script>
 
 <template>
   <Teleport to="#app">
     <Transition name="modal">
-      <div class="user-modal modal" v-if="props.show">
+      <div class="user-modal modal" v-if="modalData.show">
         <div class="outside" @click="exit()"></div>
         <div class="master">
           <div class="head">
             <div class="pfp">
-              <img
-                :src="users.get(props.userID)?.profilePic"
-                alt="profile picture"
-              />
+              <img :src="users.get(modalData.userID)?.profilePic" alt="pfp" />
             </div>
             <div class="info no-txt-overflow">
               <div class="names no-txt-overflow">
                 <p class="display-name no-txt-overflow">
-                  {{ users.get(props.userID)?.displayName }}
+                  {{ users.get(modalData.userID)?.displayName }}
                 </p>
                 &nbsp;-&nbsp;
                 <p class="username no-txt-overflow" @click="copyUsername">
-                  @{{ users.get(props.userID)?.username }}
+                  @{{ users.get(modalData.userID)?.username }}
                 </p>
               </div>
               <div
                 class="badges"
-                v-if="users.get(props.userID)!.globalRoles?.length > 0"
+                v-if="users.get(modalData.userID)!.globalRoles?.length > 0"
               >
                 <VIPBadgeIcon
-                  v-if="users.get(props.userID)?.globalRoles.includes('vip')"
+                  v-if="
+                    users.get(modalData.userID)?.globalRoles.includes('vip')
+                  "
                 ></VIPBadgeIcon>
                 <DeveloperBadgeIcon
                   v-if="
-                    users.get(props.userID)?.globalRoles.includes('developer')
+                    users
+                      .get(modalData.userID)
+                      ?.globalRoles.includes('developer')
                   "
                 ></DeveloperBadgeIcon>
                 <ModeratorBadgeIcon
                   v-if="
-                    users.get(props.userID)?.globalRoles.includes('moderator')
+                    users
+                      .get(modalData.userID)
+                      ?.globalRoles.includes('moderator')
                   "
                 ></ModeratorBadgeIcon>
                 <AdminBadgeIcon
-                  v-if="users.get(props.userID)?.globalRoles.includes('admin')"
+                  v-if="
+                    users.get(modalData.userID)?.globalRoles.includes('admin')
+                  "
                 ></AdminBadgeIcon>
               </div>
 
@@ -116,11 +114,13 @@ watch(props, () => {
               </div>
             </div>
           </div>
-          <div class="body" v-if="users.get(props.userID)?.about">
+          <div class="body" v-if="users.get(modalData.userID)?.about">
             <div class="hr" />
 
             <div class="about">
-              {{ users.get(props.userID)?.about }}
+              <pre>
+              {{ users.get(modalData.userID)?.about }}
+              </pre>
             </div>
           </div>
         </div>

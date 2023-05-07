@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { marked } from "marked";
 
 import { useUserStore } from "@/stores/UserStore";
 import type { User } from "@/stores/UserStore";
 import type { Message } from "@/stores/ChannelStore";
-import { marked } from "marked";
+import { useModalStore } from "@/stores/ModalStore";
+
+const modalStore = useModalStore();
 
 const props = defineProps<{
   message: Message;
@@ -18,7 +21,7 @@ const sender = computed((): User => {
 const messageContent = computed(() => {
   const msg = props.message.content.replace(
     /([\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E0}-\u{1F1FF}])/gu,
-    '<span class="emoji">$1</span>'
+    '<span class="emoji">$1</span>',
   );
 
   return marked(msg);
@@ -27,12 +30,18 @@ const messageContent = computed(() => {
 
 <template>
   <div class="message">
-    <div class="profilePic" v-if="!continuing">
-      <img :src="sender.profilePic ?? ''" />
+    <div
+      class="profilePic"
+      v-if="!continuing"
+      @click="modalStore.showUserModal(sender.id)"
+    >
+      <img alt="pfp" :src="sender.profilePic ?? ''" />
     </div>
     <div class="main">
       <div class="head" v-if="!continuing">
-        <span class="author">{{ sender.displayName }}</span>
+        <span class="author" @click="modalStore.showUserModal(sender.id)">{{
+          sender.displayName
+        }}</span>
         <span class="timestamp"
           >,&nbsp;
           {{
@@ -79,6 +88,7 @@ const messageContent = computed(() => {
     background: @background-light;
     grid-area: profilePic;
     margin-top: 0.1rem;
+    cursor: pointer;
 
     img {
       object-fit: cover;
@@ -98,10 +108,12 @@ const messageContent = computed(() => {
     .head {
       display: flex;
       align-items: flex-end;
+
       .author {
         font-size: 0.45rem;
         font-weight: 600;
         color: @accent-s;
+        cursor: pointer;
       }
 
       .timestamp {

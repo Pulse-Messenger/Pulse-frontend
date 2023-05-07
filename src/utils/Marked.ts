@@ -9,11 +9,11 @@ renderer.link = (href, title, text) => {
 };
 
 renderer.image = (href: string, title: string, text: string) => {
-  return `<img src="${href}" alt="${text}" title="${title}" onerror=${
+  return `<img alt="image" src="${href}" alt="${text}" title="${title}" onerror=${
     useActiveUserStore().userPreferences?.appearance.theme === "light"
       ? 'this.src="/fallbackImageLight.svg";'
       : 'this.src="/fallbackImageDark.svg";'
-  } onload=${"this.style.height='auto'"} />`;
+  } />`;
 };
 
 renderer.hr = () => {

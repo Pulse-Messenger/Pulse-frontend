@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
+
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { useCommonStore } from "@/stores/CommonStore";
-import { storeToRefs } from "pinia";
 
 const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 </script>

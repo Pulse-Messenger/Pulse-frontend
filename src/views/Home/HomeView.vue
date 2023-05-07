@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { useRoomStore } from "@/stores/RoomStore";
 import { storeToRefs } from "pinia";
-import { RouterLink, useRoute, useRouter } from "vue-router";
-import { ref } from "vue";
+import { RouterLink, useRouter } from "vue-router";
 
+import { useRoomStore } from "@/stores/RoomStore";
 import SettingIcon from "@/icons/SettingIcon.vue";
 import PlusIcon from "@/icons/PlusIcon.vue";
-import NewRoomModalComponent from "@/components/modals/NewRoomModalComponent.vue";
 import HouseIcon from "@/icons/HouseIcon.vue";
+import { useModalStore } from "@/stores/ModalStore";
 
 const router = useRouter();
-const route = useRoute();
 
 const rooms = storeToRefs(useRoomStore()).rooms;
 
@@ -32,19 +30,13 @@ const toRoom = async (roomID: string) => {
       },
     });
 };
-
-const showRoomModal = ref(false);
 </script>
 
 <template>
   <main>
-    <NewRoomModalComponent
-      :show="showRoomModal"
-      @close="showRoomModal = false"
-    ></NewRoomModalComponent>
     <nav class="user-nav">
       <div class="rooms">
-        <RouterLink class="home room-icon" :to="{ name: 'Me' }">
+        <RouterLink class="home room-icon" name="home" :to="{ name: 'Me' }">
           <HouseIcon></HouseIcon>
         </RouterLink>
         <div
@@ -57,12 +49,18 @@ const showRoomModal = ref(false);
           :key="item"
           :roomID="item"
         >
-          <img :src="rooms.get(item)?.profilePic ?? '/icons/Room.svg'" />
+          <img
+            alt="pfp"
+            :src="rooms.get(item)?.profilePic ?? '/icons/Room.svg'"
+          />
         </div>
       </div>
       <div class="options">
-        <PlusIcon class="new-server" @click="showRoomModal = true"></PlusIcon>
-        <RouterLink :to="{ name: 'Profile' }">
+        <PlusIcon
+          class="new-server"
+          @click="useModalStore().showNewRoomModal()"
+        ></PlusIcon>
+        <RouterLink :to="{ name: 'Profile' }" name="settings">
           <SettingIcon></SettingIcon>
         </RouterLink>
       </div>

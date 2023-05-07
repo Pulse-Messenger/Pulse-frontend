@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import XIcon from "@/icons/XIcon.vue";
-import { useUserStore } from "@/stores/UserStore";
-import NewFriendModalComponent from "@/components/modals/NewFriendModalComponent.vue";
-
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
+
+import XIcon from "@/icons/XIcon.vue";
+import { useUserStore } from "@/stores/UserStore";
+import { useModalStore } from "@/stores/ModalStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const friendships = storeToRefs(useActiveUserStore()).friendsData;
 const users = storeToRefs(useUserStore()).users;
 const roomStore = useRoomStore();
-
-const showModal = ref(false);
 
 const getStatus = (friendshipID: string) => {
   const fr = friendships.value[friendshipID];
@@ -29,7 +27,7 @@ const getStatus = (friendshipID: string) => {
 
 const manageFriendship = async (
   status: "accept" | "message" | "cancel" | "reject",
-  friendID: string
+  friendID: string,
 ) => {
   if (status === "message") {
     await roomStore.createDM(friendID);
@@ -76,7 +74,10 @@ const dmExists = (friendID: string) => {
 
 <template>
   <div class="friendlist">
-    <button class="new-friend button-small" @click="showModal = true">
+    <button
+      class="new-friend button-small"
+      @click="useModalStore().showNewFriendModal()"
+    >
       Add friend
     </button>
     <div v-if="Object.keys(friendships).length === 0">
@@ -130,11 +131,6 @@ const dmExists = (friendID: string) => {
         </div>
       </div>
     </div>
-
-    <NewFriendModalComponent
-      :show="showModal"
-      @close="showModal = false"
-    ></NewFriendModalComponent>
   </div>
 </template>
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { storeToRefs } from "pinia";
+import { useRoute, useRouter } from "vue-router";
+
 import FriendsIcon from "@/icons/FriendsIcon.vue";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useUserStore } from "@/stores/UserStore";
 import XIcon from "@/icons/XIcon.vue";
-
-import { storeToRefs } from "pinia";
-import { useRoute, useRouter } from "vue-router";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const router = useRouter();
@@ -53,6 +53,7 @@ const toDM = async (DMID: string) => {
         >
           <div class="member-image">
             <img
+              alt="pfp"
               :src="users.get(DMData(DM))?.profilePic ?? '/icons/User.svg'"
             />
           </div>

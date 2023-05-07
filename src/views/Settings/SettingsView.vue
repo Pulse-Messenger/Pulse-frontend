@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useActiveUserStore } from "@/stores/ActiveUserStore";
-import { useAuthStore } from "@/stores/AuthStore";
-
 import { storeToRefs } from "pinia";
 import { computed } from "vue";
+
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useAuthStore } from "@/stores/AuthStore";
 
 const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 

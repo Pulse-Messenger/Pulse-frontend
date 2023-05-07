@@ -6,8 +6,7 @@ import { useRoute } from "vue-router";
 import { useRoomStore } from "@/stores/RoomStore";
 import { APIInstance } from "@/utils/Axios";
 import { useNotificationStore } from "@/stores/NotificationStore";
-import { useCommonStore } from "@/stores/CommonStore";
-import ChannelModalComponent from "@/components/modals/ChannelModalComponent.vue";
+import { useModalStore } from "@/stores/ModalStore";
 import MenuIcon from "@/icons/MenuIcon.vue";
 import UserIcon from "@/icons/UserIcon.vue";
 import DeleteIcon from "@/icons/DeleteIcon.vue";
@@ -16,12 +15,10 @@ import Hashtag from "@/icons/HashtagIcon.vue";
 import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import PencilIcon from "@/icons/PencilIcon.vue";
 import CopyIcon from "@/icons/CopyIcon.vue";
-import UserModalComponent from "@/components/modals/UserModalComponent.vue";
-import EditRoomModalComponent from "@/components/modals/EditRoomModalComponent.vue";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const rooms = storeToRefs(useRoomStore()).rooms;
-const commonStore = useCommonStore();
+const modalStore = useModalStore();
 const activeUserStore = useActiveUserStore();
 
 const roomID = computed(() => {
@@ -57,21 +54,6 @@ const toChannel = (channelID: string) => {
   };
 };
 
-const userModal = ref({
-  show: false,
-  userID: "",
-});
-
-const channelModal = ref({
-  show: false,
-  channelID: "",
-});
-
-const roomModal = ref({
-  show: false,
-  roomID: "",
-});
-
 const getProfilePic = (uid: string) => {
   return members.value.get(uid)?.profilePic ?? "/icons/User.svg";
 };
@@ -80,7 +62,7 @@ const copyChannel = async (channelID: string) => {
   try {
     await navigator.clipboard.writeText(
       (document.querySelector(`[channelid="${channelID}"]`) as HTMLElement)
-        .innerText
+        .innerText,
     );
     useNotificationStore().pushAlert({
       type: "info",
@@ -100,7 +82,7 @@ const openRoomOptions = () => {
     useRoomStore().rooms.get(roomID.value)?.creatorID ==
     activeUserStore.activeUserData?.id;
 
-  commonStore.showModal([
+  modalStore.showInteractModal([
     {
       condition: () => roomOwner,
       action: generateInvite,
@@ -110,14 +92,14 @@ const openRoomOptions = () => {
     {
       condition: () => roomOwner,
       action: async () => {
-        channelModal.value.show = true;
+        modalStore.showChannelModal(roomID.value);
       },
       icon: Hashtag,
       title: "Create channel",
     },
     {
       condition: () => roomOwner,
-      action: async () => (roomModal.value.show = true),
+      action: async () => modalStore.showEditRoomModal(roomID.value),
       icon: PencilIcon,
       title: "Edit room",
     },
@@ -141,7 +123,7 @@ const openChannelOptions = (channelID: string) => {
     useRoomStore().rooms.get(roomID.value)?.creatorID ==
     activeUserStore.activeUserData?.id;
 
-  commonStore.showModal([
+  modalStore.showInteractModal([
     {
       condition: () => true,
       action: async () => await copyChannel(channelID),
@@ -151,8 +133,7 @@ const openChannelOptions = (channelID: string) => {
     {
       condition: () => roomOwner,
       action: async () => {
-        channelModal.value.channelID = channelID;
-        channelModal.value.show = true;
+        modalStore.showChannelModal(roomID.value, channelID);
       },
       icon: PencilIcon,
       title: "Edit channel",
@@ -193,17 +174,6 @@ const generateInvite = async () => {
       <div class="head">
         <h2 class="name no-txt-overflow">{{ rooms.get(roomID)?.name }}</h2>
         <MenuIcon class="room-settings" @click="openRoomOptions"></MenuIcon>
-        <ChannelModalComponent
-          :channelID="channelModal.channelID"
-          :roomID="roomID"
-          :show="channelModal.show"
-          @close="
-            () => {
-              channelModal.channelID = '';
-              channelModal.show = false;
-            }
-          "
-        ></ChannelModalComponent>
       </div>
       <div class="channels" ref="channelsRef">
         <div
@@ -236,34 +206,18 @@ const generateInvite = async () => {
         :memberID="item.id"
         @click="
           () => {
-            userModal.show = true;
-            userModal.userID = item.id;
+            useModalStore().showUserModal(item.id);
           }
         "
       >
         <div class="member-image">
-          <img :src="getProfilePic(item.id)" />
+          <img :src="getProfilePic(item.id)" alt="pfp" />
         </div>
         <span class="no-txt-overflow">
           {{ item.displayName }}
         </span>
       </div>
     </div>
-    <UserModalComponent
-      :show="userModal.show"
-      :userID="userModal.userID"
-      @close="
-        () => {
-          userModal.show = false;
-          userModal.userID = '';
-        }
-      "
-    ></UserModalComponent>
-    <EditRoomModalComponent
-      :show="roomModal.show"
-      :roomID="roomID"
-      @close="roomModal.show = false"
-    ></EditRoomModalComponent>
   </div>
 </template>
 

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { ref, onMounted, computed, nextTick, watch } from "vue";
+
 import XIcon from "@/icons/XIcon.vue";
 import UploadIcon from "@/icons/UploadIcon.vue";
 import { useChannelStore } from "@/stores/ChannelStore";
-
-import { ref, onMounted, computed, nextTick, watch } from "vue";
 import { useNotificationStore } from "@/stores/NotificationStore";
 
 const channelStore = useChannelStore();
@@ -50,7 +50,7 @@ const insertTab = async (evt: any) => {
   const cursorPos = textarea.value!.selectionStart;
   const textBeforeCursor = textarea.value!.value.substring(0, cursorPos);
   const textAfterCursor = textarea.value!.value.substring(
-    textarea.value!.selectionEnd
+    textarea.value!.selectionEnd,
   );
 
   const tabCharacter = "\t";
@@ -60,7 +60,7 @@ const insertTab = async (evt: any) => {
   await nextTick();
   textarea.value!.setSelectionRange(
     cursorPos + tabCharacter.length,
-    cursorPos + tabCharacter.length
+    cursorPos + tabCharacter.length,
   );
 };
 

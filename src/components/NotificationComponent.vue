@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import type { Notification } from "@/stores/NotificationStore";
 
-import { computed } from "vue";
-
 const props = defineProps<{
   notification: Notification;
 }>();
@@ -32,7 +30,7 @@ const emit = defineEmits<{
       @click="emit('kill')"
     >
       <div class="pfp">
-        <img :src="notification.extra?.userPfp" />
+        <img alt="pfp" :src="notification.extra?.userPfp" />
       </div>
       <div class="content">
         <span>

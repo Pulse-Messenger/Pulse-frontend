@@ -171,7 +171,7 @@ const undo = async () => {
     <div class="user-card">
       <div class="head">
         <div class="pfp">
-          <img id="profilePic" :src="tempValues.profilePic" />
+          <img id="profilePic" :src="tempValues.profilePic" alt="pfp" />
           <input
             type="file"
             accept=".png,.jpg,.jpeg,.webp,.gif"

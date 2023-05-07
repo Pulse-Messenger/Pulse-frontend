@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, watch, ref, nextTick } from "vue";
 
-import { useCommonStore } from "@/stores/CommonStore";
+import { useModalStore } from "@/stores/ModalStore";
 
-const modalData = useCommonStore().interactModalData;
+const modalData = useModalStore().interactModalData;
 
 const modal = ref<HTMLElement>();
 const mousePos = ref({
@@ -31,12 +31,10 @@ watch(modalData, async () => {
 });
 
 onMounted(() => {
-  document.addEventListener("mousemove", (evt) => {
+  document.addEventListener("mousedown", (evt) => {
     mousePos.value.x = evt.clientX;
     mousePos.value.y = evt.clientY;
-  });
 
-  document.addEventListener("mousedown", (evt) => {
     if (!modalData.show) return;
 
     if (
@@ -45,7 +43,7 @@ onMounted(() => {
       evt.clientY > modal.value!.offsetTop + modal.value!.offsetHeight ||
       evt.clientY < modal.value!.offsetTop
     ) {
-      useCommonStore().hideModal();
+      useModalStore().hideModal("interact");
     }
   });
 });

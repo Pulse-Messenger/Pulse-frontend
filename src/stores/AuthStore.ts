@@ -20,6 +20,7 @@ export interface RegisterData {
   username: string;
   password: string;
   repeatedPassword: string;
+  agreeToTOS: boolean;
 }
 
 export interface LoginData {

@@ -84,7 +84,7 @@ onMounted(() => {
           setTimeout(() => {
             emit("input", sliderVal.value!);
             resolve(true);
-          }, dragBuffer)
+          }, dragBuffer),
         );
       };
       await wait();
