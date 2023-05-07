@@ -35,12 +35,12 @@ const messageContent = computed(() => {
       v-if="!continuing"
       @click="modalStore.showUserModal(sender.id)"
     >
-      <img alt="pfp" :src="sender.profilePic ?? ''" />
+      <img alt="pfp" :src="sender.profilePic ?? '/icons/User.svg'" />
     </div>
     <div class="main">
       <div class="head" v-if="!continuing">
         <span class="author" @click="modalStore.showUserModal(sender.id)">{{
-          sender.displayName
+          sender.displayName ?? "Deleted User"
         }}</span>
         <span class="timestamp"
           >,&nbsp;
