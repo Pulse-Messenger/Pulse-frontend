@@ -89,6 +89,8 @@ const isEditing = computed(() => {
   return props.mode === "edit" && props.messageID;
 });
 
+const uploading = ref(false);
+
 const uploadFiles = async (files: FileList) => {
   if (files.length > 10) {
     useNotificationStore().pushAlert({
@@ -110,7 +112,9 @@ const uploadFiles = async (files: FileList) => {
     formData.append("files", files[i]);
   }
 
+  uploading.value = true;
   const fileRes = await channelStore.uploadFiles(formData);
+  uploading.value = false;
   if (!fileRes) return;
 
   await channelStore.sendMessage(fileRes.files.join("\n"), props.channelID);
@@ -160,6 +164,9 @@ watch(props, async () => {
       <div class="mode" v-if="props.mode === 'edit'">
         <span>Editing message</span
         ><XIcon @click="cancelEdit" class="close-edit"></XIcon>
+      </div>
+      <div class="mode" v-if="uploading">
+        <span>Uploading file(s)...</span>
       </div>
       <textarea
         id="chatbox"
