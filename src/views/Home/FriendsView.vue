@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { computed, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 import XIcon from "@/icons/XIcon.vue";
 import { useUserStore } from "@/stores/UserStore";
 import { useModalStore } from "@/stores/ModalStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useActiveUserStore, type Friendship } from "@/stores/ActiveUserStore";
+
+const router = useRouter();
 
 const friendships = storeToRefs(useActiveUserStore()).friendsData;
 const users = storeToRefs(useUserStore()).users;
@@ -15,9 +18,6 @@ const roomStore = useRoomStore();
 const friendQuery = ref("");
 
 const filteredFriendships = computed((): { [id: string]: Friendship } => {
-  // only include if friend display name or username matches friendQuery
-  // users is a map of all users
-
   const filtered: { [id: string]: Friendship } = {};
 
   Object.keys(friendships.value).forEach((id) => {
@@ -80,6 +80,21 @@ const manageFriendship = async (
   friendID: string,
 ) => {
   if (status === "message") {
+    let DMID;
+    roomStore.rooms.forEach((v, id) => {
+      if (roomStore.rooms.get(id)?.friendship)
+        if (
+          roomStore.rooms.get(id)?.friendship?.friendA === friendID ||
+          roomStore.rooms.get(id)?.friendship?.friendB === friendID
+        )
+          DMID = id;
+    });
+    if (DMID) {
+      return router.push({
+        name: "DM",
+        params: { DMID },
+      });
+    }
     await roomStore.createDM(friendID);
     return;
   }
@@ -106,19 +121,6 @@ const manageFriendship = async (
   }
 
   await useActiveUserStore().manageFriendship(data);
-};
-
-const dmExists = (friendID: string) => {
-  let doesntExist = true;
-  roomStore.rooms.forEach((v, id) => {
-    if (roomStore.rooms.get(id)?.friendship)
-      if (
-        roomStore.rooms.get(id)?.friendship?.friendA === friendID ||
-        roomStore.rooms.get(id)?.friendship?.friendB === friendID
-      )
-        doesntExist = false;
-  });
-  return doesntExist;
 };
 </script>
 
@@ -154,9 +156,7 @@ const dmExists = (friendID: string) => {
         <div class="status">
           <button
             class="button-small"
-            v-if="
-              getStatus(id.toString()) === 'message' && dmExists(id.toString())
-            "
+            v-if="getStatus(id.toString()) === 'message'"
             @click="manageFriendship('message', id.toString())"
           >
             Message
