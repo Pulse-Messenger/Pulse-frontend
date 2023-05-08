@@ -90,6 +90,12 @@ onMounted(() => {
               toDM(DM);
               useCommonStore().clearSwipe();
             "
+            @contextmenu="
+              useModalStore().showConfirmModal(
+                'Are you sure you want to delete this DM?',
+                () => removeDM(DM),
+              )
+            "
           >
             <div class="member-image">
               <img
@@ -104,7 +110,7 @@ onMounted(() => {
               {{ users.get(DMData(DM))?.displayName ?? "Unknown user" }}
             </span>
             <XIcon
-              @click.stop="
+              @click="
                 useModalStore().showConfirmModal(
                   'Are you sure you want to delete this DM?',
                   () => removeDM(DM),
