@@ -205,8 +205,7 @@ const login = async () => {
           <input type="checkbox" v-model="registerData.agreeToTOS" />
         </div>
         <ButtonComponent
-          onclick="this.disabled = true"
-          @click.once="testInput('register')"
+          @click.prevent.stop="testInput('register')"
           :disabled="
             waitingForRes ||
             registerData.email.length === 0 ||
@@ -253,7 +252,7 @@ const login = async () => {
       "
         ></InputComponent>
         <ButtonComponent
-          @click.once="testInput('login')"
+          @click.prevent.stop="testInput('login')"
           :disabled="
             loginData.username.length === 0 ||
             loginData.password.length === 0 ||
