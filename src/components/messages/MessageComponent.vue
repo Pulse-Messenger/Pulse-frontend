@@ -201,9 +201,47 @@ const messageContent = computed(() => {
         */
         height: 10rem;
         max-height: 10rem;
-        max-width: 70%;
         border-radius: 5px;
         overflow: hidden;
+      }
+
+      video {
+        height: 10rem;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 5px;
+      }
+
+      audio {
+        width: 10rem;
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 5px;
+      }
+
+      .file {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        background: @background-light;
+        padding: 0.4rem;
+        border-radius: 5px;
+        max-width: 11rem;
+        width: 100%;
+        border: 1px solid @background;
+        align-items: center;
+
+        .name {
+          max-width: 8rem;
+        }
+
+        .icon {
+          display: flex;
+          svg {
+            height: 1rem;
+            fill: @foreground;
+            cursor: pointer;
+          }
+        }
       }
 
       table,
