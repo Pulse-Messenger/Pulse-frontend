@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import { useRoomStore } from "@/stores/RoomStore";
@@ -16,6 +16,7 @@ import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import PencilIcon from "@/icons/PencilIcon.vue";
 import CopyIcon from "@/icons/CopyIcon.vue";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useCommonStore } from "@/stores/CommonStore";
 
 const rooms = storeToRefs(useRoomStore()).rooms;
 const modalStore = useModalStore();
@@ -24,6 +25,33 @@ const activeUserStore = useActiveUserStore();
 const roomID = computed(() => {
   return useRoute().params.roomID.toString();
 });
+
+const navRef = ref<HTMLDivElement>();
+const membersRef = ref<HTMLDivElement>();
+
+const gestureData = storeToRefs(useCommonStore()).commonData.value.swipeData;
+const baseFontSize = storeToRefs(useActiveUserStore()).baseFontSize;
+
+const resize = () => {
+  if (baseFontSize.value === 28) {
+    navRef.value!.style.position = "static";
+    membersRef.value!.style.position = "static";
+  } else {
+    navRef.value!.style.position = "absolute";
+    navRef.value!.style.top = "0px";
+    navRef.value!.style.left = "0px";
+
+    membersRef.value!.style.position = "absolute";
+    membersRef.value!.style.top = "0px";
+    membersRef.value!.style.right = "0px";
+  }
+};
+
+watch(baseFontSize, () => {
+  resize();
+});
+
+onMounted(() => resize());
 
 const channels = computed(() => {
   const chs = useRoomStore().getRoomChannels(roomID.value);
@@ -40,8 +68,6 @@ const channels = computed(() => {
   });
   return categories;
 });
-
-const channelsRef = ref();
 
 const members = computed(() => {
   return useRoomStore().getRoomMembers(roomID.value);
@@ -182,54 +208,71 @@ const generateInvite = async () => {
 
 <template>
   <div class="room">
-    <nav class="room-nav">
-      <div class="head">
-        <h2 class="name no-txt-overflow">{{ rooms.get(roomID)?.name }}</h2>
-        <MenuIcon class="room-settings" @click="openRoomOptions"></MenuIcon>
-      </div>
-      <div class="channels" ref="channelsRef">
-        <div
-          class="category"
-          v-for="(cat, catIndex) in channels"
-          :key="catIndex"
-        >
-          <h3>{{ catIndex ?? "none" }}</h3>
-          <RouterLink
-            :to="toChannel(channelIndex.toString())"
-            class="channel no-txt-overflow"
-            v-for="(channel, channelIndex) in cat"
-            :key="channelIndex"
-            :channelID="channelIndex"
-            @contextmenu="openChannelOptions(channel.id)"
-          >
-            <Hashtag class="channel-tag"></Hashtag>
-            {{ channel.name }}
-          </RouterLink>
-        </div>
-      </div>
-    </nav>
-    <RouterView v-if="useRoute().params['channelID']"></RouterView>
-    <div class="fill" v-else />
-    <div class="room-members">
-      <div
-        class="member"
-        v-for="(item, index) in members.values()"
-        :key="index"
-        :memberID="item.id"
-        @click="
-          () => {
-            useModalStore().showUserModal(item.id);
-          }
-        "
+    <Transition name="left-comein">
+      <nav
+        class="room-nav"
+        v-show="gestureData.swipedRight || baseFontSize === 28"
+        ref="navRef"
+        v-full-height
       >
-        <div class="member-image">
-          <img :src="getProfilePic(item.id)" alt="pfp" />
+        <div class="head">
+          <h2 class="name no-txt-overflow">{{ rooms.get(roomID)?.name }}</h2>
+          <MenuIcon class="room-settings" @click="openRoomOptions"></MenuIcon>
         </div>
-        <span class="no-txt-overflow">
-          {{ item.displayName }}
-        </span>
+        <div class="channels">
+          <div
+            class="category"
+            v-for="(cat, catIndex) in channels"
+            :key="catIndex"
+          >
+            <h3>{{ catIndex ?? "none" }}</h3>
+            <RouterLink
+              :to="toChannel(channelIndex.toString())"
+              class="channel no-txt-overflow"
+              v-for="(channel, channelIndex) in cat"
+              :key="channelIndex"
+              :channelID="channelIndex"
+              @contextmenu="openChannelOptions(channel.id)"
+            >
+              <Hashtag class="channel-tag"></Hashtag>
+              {{ channel.name }}
+            </RouterLink>
+          </div>
+        </div>
+      </nav>
+    </Transition>
+    <RouterView
+      v-if="useRoute().params['channelID']"
+      v-full-height
+    ></RouterView>
+    <div class="fill" v-else />
+    <Transition name="right-comein">
+      <div
+        class="room-members"
+        v-show="gestureData.swipedLeft || baseFontSize === 28"
+        ref="membersRef"
+        v-full-height
+      >
+        <div
+          class="member"
+          v-for="(item, index) in members.values()"
+          :key="index"
+          :memberID="item.id"
+          @click="
+            () => {
+              useModalStore().showUserModal(item.id);
+            }
+          "
+        >
+          <div class="member-image">
+            <img :src="getProfilePic(item.id)" alt="pfp" />
+          </div>
+          <span class="no-txt-overflow">
+            {{ item.displayName }}
+          </span>
+        </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -240,7 +283,6 @@ const generateInvite = async () => {
   display: grid;
   grid-template-columns: auto 1fr auto;
   width: 100%;
-  height: 100%;
   margin: 0 auto;
 
   ::-webkit-scrollbar {
@@ -330,6 +372,8 @@ const generateInvite = async () => {
     overflow-y: auto;
     padding: 0.3rem 0.1rem;
     box-shadow: -5px 0px 5px @background;
+    background: @background-light;
+    z-index: 10;
 
     .member {
       padding: 0.1rem 0.2rem;

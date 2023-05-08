@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { computed } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { useAuthStore } from "@/stores/AuthStore";
 import { useModalStore } from "@/stores/ModalStore";
+import { useCommonStore } from "@/stores/CommonStore";
 
 const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
 
@@ -16,35 +17,81 @@ const getTimeMessage = computed(() => {
   else return "Good evening";
 });
 const categories = ["Profile", "Sessions", "Appearance", "Notifications"];
+
+const gestureData = storeToRefs(useCommonStore()).commonData.value.swipeData;
+
+const navRef = ref<HTMLElement>();
+
+const baseFontSize = storeToRefs(useActiveUserStore()).baseFontSize;
+
+const resize = () => {
+  if (baseFontSize.value === 28) {
+    navRef.value!.style.boxShadow = "none";
+    navRef.value!.style.position = "static";
+
+    document.querySelector<HTMLDivElement>(".settings")!.style.padding = "";
+    document.querySelector<HTMLDivElement>(
+      ".settings",
+    )!.style.gridTemplateColumns = "";
+  } else {
+    document.querySelector<HTMLDivElement>(".settings")!.style.padding =
+      "0 1rem";
+    document.querySelector<HTMLDivElement>(
+      ".settings",
+    )!.style.gridTemplateColumns = "1fr";
+
+    navRef.value!.style.position = "absolute";
+    navRef.value!.style.top = "0";
+    navRef.value!.style.left = "0";
+    navRef.value!.style.marginTop = "0";
+    navRef.value!.style.boxShadow = "";
+  }
+};
+
+watch(baseFontSize, () => {
+  resize();
+});
+
+onMounted(() => {
+  resize();
+});
 </script>
 
 <template>
-  <div class="settings">
-    <div class="categories">
-      <RouterLink
-        :to="{ name: category }"
-        class="category-link"
-        v-for="(category, index) in categories"
-        :key="index"
-        >{{ category }}</RouterLink
-      >
-      <hr />
+  <div class="settings" v-full-height>
+    <Transition name="left-comein">
       <div
-        class="category-link logout"
-        @click="
-          useModalStore().showConfirmModal(
-            'Are you sure you want to log out?',
-            () => useAuthStore().logout(),
-          )
-        "
+        class="categories"
+        ref="navRef"
+        v-show="baseFontSize === 28 || gestureData.swipedRight"
       >
-        Log Out
+        <RouterLink
+          :to="{ name: category }"
+          @click="useCommonStore().clearSwipe()"
+          class="category-link"
+          v-for="(category, index) in categories"
+          :key="index"
+          >{{ category }}</RouterLink
+        >
+        <hr />
+        <div
+          class="category-link logout"
+          @click.once="
+            useModalStore().showConfirmModal(
+              'Are you sure you want to log out?',
+              () => useAuthStore().logout(),
+            )
+          "
+        >
+          Log Out
+        </div>
       </div>
-    </div>
-    <div class="category-content">
+    </Transition>
+    <div class="category-content" v-full-height>
       <h1 class="no-txt-overflow">
-        {{ getTimeMessage + " "
-        }}<span class="name">{{ activeUser?.displayName }}</span>
+        {{ getTimeMessage + " " }}
+        <br v-if="baseFontSize !== 28" />
+        <span class="name">{{ activeUser?.displayName }}</span>
       </h1>
       <RouterView class="category"></RouterView>
     </div>
@@ -64,11 +111,15 @@ const categories = ["Profile", "Sessions", "Appearance", "Notifications"];
   max-width: 50rem;
 
   .categories {
-    margin-top: 5vh;
+    padding-top: 6vh !important;
+    height: 100%;
     display: flex;
     flex-direction: column;
     padding: 0.3rem 0.2rem;
     width: 7rem;
+    background: @background-light;
+    z-index: 1;
+    box-shadow: 5px 3px 5px @background;
 
     .category-link {
       width: 100%;
@@ -105,7 +156,7 @@ const categories = ["Profile", "Sessions", "Appearance", "Notifications"];
 
     .category {
       height: 100%;
-      padding-right: 1rem;
+      width: 100%;
     }
   }
 }

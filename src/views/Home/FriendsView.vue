@@ -1,16 +1,36 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref, watch } from "vue";
 
 import XIcon from "@/icons/XIcon.vue";
 import { useUserStore } from "@/stores/UserStore";
 import { useModalStore } from "@/stores/ModalStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { onMounted, watch } from "vue";
 
 const friendships = storeToRefs(useActiveUserStore()).friendsData;
 const users = storeToRefs(useUserStore()).users;
 const roomStore = useRoomStore();
+
+const baseFontSize = storeToRefs(useActiveUserStore()).baseFontSize;
+
+watch(baseFontSize, () => {
+  if (baseFontSize.value === 28) {
+    document.querySelector<HTMLDivElement>(".friendlist")!.style.padding = "";
+  } else {
+    document.querySelector<HTMLDivElement>(".friendlist")!.style.padding =
+      "1rem";
+  }
+});
+
+onMounted(() => {
+  if (baseFontSize.value === 28) {
+    document.querySelector<HTMLDivElement>(".friendlist")!.style.padding = "";
+  } else {
+    document.querySelector<HTMLDivElement>(".friendlist")!.style.padding =
+      "1rem";
+  }
+});
 
 const getStatus = (friendshipID: string) => {
   const fr = friendships.value[friendshipID];
@@ -76,7 +96,7 @@ const dmExists = (friendID: string) => {
   <div class="friendlist">
     <button
       class="new-friend button-small"
-      @click="useModalStore().showNewFriendModal()"
+      @click.once="useModalStore().showNewFriendModal()"
     >
       Add friend
     </button>
@@ -102,14 +122,14 @@ const dmExists = (friendID: string) => {
             v-if="
               getStatus(id.toString()) === 'message' && dmExists(id.toString())
             "
-            @click="manageFriendship('message', id.toString())"
+            @click.once="manageFriendship('message', id.toString())"
           >
             Message
           </button>
           <button
             class="button-small"
             v-if="getStatus(id.toString()) === 'accept'"
-            @click="manageFriendship('accept', id.toString())"
+            @click.once="manageFriendship('accept', id.toString())"
           >
             Accept
           </button>
@@ -118,7 +138,7 @@ const dmExists = (friendID: string) => {
           </div>
           <div
             class="remove"
-            @click="
+            @click.once="
               () => {
                 if (getStatus(id.toString()) == 'pending')
                   useModalStore().showConfirmModal(

@@ -12,7 +12,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="pickme" @click="emit('select')">
+  <div class="pickme" @click.once="emit('select')">
     <div>{{ title }}</div>
     <CircleIcon class="hit" :class="{ active }"></CircleIcon>
   </div>

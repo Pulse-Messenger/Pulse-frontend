@@ -68,7 +68,7 @@ const exit = () => {
                   mode === 'create') ||
                 (inputValue.length === 0 && mode === 'join')
               "
-              @click="action()"
+              @click.once="action()"
             >
               {{ mode === "create" ? "Create" : "Join" }}
             </button>
@@ -107,7 +107,7 @@ const exit = () => {
       width: 100%;
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
       column-gap: 0.5rem;
 
       .toggle {

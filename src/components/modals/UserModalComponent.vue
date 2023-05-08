@@ -69,7 +69,7 @@ watch(modalData.value, () => {
                   {{ users.get(modalData.userID)?.displayName }}
                 </p>
                 &nbsp;-&nbsp;
-                <p class="username no-txt-overflow" @click="copyUsername">
+                <p class="username no-txt-overflow" @click.once="copyUsername">
                   @{{ users.get(modalData.userID)?.username }}
                 </p>
               </div>
@@ -116,11 +116,8 @@ watch(modalData.value, () => {
           </div>
           <div class="body" v-if="users.get(modalData.userID)?.about">
             <div class="hr" />
-
             <div class="about">
-              <pre>
-              {{ users.get(modalData.userID)?.about }}
-              </pre>
+              <pre>{{ users.get(modalData.userID)?.about }}</pre>
             </div>
           </div>
         </div>
@@ -225,7 +222,6 @@ watch(modalData.value, () => {
             width: 0.7rem;
             min-width: 0.7rem;
             min-height: 0.7rem;
-            cursor: pointer;
           }
         }
 

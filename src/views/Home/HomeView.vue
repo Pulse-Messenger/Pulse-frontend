@@ -7,6 +7,7 @@ import SettingIcon from "@/icons/SettingIcon.vue";
 import PlusIcon from "@/icons/PlusIcon.vue";
 import HouseIcon from "@/icons/HouseIcon.vue";
 import { useModalStore } from "@/stores/ModalStore";
+import { useCommonStore } from "@/stores/CommonStore";
 
 const router = useRouter();
 
@@ -36,11 +37,19 @@ const toRoom = async (roomID: string) => {
   <main>
     <nav class="user-nav">
       <div class="rooms">
-        <RouterLink class="home room-icon" name="home" :to="{ name: 'Me' }">
+        <RouterLink
+          class="home room-icon"
+          name="home"
+          :to="{ name: 'Me' }"
+          @click="useCommonStore().clearSwipe()"
+        >
           <HouseIcon></HouseIcon>
         </RouterLink>
         <div
-          @click="toRoom(item)"
+          @click.once="
+            toRoom(item);
+            useCommonStore().clearSwipe();
+          "
           class="room-icon"
           :class="{
             'router-link-active': $route.params.roomID === item,
@@ -58,9 +67,13 @@ const toRoom = async (roomID: string) => {
       <div class="options">
         <PlusIcon
           class="new-server"
-          @click="useModalStore().showNewRoomModal()"
+          @click.once="useModalStore().showNewRoomModal()"
         ></PlusIcon>
-        <RouterLink :to="{ name: 'Profile' }" name="settings">
+        <RouterLink
+          :to="{ name: 'Profile' }"
+          name="settings"
+          @click.once="useCommonStore().clearSwipe()"
+        >
           <SettingIcon></SettingIcon>
         </RouterLink>
       </div>
@@ -89,6 +102,7 @@ main {
     max-height: 100vh;
     min-width: 2.3rem;
     z-index: 11;
+    background: @background-light;
 
     .options {
       display: flex;
@@ -121,12 +135,24 @@ main {
       row-gap: 0.2rem;
       overflow-y: auto;
       height: 100%;
+      width: 100%;
 
       .home {
         padding: 0.4rem;
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+
+      @keyframes roomActive {
+        0% {
+          transform: translateY(-50%) scale(0.5);
+          opacity: 0.5;
+        }
+        100% {
+          transform: translateY(-50%) scale(1);
+          opacity: 1;
+        }
       }
 
       .router-link-active::after {
@@ -140,6 +166,7 @@ main {
         z-index: 100;
         top: 50%;
         transform: translateY(-50%);
+        animation: roomActive 0.2s ease;
       }
 
       .room-icon {

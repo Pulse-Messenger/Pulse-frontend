@@ -99,7 +99,7 @@ const changed = computed(() => {
             :disabled="
               waiting || name.length < 5 || name.length > 20 || !changed
             "
-            @click="action()"
+            @click.once="action()"
           >
             Save
           </button>

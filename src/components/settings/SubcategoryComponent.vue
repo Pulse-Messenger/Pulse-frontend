@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import SliderComponent from "@/components/inputs/SliderComponent.vue";
 import PickMeComponent from "@/components/settings/PickMeComponent.vue";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import type { Setting } from "@/stores/CommonStore";
+import { storeToRefs } from "pinia";
+
+const baseFontSize = storeToRefs(useActiveUserStore()).baseFontSize;
 
 const props = defineProps<{
   subcategories: { [key: string]: Setting[] };
@@ -29,6 +33,7 @@ const props = defineProps<{
         :max="item.sliderData.max"
         :step="item.sliderData.step"
         :default="item.sliderData.default"
+        :show-steps="baseFontSize === 28"
         @input="(v) => item.sliderData?.eventCallback(v)"
       ></SliderComponent>
     </div>

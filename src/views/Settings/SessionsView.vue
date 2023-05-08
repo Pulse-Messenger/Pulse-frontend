@@ -1,12 +1,27 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 
+// @ts-ignore
+import UAParser from "ua-parser-js";
+
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { useModalStore } from "@/stores/ModalStore";
 
 const modalStore = useModalStore();
 
 const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
+
+const getBrowser = (ua: string) => {
+  const parser = new UAParser(ua);
+  const result = parser.getResult();
+  return (
+    result.browser.name +
+    " - " +
+    result.browser.version +
+    " on " +
+    result.os.name
+  );
+};
 </script>
 
 <template>
@@ -15,7 +30,7 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
       <h3>Devices</h3>
       <button
         class="button-small logout"
-        @click="
+        @click.once="
           () =>
             modalStore.showConfirmModal(
               'Are you sure you want to log out everywhere?',
@@ -33,11 +48,13 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
     >
       <div class="info no-txt-oveflow">
         <p class="ip">{{ session.ip }}</p>
-        <p class="useragent no-txt-oveflow">{{ session.useragent }}</p>
+        <p class="useragent no-txt-oveflow">
+          {{ getBrowser(session.useragent) }}
+        </p>
       </div>
       <button
         class="button-small logout"
-        @click="
+        @click.once="
           modalStore.showConfirmModal(
             'Are you sure you want to log out this device?',
             () => useActiveUserStore().deleteSession(session.id),

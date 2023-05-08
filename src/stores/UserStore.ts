@@ -15,6 +15,14 @@ export interface User {
 export const useUserStore = defineStore("user", () => {
   const users = ref(new Map<string, User>());
 
+  setInterval(() => {
+    // refresh images
+    users.value.forEach((user) => {
+      const raw = user.profilePic.split("?")[0];
+      user.profilePic = raw + "?" + Date.now();
+    });
+  }, 30000);
+
   const fetchUser = async (userID: string) => {
     try {
       const { data } = await APIInstance.request({

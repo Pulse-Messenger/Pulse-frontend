@@ -5,6 +5,8 @@ import XIcon from "@/icons/XIcon.vue";
 import UploadIcon from "@/icons/UploadIcon.vue";
 import { useChannelStore } from "@/stores/ChannelStore";
 import { useNotificationStore } from "@/stores/NotificationStore";
+import SendIcon from "@/icons/SendIcon.vue";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const channelStore = useChannelStore();
 
@@ -20,7 +22,15 @@ const autoGrow = () => {
 const processMessage = async (evt: any) => {
   if (sendingMessage) return;
 
-  if (evt.which === 13 && evt.shiftKey) return;
+  if (useActiveUserStore().baseFontSize === 28) {
+    if (evt.key === "Enter" && evt.shiftKey) {
+      return;
+    }
+  } else {
+    if (evt.key === "Enter") {
+      return;
+    }
+  }
   evt.preventDefault();
 
   if (
@@ -40,6 +50,7 @@ const processMessage = async (evt: any) => {
   sendingMessage = false;
 
   messageContent.value = "";
+  textarea.value!.value = "";
   await nextTick();
   autoGrow();
 };
@@ -167,6 +178,7 @@ watch(props, async () => {
         @keydown.tab="(evt) => insertTab(evt)"
       ></textarea>
     </div>
+    <SendIcon class="send" @click="processMessage"></SendIcon>
   </div>
 </template>
 
@@ -214,6 +226,13 @@ watch(props, async () => {
         display: none;
       }
     }
+  }
+
+  .send {
+    min-width: 0.9rem;
+    width: 0.9rem;
+    padding-right: 0.1rem;
+    cursor: pointer;
   }
 
   .main {

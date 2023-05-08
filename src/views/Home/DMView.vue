@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 
 import MessageListComponent from "@/components/messages/MessageListComponent.vue";
@@ -39,11 +39,11 @@ const channel = computed(() => {
 </script>
 
 <template>
-  <div class="channel">
+  <div class="channel" v-full-height>
     <div class="head">
       <h2
         class="name no-txt-overflow"
-        @click="useModalStore().showUserModal(users.get(DMData(DMID))!.id)"
+        @click.once="useModalStore().showUserModal(users.get(DMData(DMID))!.id)"
       >
         {{ users.get(DMData(DMID))?.displayName ?? "" }}
       </h2>
@@ -57,12 +57,12 @@ const channel = computed(() => {
 
 .channel {
   grid-column: 2;
-  max-height: 100vh;
   background: @background;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   max-width: 100%;
+  width: 100%;
   overflow: hidden;
 
   .head {

@@ -18,7 +18,7 @@ interface ActiveUserData {
       id: string;
       ip: string;
       useragent: string;
-    }
+    },
   ];
 }
 
@@ -39,7 +39,16 @@ export interface Friendship {
 }
 
 export const useActiveUserStore = defineStore("activeUser", () => {
-  const baseFontSize = window.innerWidth < 900 ? 23 : 28;
+  const baseFontSize = ref(window.innerWidth < 800 ? 25 : 28);
+
+  window.addEventListener("resize", () => {
+    baseFontSize.value = window.innerWidth < 800 ? 25 : 28;
+
+    (document.querySelector(":root") as HTMLElement).style.fontSize =
+      (baseFontSize.value * (userPreferences.value?.appearance.scale ?? 100)) /
+        100 +
+      "px";
+  });
 
   const activeUserData = ref<ActiveUserData>();
   const friendsData = ref<{ [id: string]: Friendship }>({});
@@ -58,7 +67,8 @@ export const useActiveUserStore = defineStore("activeUser", () => {
     }
 
     (document.querySelector(":root") as HTMLElement).style.fontSize =
-      (baseFontSize * (userPreferences.value?.appearance.scale ?? 100)) / 100 +
+      (baseFontSize.value * (userPreferences.value?.appearance.scale ?? 100)) /
+        100 +
       "px";
   };
 
@@ -144,7 +154,7 @@ export const useActiveUserStore = defineStore("activeUser", () => {
         });
 
         activeUserData.value!.profilePic = URL.createObjectURL(
-          data.profilePic.get("file") as any
+          data.profilePic.get("file") as any,
         );
       }
 
@@ -272,7 +282,7 @@ export const useActiveUserStore = defineStore("activeUser", () => {
       else unsavedPreferences.value = false;
       loadUserPreferences();
     },
-    { deep: true }
+    { deep: true },
   );
 
   return {

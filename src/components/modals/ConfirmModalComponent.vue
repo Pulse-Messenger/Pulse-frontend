@@ -20,7 +20,7 @@ const modalData = storeToRefs(useModalStore()).confirmModalData;
           </button>
           <button
             class="button-small"
-            @click="
+            @click.once="
               () => {
                 modalData.callback();
                 useModalStore().hideModal('confirm');

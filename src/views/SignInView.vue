@@ -37,8 +37,6 @@ const mailCheck =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 const testInput = async (type: "login" | "register") => {
-  if (waitingForRes.value) return;
-
   if (type === "login") {
     waitingForRes.value = true;
     await login();
@@ -195,24 +193,27 @@ const login = async () => {
         ></InputComponent>
         <div class="agree">
           <p>
-            Do you agree with our
+            Please agree to our
             <a
               target="_blank"
               href="https://s3.eu-central-2.wasabisys.com/cdn.pulse-messenger.com/misc/USER_AGREEMENT.pdf"
               >Terms Of Service</a
-            >?
+            >
+            to continue.
           </p>
+          &nbsp;
           <input type="checkbox" v-model="registerData.agreeToTOS" />
         </div>
         <ButtonComponent
-          @click="testInput('register')"
+          onclick="this.disabled = true"
+          @click.once="testInput('register')"
           :disabled="
+            waitingForRes ||
             registerData.email.length === 0 ||
             registerData.password.length === 0 ||
             registerData.username.length === 0 ||
             registerData.repeatedPassword.length === 0 ||
-            !registerData.agreeToTOS ||
-            waitingForRes
+            !registerData.agreeToTOS
           "
           :class="{ waiting: waitingForRes }"
         >
@@ -252,7 +253,7 @@ const login = async () => {
       "
         ></InputComponent>
         <ButtonComponent
-          @click="testInput('login')"
+          @click.once="testInput('login')"
           :disabled="
             loginData.username.length === 0 ||
             loginData.password.length === 0 ||

@@ -129,7 +129,7 @@ const changed = computed(() => {
           <button
             class="button-small"
             :disabled="waiting || !checkInput || !changed"
-            @click="action()"
+            @click.once="action()"
           >
             {{ creating ? "Create" : "Save" }}
           </button>

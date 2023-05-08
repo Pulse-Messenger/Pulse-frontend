@@ -230,7 +230,7 @@ const undo = async () => {
         <button
           class="button-small"
           :disabled="!changed || getAboutLength > 200 || waiting"
-          @click="save()"
+          @click.once="save()"
         >
           Save
         </button>

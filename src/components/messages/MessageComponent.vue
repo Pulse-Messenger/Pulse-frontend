@@ -33,7 +33,7 @@ const messageContent = computed(() => {
     <div
       class="profilePic"
       v-if="!continuing"
-      @click="modalStore.showUserModal(sender.id)"
+      @click.once="modalStore.showUserModal(sender.id)"
     >
       <img alt="pfp" :src="sender.profilePic ?? '/icons/User.svg'" />
     </div>
@@ -42,14 +42,14 @@ const messageContent = computed(() => {
         <span class="author" @click="modalStore.showUserModal(sender.id)">{{
           sender.displayName ?? "Deleted User"
         }}</span>
-        <span class="timestamp"
-          >,&nbsp;
+        <span class="timestamp">
+          &nbsp;-&nbsp;
           {{
             new Date(message.timestamp).toLocaleDateString("en-us", {
               hour: "numeric",
-              minute: "2-digit",
+              minute: "numeric",
               year: "numeric",
-              month: "short",
+              month: "long",
               day: "numeric",
             })
           }}

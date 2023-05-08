@@ -11,7 +11,7 @@ const emit = defineEmits<{
 
 <template>
   <button
-    @click="(event) => emit('click', event)"
+    @click.once="(event) => emit('click', event)"
     :class="props.class"
     :disabled="props.disabled"
   >

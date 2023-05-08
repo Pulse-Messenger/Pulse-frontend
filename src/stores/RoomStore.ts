@@ -30,6 +30,14 @@ export const useRoomStore = defineStore("room", () => {
   const activeUserStore = useActiveUserStore();
   const notificationStore = useNotificationStore();
 
+  setInterval(() => {
+    // refresh images
+    rooms.value.forEach((room) => {
+      const raw = room.profilePic.split("?")[0];
+      room.profilePic = raw + "?" + Date.now();
+    });
+  }, 30000);
+
   const sortedRoom = computed(() => {
     return activeUserStore.activeUserData?.rooms;
   });
