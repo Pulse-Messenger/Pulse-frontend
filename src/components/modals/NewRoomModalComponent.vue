@@ -68,7 +68,7 @@ const exit = () => {
                   mode === 'create') ||
                 (inputValue.length === 0 && mode === 'join')
               "
-              @click.once="action()"
+              @click="action()"
             >
               {{ mode === "create" ? "Create" : "Join" }}
             </button>

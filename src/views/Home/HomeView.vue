@@ -46,7 +46,7 @@ const toRoom = async (roomID: string) => {
           <HouseIcon></HouseIcon>
         </RouterLink>
         <div
-          @click.once="
+          @click="
             toRoom(item);
             useCommonStore().clearSwipe();
           "
@@ -67,12 +67,12 @@ const toRoom = async (roomID: string) => {
       <div class="options">
         <PlusIcon
           class="new-server"
-          @click.once="useModalStore().showNewRoomModal()"
+          @click="useModalStore().showNewRoomModal()"
         ></PlusIcon>
         <RouterLink
           :to="{ name: 'Profile' }"
           name="settings"
-          @click.once="useCommonStore().clearSwipe()"
+          @click="useCommonStore().clearSwipe()"
         >
           <SettingIcon></SettingIcon>
         </RouterLink>

@@ -64,7 +64,7 @@ const save = async () => {
       <button
         class="button-small"
         :disabled="!unsaved || waiting"
-        @click.once="save()"
+        @click="save()"
       >
         Save
       </button>

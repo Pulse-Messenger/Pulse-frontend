@@ -89,7 +89,7 @@ const valid = computed(() => {
                 !valid ||
                 (inputType === 'password' && oldPassword.length === 0)
               "
-              @click.once="submit()"
+              @click="submit()"
             >
               Ok
             </button>

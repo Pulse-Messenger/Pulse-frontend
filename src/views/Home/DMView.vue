@@ -43,7 +43,7 @@ const channel = computed(() => {
     <div class="head">
       <h2
         class="name no-txt-overflow"
-        @click.once="useModalStore().showUserModal(users.get(DMData(DMID))!.id)"
+        @click="useModalStore().showUserModal(users.get(DMData(DMID))!.id)"
       >
         {{ users.get(DMData(DMID))?.displayName ?? "" }}
       </h2>

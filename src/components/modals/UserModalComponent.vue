@@ -69,7 +69,7 @@ watch(modalData.value, () => {
                   {{ users.get(modalData.userID)?.displayName }}
                 </p>
                 &nbsp;-&nbsp;
-                <p class="username no-txt-overflow" @click.once="copyUsername">
+                <p class="username no-txt-overflow" @click="copyUsername">
                   @{{ users.get(modalData.userID)?.username }}
                 </p>
               </div>

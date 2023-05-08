@@ -69,7 +69,7 @@ onUnmounted(() => {
         class="option"
         v-for="(option, index) in modalData.options"
         :key="index"
-        @click.once="
+        @click="
           option.action();
           modalData.show = false;
         "

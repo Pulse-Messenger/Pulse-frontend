@@ -1,3 +1,4 @@
+// custom input component for use in forms
 <script setup lang="ts">
 import { ref } from "vue";
 

@@ -30,7 +30,7 @@ const getBrowser = (ua: string) => {
       <h3>Devices</h3>
       <button
         class="button-small logout"
-        @click.once="
+        @click="
           () =>
             modalStore.showConfirmModal(
               'Are you sure you want to log out everywhere?',
@@ -54,7 +54,7 @@ const getBrowser = (ua: string) => {
       </div>
       <button
         class="button-small logout"
-        @click.once="
+        @click="
           modalStore.showConfirmModal(
             'Are you sure you want to log out this device?',
             () => useActiveUserStore().deleteSession(session.id),

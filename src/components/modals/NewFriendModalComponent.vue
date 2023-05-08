@@ -53,7 +53,7 @@ const exit = () => {
           <button
             class="button-small"
             :disabled="!validInput"
-            @click.once="action()"
+            @click="action()"
           >
             Add
           </button>

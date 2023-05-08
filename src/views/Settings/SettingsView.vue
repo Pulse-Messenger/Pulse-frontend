@@ -76,7 +76,7 @@ onMounted(() => {
         <hr />
         <div
           class="category-link logout"
-          @click.once="
+          @click="
             useModalStore().showConfirmModal(
               'Are you sure you want to log out?',
               () => useAuthStore().logout(),

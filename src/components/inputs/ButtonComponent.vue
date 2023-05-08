@@ -1,3 +1,4 @@
+// custom button component for use in forms
 <script setup lang="ts">
 const props = defineProps<{
   disabled?: boolean;

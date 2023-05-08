@@ -33,7 +33,7 @@ const messageContent = computed(() => {
     <div
       class="profilePic"
       v-if="!continuing"
-      @click.once="modalStore.showUserModal(sender.id)"
+      @click="modalStore.showUserModal(sender.id)"
     >
       <img alt="pfp" :src="sender.profilePic ?? '/icons/User.svg'" />
     </div>
