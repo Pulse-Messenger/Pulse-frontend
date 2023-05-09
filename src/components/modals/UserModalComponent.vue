@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, onUnmounted } from "vue";
 
 import { useUserStore } from "@/stores/UserStore";
 import { useNotificationStore } from "@/stores/NotificationStore";

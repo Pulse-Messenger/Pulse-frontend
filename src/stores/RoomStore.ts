@@ -118,7 +118,7 @@ export const useRoomStore = defineStore("room", () => {
     rooms.value.set(roomID, {
       id: roomID,
       name: room.name,
-      profilePic: room.profilePic,
+      profilePic: room.profilePic + "?" + Date.now(),
       timeCreated: room.timeCreated,
       members: room.members,
       channels: room.channels,

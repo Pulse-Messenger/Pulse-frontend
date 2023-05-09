@@ -12,6 +12,7 @@ import NewFriendModalComponent from "@/components/modals/NewFriendModalComponent
 import NewRoomModalComponent from "@/components/modals/NewRoomModalComponent.vue";
 import UserModalComponent from "@/components/modals/UserModalComponent.vue";
 import ConfirmModalComponent from "./components/modals/ConfirmModalComponent.vue";
+import ImageModalComponent from "./components/modals/ImageModalComponent.vue";
 
 const alerts = storeToRefs(useNotificationStore()).alerts;
 
@@ -46,6 +47,7 @@ onBeforeMount(() => {
   <NewRoomModalComponent></NewRoomModalComponent>
   <UserModalComponent></UserModalComponent>
   <ConfirmModalComponent></ConfirmModalComponent>
+  <ImageModalComponent></ImageModalComponent>
 </template>
 
 <style lang="less" scoped>

@@ -13,7 +13,11 @@ renderer.image = (href: string, title: string, text: string) => {
     useActiveUserStore().userPreferences?.appearance.theme === "light"
       ? 'this.src="/fallbackImageLight.svg";'
       : 'this.src="/fallbackImageDark.svg";'
-  } onload="this.style.height = 'auto'"/>`;
+  } 
+  onclick="window.postMessage({type: 'openImage', src: '${href}'})"
+  />`
+    .split("\n")
+    .join("");
 };
 
 renderer.hr = () => {
@@ -93,7 +97,7 @@ const walkTokens = async (token: any) => {
         `
           .split("\n")
           .join("");
-        token.title = token.title || "Download";
+        token.title = title;
       }
 
       return;

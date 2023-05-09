@@ -13,6 +13,7 @@ import { useNotificationStore } from "@/stores/NotificationStore";
 import ChatBoxComponent from "@/components/messages/ChatBoxComponent.vue";
 import { useCommonStore } from "@/stores/CommonStore";
 import { useModalStore } from "@/stores/ModalStore";
+import { useUserStore } from "@/stores/UserStore";
 
 const messagesRef = ref<HTMLElement>();
 const activeUserData = storeToRefs(useActiveUserStore());
@@ -120,7 +121,25 @@ const scrollMethod = async () => {
   }
 };
 
+const openProfile = (evt: MessageEvent) => {
+  if (evt.data.type !== "openProfile") return;
+
+  if (useUserStore().users.get(evt.data.userID) === undefined) return;
+
+  useModalStore().showUserModal(evt.data.userID);
+};
+
+const openImage = (evt: MessageEvent) => {
+  if (evt.data.type !== "openImage") return;
+
+  console.log("a");
+  useModalStore().showImageModal(evt.data.src);
+};
+
 onMounted(async () => {
+  window.addEventListener("message", openProfile);
+  window.addEventListener("message", openImage);
+
   await nextTick();
 
   messagesRef.value!.scrollTop =
@@ -168,6 +187,8 @@ onMounted(async () => {
 
 onUnmounted(() => {
   messagesRef.value?.removeEventListener("scroll", scrollMethod);
+  window.removeEventListener("message", openProfile);
+  window.removeEventListener("message", openImage);
 });
 
 const chatBox = ref({

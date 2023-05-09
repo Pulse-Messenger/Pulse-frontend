@@ -19,10 +19,19 @@ const sender = computed((): User => {
 });
 
 const messageContent = computed(() => {
-  const msg = props.message.content.replace(
-    /([\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E0}-\u{1F1FF}])/gu,
-    '<span class="emoji">$1</span>',
-  );
+  // real
+  const msg = props.message.content
+    .replace(/\[![a-fA-F0-9]{24}\]/g, (userID) => {
+      const user = useUserStore().users.get(userID.slice(2, -1));
+
+      return `<span class="mention" onclick="window.postMessage({type: 'openProfile',userID: '${
+        user?.id ?? "unknown"
+      }'})">${user?.displayName ?? "Deleted User"}</span>`;
+    })
+    .replace(
+      /([\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E0}-\u{1F1FF}])/gu,
+      '<span class="emoji">$1</span>',
+    );
 
   return marked(msg);
 });
@@ -132,6 +141,7 @@ const messageContent = computed(() => {
 
       & > * {
         color: @foreground;
+        line-height: 0.75rem;
       }
 
       a {
@@ -200,9 +210,13 @@ const messageContent = computed(() => {
           - we need to set a fixed height for autoscroll
         */
         height: 10rem;
-        max-height: 10rem;
+        max-height: 13rem;
+        width: 100%;
+        max-width: 13rem;
+        object-fit: cover;
         border-radius: 5px;
         overflow: hidden;
+        padding-bottom: 0.2rem;
       }
 
       video {
@@ -229,6 +243,11 @@ const messageContent = computed(() => {
         width: 100%;
         border: 1px solid @background;
         align-items: center;
+        margin-bottom: 0.2rem;
+
+        &:last-of-type {
+          margin-bottom: 0;
+        }
 
         .name {
           max-width: 8rem;
@@ -241,6 +260,19 @@ const messageContent = computed(() => {
             fill: @foreground;
             cursor: pointer;
           }
+        }
+      }
+
+      .mention {
+        color: @accent;
+        padding: 0.05rem;
+        transition: 0.2s ease all;
+        border-radius: 4px;
+        cursor: pointer;
+        width: fit-content;
+
+        &:hover {
+          background: @special;
         }
       }
 

@@ -43,6 +43,11 @@ export interface ConfirmModalData {
   callback: Function;
 }
 
+export interface ImageModalData {
+  show: boolean;
+  image: string;
+}
+
 export const useModalStore = defineStore("modal", () => {
   const interactModalData = shallowReactive<InteractModalData>({
     show: false,
@@ -77,6 +82,11 @@ export const useModalStore = defineStore("modal", () => {
     show: false,
     title: "",
     callback: () => {},
+  });
+
+  const imageModalData = ref<ImageModalData>({
+    show: false,
+    image: "",
   });
 
   const showConfirmModal = (title: string, callback: Function) => {
@@ -117,6 +127,11 @@ export const useModalStore = defineStore("modal", () => {
     userModalData.value.userID = userID;
   };
 
+  const showImageModal = (image: string) => {
+    imageModalData.value.show = true;
+    imageModalData.value.image = image;
+  };
+
   const hideModal = (
     type:
       | "interact"
@@ -125,7 +140,8 @@ export const useModalStore = defineStore("modal", () => {
       | "newFriend"
       | "newRoom"
       | "user"
-      | "confirm",
+      | "confirm"
+      | "image",
   ) => {
     switch (type) {
       case "interact":
@@ -150,6 +166,9 @@ export const useModalStore = defineStore("modal", () => {
         confirmModalData.value.show = false;
         confirmModalData.value.callback = () => {};
         break;
+      case "image":
+        imageModalData.value.show = false;
+        break;
     }
   };
 
@@ -169,5 +188,7 @@ export const useModalStore = defineStore("modal", () => {
     showUserModal,
     confirmModalData,
     showConfirmModal,
+    showImageModal,
+    imageModalData,
   };
 });

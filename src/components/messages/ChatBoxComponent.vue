@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, nextTick, watch } from "vue";
+import { storeToRefs } from "pinia";
 
 import XIcon from "@/icons/XIcon.vue";
 import UploadIcon from "@/icons/UploadIcon.vue";
@@ -7,8 +8,11 @@ import { useChannelStore } from "@/stores/ChannelStore";
 import { useNotificationStore } from "@/stores/NotificationStore";
 import SendIcon from "@/icons/SendIcon.vue";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useUserStore } from "@/stores/UserStore";
+import { useRoomStore } from "@/stores/RoomStore";
 
 const channelStore = useChannelStore();
+const users = storeToRefs(useUserStore()).users;
 
 const textarea = ref<HTMLTextAreaElement>();
 const messageContent = ref("");
@@ -40,6 +44,25 @@ const processMessage = async (evt: any) => {
     return;
 
   sendingMessage = true;
+
+  const roomMembers = useRoomStore().rooms.get(
+    channelStore.channels.get(props.channelID)!.room,
+  )!.members;
+
+  messageContent.value = messageContent.value.replace(
+    /@[\w-]+(?=\s|$)/g,
+    (username) => {
+      let user;
+
+      roomMembers.forEach((mem) => {
+        if (users.value.get(mem)?.username === username.slice(1)) {
+          user = `[!${mem}]`;
+        }
+      });
+
+      return user ?? username;
+    },
+  );
 
   if (!isEditing.value) {
     await channelStore.sendMessage(messageContent.value, props.channelID);
@@ -236,9 +259,9 @@ watch(props, async () => {
   }
 
   .send {
-    min-width: 0.9rem;
-    width: 0.9rem;
-    padding-right: 0.1rem;
+    min-width: 0.8rem;
+    width: 0.8rem;
+    padding-right: 0.2rem;
     cursor: pointer;
   }
 

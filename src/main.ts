@@ -6,8 +6,6 @@ import router from "@/router";
 import "@/assets/main.less";
 import "@/assets/highlight.less";
 
-import "@/utils/Marked";
-
 import { useAuthStore } from "@/stores/AuthStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import loadMessageWebsockets from "@/utils/websockets/Websockets";
@@ -17,6 +15,8 @@ const app = createApp(App);
 
 app.use(router);
 app.use(createPinia());
+
+import "@/utils/Marked";
 
 app.directive("full-height", setFullHeight);
 

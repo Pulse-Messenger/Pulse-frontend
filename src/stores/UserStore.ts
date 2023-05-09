@@ -35,7 +35,7 @@ export const useUserStore = defineStore("user", () => {
         displayName: data.displayName,
         globalRoles: data.globalRoles,
         id: data._id,
-        profilePic: data.profilePic,
+        profilePic: data.profilePic + "?" + Date.now(),
         username: data.username,
       });
       return true;
