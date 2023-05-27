@@ -19,7 +19,9 @@ const getBrowser = (ua: string) => {
     " - " +
     result.browser.version +
     " on " +
-    result.os.name
+    result.os.name +
+    " " +
+    result.os.version
   );
 };
 </script>
@@ -79,8 +81,8 @@ const getBrowser = (ua: string) => {
   .session {
     background: @background;
     border-radius: 5px;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
     justify-content: space-between;
     padding: 0.3rem;
@@ -89,6 +91,8 @@ const getBrowser = (ua: string) => {
       .ip {
         font-weight: 600;
         font-size: 0.5rem;
+        max-width: 10rem;
+        word-break: break-all;
       }
 
       .useragent {
