@@ -95,8 +95,8 @@ const manageFriendship = async (
         params: { DMID },
       });
     }
-    await roomStore.createDM(friendID);
-    return;
+
+    return await roomStore.createDM(friendID);
   }
 
   const data = {
@@ -142,7 +142,10 @@ const manageFriendship = async (
     </div>
     <div class="table">
       <div class="row" v-for="(friend, id) in filteredFriendships" :key="id">
-        <div class="username no-txt-overflow">
+        <div
+          class="username no-txt-overflow"
+          @click="useModalStore().showUserModal(id.toString())"
+        >
           <div class="pfp">
             <img
               :src="users.get(id.toString())?.profilePic ?? '/icons/User.svg'"
@@ -269,10 +272,12 @@ const manageFriendship = async (
         display: flex;
         align-items: center;
         column-gap: 0.2rem;
+        cursor: pointer;
 
         .pfp {
           width: 1.5rem;
           height: 1.5rem;
+          cursor: pointer;
 
           img {
             border-radius: 1000px;
