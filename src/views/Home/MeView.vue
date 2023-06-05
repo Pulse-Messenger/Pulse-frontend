@@ -110,7 +110,7 @@ onMounted(() => {
               {{ users.get(DMData(DM))?.displayName ?? "Unknown user" }}
             </span>
             <XIcon
-              @click="
+              @click.stop="
                 useModalStore().showConfirmModal(
                   'Are you sure you want to delete this DM?',
                   () => removeDM(DM),
