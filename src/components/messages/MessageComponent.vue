@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { marked } from "marked";
 
 import { useUserStore } from "@/stores/UserStore";
@@ -18,6 +18,8 @@ const sender = computed((): User => {
   return useUserStore().users.get(props.message.sender) ?? ({} as User);
 });
 
+const contentRef = ref<HTMLDivElement>();
+
 const messageContent = computed(() => {
   // real
   const msg = props.message.content
@@ -35,10 +37,18 @@ const messageContent = computed(() => {
 
   return marked(msg);
 });
+
+// watch(messageContent, async () => {
+//   await nextTick();
+
+//   contentRef.value
+//     ?.querySelectorAll(".video-controls")
+//     .forEach((controls) => {});
+// });
 </script>
 
 <template>
-  <div class="message">
+  <div class="message" :class="{ continuing }">
     <div
       class="profilePic"
       v-if="!continuing"
@@ -46,11 +56,21 @@ const messageContent = computed(() => {
     >
       <img alt="pfp" :src="sender.profilePic ?? '/icons/User.svg'" />
     </div>
+    <p v-if="continuing" class="continuingTimestamp">
+      {{
+        new Date(message.timestamp).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      }}
+    </p>
     <div class="main">
       <div class="head" v-if="!continuing">
-        <span class="author" @click="modalStore.showUserModal(sender.id)">{{
-          sender.displayName ?? "Deleted User"
-        }}</span>
+        <span
+          class="author no-txt-overflow"
+          @click="modalStore.showUserModal(sender.id)"
+          >{{ sender.displayName ?? "Deleted User" }}</span
+        >
         <span class="timestamp">
           &nbsp;-&nbsp;
           {{
@@ -64,7 +84,7 @@ const messageContent = computed(() => {
           }}
         </span>
       </div>
-      <div class="content" v-html="messageContent"></div>
+      <div class="content" v-html="messageContent" ref="contentRef"></div>
     </div>
   </div>
 </template>
@@ -73,19 +93,42 @@ const messageContent = computed(() => {
 @import "@/assets/main.less";
 
 .message {
-  display: flex;
-  flex-direction: row;
-  column-gap: 0.25rem;
-  transition: 0.2s ease all;
-  padding: 0.2rem 0.2rem !important;
-  border-radius: 5px;
+  display: grid;
+  grid-template-columns: 1.6rem auto;
 
-  &:hover {
-    background: @background-light;
-  }
+  column-gap: 0.25rem;
+  transition: 0.2s ease background;
+  padding: 0 0.2rem !important;
+  border-radius: 5px;
 
   * {
     word-break: break-all;
+  }
+
+  &:not(.continuing) {
+    padding-top: 0.2rem !important;
+  }
+
+  &:last-child {
+    padding-bottom: 0.2rem !important;
+  }
+
+  &:hover {
+    background: @background-light;
+
+    .continuingTimestamp {
+      opacity: 1;
+    }
+  }
+
+  .continuingTimestamp {
+    width: 1.6rem;
+    padding-top: 0.1rem;
+    font-size: 0.33rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: 0.1s ease all;
+    text-align: center;
   }
 
   .profilePic {
@@ -93,10 +136,9 @@ const messageContent = computed(() => {
     height: 1.3rem;
     min-width: 1.3rem;
     min-height: 1.3rem;
+    margin: 0.1rem 0.3rem 0.1rem 0.1rem;
     border-radius: 1000px;
     background: @background-light;
-    grid-area: profilePic;
-    margin-top: 0.1rem;
     cursor: pointer;
 
     img {
@@ -110,7 +152,7 @@ const messageContent = computed(() => {
   .main {
     display: flex;
     flex-direction: column;
-    row-gap: 0.1rem;
+    justify-content: space-between;
     width: 100%;
     overflow: hidden;
 
@@ -123,6 +165,7 @@ const messageContent = computed(() => {
         font-weight: 600;
         color: @accent-s;
         cursor: pointer;
+        max-width: 4rem;
       }
 
       .timestamp {
@@ -141,7 +184,6 @@ const messageContent = computed(() => {
 
       & > * {
         color: @foreground;
-        line-height: 0.75rem;
       }
 
       a {
@@ -184,22 +226,22 @@ const messageContent = computed(() => {
       }
 
       h1 {
-        font-size: 1rem;
-      }
-      h2 {
-        font-size: 0.9rem;
-      }
-      h3 {
-        font-size: 0.8rem;
-      }
-      h4 {
-        font-size: 0.75rem;
-      }
-      h5 {
         font-size: 0.7rem;
       }
-      h6 {
+      h2 {
+        font-size: 0.67rem;
+      }
+      h3 {
+        font-size: 0.65rem;
+      }
+      h4 {
+        font-size: 0.63rem;
+      }
+      h5 {
         font-size: 0.6rem;
+      }
+      h6 {
+        font-size: 0.57rem;
       }
 
       img {
@@ -216,7 +258,8 @@ const messageContent = computed(() => {
         object-fit: cover;
         border-radius: 5px;
         overflow: hidden;
-        padding-bottom: 0.2rem;
+        margin-bottom: 0.2rem;
+        cursor: pointer;
       }
 
       video {
@@ -235,7 +278,7 @@ const messageContent = computed(() => {
 
       .file {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr;
         background: @background-light;
         padding: 0.4rem;
         border-radius: 5px;
@@ -244,17 +287,15 @@ const messageContent = computed(() => {
         border: 1px solid @background;
         align-items: center;
         margin-bottom: 0.2rem;
+        gap: 0.5rem;
 
         &:last-of-type {
           margin-bottom: 0;
         }
 
-        .name {
-          max-width: 8rem;
-        }
-
         .icon {
           display: flex;
+
           svg {
             height: 1rem;
             fill: @foreground;
@@ -279,10 +320,18 @@ const messageContent = computed(() => {
       table,
       th,
       td {
-        border: 1px solid @special;
+        border: 2px solid @special;
         border-collapse: collapse;
         text-align: center;
         padding: 0.2rem;
+      }
+
+      li::marker {
+        font-weight: 600;
+      }
+
+      th {
+        font-weight: 600;
       }
 
       .hr {

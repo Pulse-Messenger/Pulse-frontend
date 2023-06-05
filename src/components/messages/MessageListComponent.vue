@@ -132,7 +132,6 @@ const openProfile = (evt: MessageEvent) => {
 const openImage = (evt: MessageEvent) => {
   if (evt.data.type !== "openImage") return;
 
-  console.log("a");
   useModalStore().showImageModal(evt.data.src);
 };
 
@@ -198,12 +197,17 @@ const chatBox = ref({
 </script>
 
 <template>
-  <div class="messages" ref="messagesRef">
+  <!-- 
+    message continues if the previous one
+    is from the same author and less than 5mins old
+  -->
+  <div class="messages" ref="messagesRef" id="messageList">
     <MessageComponent
       :message="item!"
-      class="message"
       v-for="(item, index) in channelData.messages.values()"
-      :continuing="false"
+      :continuing="index > 0 &&
+      item!.sender === [...channelData.messages.values()][index - 1]!.sender &&
+      item!.timestamp - [...channelData.messages.values()][index - 1]!.timestamp < 5 * 60 * 1000"
       :key="index"
       :messageID="item!.id"
       @contextmenu="triggerInteract(item!.id)"
