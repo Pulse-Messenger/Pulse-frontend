@@ -40,14 +40,21 @@ export interface Friendship {
 
 export const useActiveUserStore = defineStore("activeUser", () => {
   const baseFontSize = ref(window.innerWidth < 800 ? 25 : 28);
+  const chatFontSize = ref(window.innerWidth < 800 ? 16 : 18);
 
   window.addEventListener("resize", () => {
     baseFontSize.value = window.innerWidth < 800 ? 25 : 28;
+    chatFontSize.value = window.innerWidth < 800 ? 16 : 18;
 
-    (document.querySelector(":root") as HTMLElement).style.fontSize =
+    document.querySelector<HTMLDivElement>(":root")!.style.fontSize =
       (baseFontSize.value * (userPreferences.value?.appearance.scale ?? 100)) /
         100 +
       "px";
+    // document.querySelector<HTMLDivElement>("#messageList")!.style.fontSize = `${
+    //   (chatFontSize.value *
+    //     (userPreferences.value?.appearance.chatScale ?? 100)) /
+    //   100
+    // }px`;
   });
 
   const activeUserData = ref<ActiveUserData>();
@@ -66,10 +73,16 @@ export const useActiveUserStore = defineStore("activeUser", () => {
       document.querySelector("#app")?.classList.add("light");
     }
 
-    (document.querySelector(":root") as HTMLElement).style.fontSize =
+    document.querySelector<HTMLElement>(":root")!.style.fontSize =
       (baseFontSize.value * (userPreferences.value?.appearance.scale ?? 100)) /
         100 +
       "px";
+
+    // document.querySelector<HTMLElement>("#messageList")!.style.fontSize = `${
+    //   (chatFontSize.value *
+    //     (userPreferences.value?.appearance.chatScale ?? 100)) /
+    //   100
+    // }px`;
   };
 
   const fetchActiveUser = async () => {
