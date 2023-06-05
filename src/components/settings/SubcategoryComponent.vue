@@ -27,6 +27,7 @@ const props = defineProps<{
         v-if="item.type === 'pickMe'"
       >
       </PickMeComponent>
+      <h4 v-if="item.type === 'slider'">{{ item.title }}</h4>
       <SliderComponent
         v-if="item.type === 'slider' && item.sliderData"
         :min="item.sliderData.min"
@@ -49,5 +50,10 @@ const props = defineProps<{
   padding-bottom: 1rem;
   border-bottom: 2px solid @special;
   row-gap: 0.3rem;
+
+  h4 {
+    font-size: 0.6rem;
+    padding-bottom: 0.5rem;
+  }
 }
 </style>
