@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref, onMounted, watch, onUnmounted } from "vue";
+import { ref, onMounted, watch, onUnmounted, computed } from "vue";
 
 import { useUserStore } from "@/stores/UserStore";
 import { useNotificationStore } from "@/stores/NotificationStore";
@@ -14,6 +14,8 @@ import { useModalStore } from "@/stores/ModalStore";
 const users = storeToRefs(useUserStore()).users;
 const notes = storeToRefs(useNotesStore()).notes;
 const modalData = storeToRefs(useModalStore()).userModalData;
+
+const user = computed(() => users.value.get(modalData.value.userID)!);
 
 const exit = () => {
   useModalStore().hideModal("user");
@@ -54,76 +56,58 @@ watch(modalData.value, () => {
 </script>
 
 <template>
-  <Teleport to="#app">
-    <Transition name="modal">
-      <div class="user-modal modal" v-if="modalData.show">
-        <div class="outside" @click="exit()"></div>
-        <div class="master">
-          <div class="head">
-            <div class="pfp">
-              <img :src="users.get(modalData.userID)?.profilePic" alt="pfp" />
-            </div>
-            <div class="info no-txt-overflow">
-              <div class="names no-txt-overflow">
-                <p class="display-name no-txt-overflow">
-                  {{ users.get(modalData.userID)?.displayName }}
-                </p>
-                &nbsp;-&nbsp;
-                <p class="username no-txt-overflow" @click="copyUsername">
-                  @{{ users.get(modalData.userID)?.username }}
-                </p>
-              </div>
-              <div
-                class="badges"
-                v-if="users.get(modalData.userID)!.globalRoles?.length > 0"
-              >
-                <VIPBadgeIcon
-                  v-if="
-                    users.get(modalData.userID)?.globalRoles.includes('vip')
-                  "
-                ></VIPBadgeIcon>
-                <DeveloperBadgeIcon
-                  v-if="
-                    users
-                      .get(modalData.userID)
-                      ?.globalRoles.includes('developer')
-                  "
-                ></DeveloperBadgeIcon>
-                <ModeratorBadgeIcon
-                  v-if="
-                    users
-                      .get(modalData.userID)
-                      ?.globalRoles.includes('moderator')
-                  "
-                ></ModeratorBadgeIcon>
-                <AdminBadgeIcon
-                  v-if="
-                    users.get(modalData.userID)?.globalRoles.includes('admin')
-                  "
-                ></AdminBadgeIcon>
-              </div>
-
-              <div class="note">
-                <span class="title">Note</span>
-                <textarea
-                  maxlength="250"
-                  v-model.trim="note"
-                  @focusout="saveNote()"
-                  spellcheck="false"
-                ></textarea>
-              </div>
-            </div>
+  <Transition name="modal">
+    <div class="user-modal modal" v-show="modalData.show">
+      <div class="outside" @click="exit()"></div>
+      <div class="master">
+        <div class="head">
+          <div class="pfp">
+            <img :src="user?.profilePic" alt="pfp" />
           </div>
-          <div class="body" v-if="users.get(modalData.userID)?.about">
-            <div class="hr" />
-            <div class="about">
-              <pre>{{ users.get(modalData.userID)?.about }}</pre>
+          <div class="info no-txt-overflow">
+            <div class="names no-txt-overflow">
+              <p class="display-name no-txt-overflow">
+                {{ user?.displayName }}
+              </p>
+              <p class="username no-txt-overflow" @click="copyUsername">
+                @{{ user?.username }}
+              </p>
+            </div>
+            <div class="badges" v-if="user?.globalRoles?.length > 0">
+              <VIPBadgeIcon
+                v-if="user?.globalRoles.includes('vip')"
+              ></VIPBadgeIcon>
+              <DeveloperBadgeIcon
+                v-if="user.globalRoles.includes('developer')"
+              ></DeveloperBadgeIcon>
+              <ModeratorBadgeIcon
+                v-if="user?.globalRoles.includes('moderator')"
+              ></ModeratorBadgeIcon>
+              <AdminBadgeIcon
+                v-if="user?.globalRoles.includes('admin')"
+              ></AdminBadgeIcon>
+            </div>
+
+            <div class="note">
+              <span class="title">Note</span>
+              <textarea
+                maxlength="250"
+                v-model.trim="note"
+                @focusout="saveNote()"
+                spellcheck="false"
+              ></textarea>
             </div>
           </div>
         </div>
+        <div class="body" v-if="users.get(modalData.userID)?.about">
+          <div class="hr" />
+          <div class="about">
+            <pre>{{ users.get(modalData.userID)?.about }}</pre>
+          </div>
+        </div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </Transition>
 </template>
 
 <style lang="less" scoped>
@@ -173,6 +157,7 @@ watch(modalData.value, () => {
         display: flex;
         flex-direction: column;
         padding: 0.8rem;
+        row-gap: 0.2rem;
         justify-content: center;
         width: 100%;
 
@@ -227,12 +212,11 @@ watch(modalData.value, () => {
 
         .names {
           display: flex;
-          align-items: center;
-
+          flex-direction: column;
+          width: 100%;
           .display-name {
             font-size: 0.6rem;
             font-weight: 700;
-            width: fit-content;
           }
 
           .username {
@@ -240,7 +224,6 @@ watch(modalData.value, () => {
             font-weight: 500;
             color: @accent;
             cursor: pointer;
-            width: fit-content;
           }
         }
 
