@@ -2,11 +2,57 @@
 import { storeToRefs } from "pinia";
 
 import { useModalStore } from "@/stores/ModalStore";
+import { useNotificationStore } from "@/stores/NotificationStore";
+import { onMounted, onUnmounted, ref, watch } from "vue";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const modalData = storeToRefs(useModalStore()).imageModalData;
 
+const theme = storeToRefs(useActiveUserStore()).userPreferences.value
+  ?.appearance.theme;
+
 const exit = () => {
   useModalStore().hideModal("image");
+};
+
+const imageRef = ref<HTMLImageElement>();
+
+const resize = () => {
+  const scale = Math.min(
+    (window.innerWidth * 0.8) / imageRef.value!.naturalWidth,
+    (window.innerHeight * 0.8) / imageRef.value!.naturalHeight,
+  );
+
+  imageRef.value!.style.width = `${imageRef.value!.naturalWidth * scale}px`;
+};
+
+onMounted(() => {
+  imageRef.value!.onload = () => {
+    // calculate scale to fit image on screen 80%
+    resize();
+    imageRef.value!.style.display = "";
+  };
+
+  window.addEventListener("resize", resize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resize);
+});
+
+const copyURL = async () => {
+  try {
+    await navigator.clipboard.writeText(modalData.value.image);
+    useNotificationStore().pushAlert({
+      type: "info",
+      message: "Copied URL to clipboard!",
+    });
+  } catch (err) {
+    useNotificationStore().pushAlert({
+      type: "error",
+      message: "Failed to copy URL to clipboard!",
+    });
+  }
 };
 </script>
 
@@ -15,9 +61,9 @@ const exit = () => {
     <div class="new-friend-modal modal" v-show="modalData.show">
       <div class="outside" @click="exit()"></div>
       <div class="master">
-        <div class="container">
-          <img :src="modalData.image" alt="image" />
-        </div>
+        <img :src="modalData.image" alt="image" ref="imageRef" />
+
+        <p class="copy" @click="copyURL">Copy URL</p>
       </div>
     </div>
   </Transition>
@@ -33,17 +79,22 @@ const exit = () => {
 
   .master {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    max-width: 70vmin;
-    max-height: 70vmin;
 
-    .container {
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
+    img {
+      object-fit: contain;
+      background: @background;
+      width: 80vmin;
+      border-radius: 5px;
+    }
+
+    .copy {
+      width: 100%;
+      cursor: pointer;
+      font-size: 0.45rem;
+      text-align: right;
     }
   }
 }
