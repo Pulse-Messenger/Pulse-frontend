@@ -8,8 +8,16 @@ import PlusIcon from "@/icons/PlusIcon.vue";
 import HouseIcon from "@/icons/HouseIcon.vue";
 import { useModalStore } from "@/stores/ModalStore";
 import { useCommonStore } from "@/stores/CommonStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import UserIcon from "@/icons/UserIcon.vue";
+import HashtagIcon from "@/icons/HashtagIcon.vue";
+import PencilIcon from "@/icons/PencilIcon.vue";
+import DeleteIcon from "@/icons/DeleteIcon.vue";
+import ExitIcon from "@/icons/ExitIcon.vue";
 
 const router = useRouter();
+const activeUserStore = useActiveUserStore();
+const modalStore = useModalStore();
 
 const rooms = storeToRefs(useRoomStore()).rooms;
 
@@ -31,6 +39,55 @@ const toRoom = async (roomID: string) => {
       },
     });
 };
+
+const showRoomOptions = (roomID: string) => {
+  const roomOwner =
+    useRoomStore().rooms.get(roomID)?.creatorID ==
+    activeUserStore.activeUserData?.id;
+
+  modalStore.showInteractModal([
+    {
+      condition: () => roomOwner,
+      action: () => useRoomStore().generateInvite(roomID),
+      icon: UserIcon,
+      title: "Invite people",
+    },
+    {
+      condition: () => roomOwner,
+      action: async () => {
+        modalStore.showChannelModal(roomID);
+      },
+      icon: HashtagIcon,
+      title: "Create channel",
+    },
+    {
+      condition: () => roomOwner,
+      action: async () => modalStore.showEditRoomModal(roomID),
+      icon: PencilIcon,
+      title: "Edit room",
+    },
+    {
+      condition: () => roomOwner,
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this room?",
+          async () => await useRoomStore().deleteRoom(roomID),
+        ),
+      icon: DeleteIcon,
+      title: "Delete room",
+    },
+    {
+      condition: () => !roomOwner,
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to leave this room?",
+          async () => await useRoomStore().leaveRoom(roomID),
+        ),
+      icon: ExitIcon,
+      title: "Leave room",
+    },
+  ]);
+};
 </script>
 
 <template>
@@ -50,6 +107,7 @@ const toRoom = async (roomID: string) => {
             toRoom(item);
             useCommonStore().clearSwipe();
           "
+          @contextmenu="showRoomOptions(item)"
           class="room-icon"
           :class="{
             'router-link-active': $route.params.roomID === item,

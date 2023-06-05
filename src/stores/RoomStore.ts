@@ -351,6 +351,26 @@ export const useRoomStore = defineStore("room", () => {
     }
   };
 
+  const generateInvite = async (roomID: string) => {
+    try {
+      const res = await APIInstance.request({
+        method: "POST",
+        url: `/invites/create/${roomID}`,
+      });
+      const invite = res.data.invite;
+      await navigator.clipboard.writeText(invite.code);
+      useNotificationStore().pushAlert({
+        type: "info",
+        message: "Invite code copied to clipboard",
+      });
+    } catch (_) {
+      useNotificationStore().pushAlert({
+        type: "error",
+        message: "Failed to create invite",
+      });
+    }
+  };
+
   return {
     rooms,
     sortedRoom,
@@ -368,5 +388,6 @@ export const useRoomStore = defineStore("room", () => {
     updateRoom,
     DMs,
     init,
+    generateInvite,
   };
 });

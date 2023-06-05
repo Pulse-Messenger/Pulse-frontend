@@ -111,7 +111,7 @@ const openRoomOptions = () => {
   modalStore.showInteractModal([
     {
       condition: () => roomOwner,
-      action: generateInvite,
+      action: () => useRoomStore().generateInvite(roomID.value),
       icon: UserIcon,
       title: "Invite people",
     },
@@ -183,26 +183,6 @@ const openChannelOptions = (channelID: string) => {
       title: "Delete channel",
     },
   ]);
-};
-
-const generateInvite = async () => {
-  try {
-    const res = await APIInstance.request({
-      method: "POST",
-      url: `/invites/create/${roomID.value}`,
-    });
-    const invite = res.data.invite;
-    await navigator.clipboard.writeText(invite.code);
-    useNotificationStore().pushAlert({
-      type: "info",
-      message: "Invite code copied to clipboard",
-    });
-  } catch (_) {
-    useNotificationStore().pushAlert({
-      type: "error",
-      message: "Failed to create invite",
-    });
-  }
 };
 </script>
 
