@@ -5,12 +5,17 @@ import { storeToRefs } from "pinia";
 
 import MessageListComponent from "@/components/messages/MessageListComponent.vue";
 import { useChannelStore } from "@/stores/ChannelStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 const channelStore = storeToRefs(useChannelStore());
 const route = useRoute();
 
 const channelID = computed((): string => {
   return route.params.channelID.toString();
+});
+
+const roomID = computed((): string => {
+  return route.params.roomID.toString();
 });
 
 const getChannel = computed(() => {
@@ -23,7 +28,12 @@ const getChannel = computed(() => {
 <template>
   <div class="channel">
     <div class="head">
-      <h2 class="name no-txt-overflow">{{ getChannel?.description }}</h2>
+      <h2
+        class="name no-txt-overflow"
+        @click="useModalStore().showChannelModal(roomID, channelID)"
+      >
+        {{ getChannel?.description }}
+      </h2>
     </div>
     <MessageListComponent :channelID="channelID"></MessageListComponent>
   </div>
@@ -48,11 +58,14 @@ const getChannel = computed(() => {
     min-height: 1.5rem;
     background: @background-light;
     display: flex;
+    box-shadow: 0 3px 5px @background;
+    z-index: 1;
 
     .name {
       font-size: 0.5rem;
       font-weight: 500;
-      width: 100%;
+      width: fit-content;
+      cursor: pointer;
     }
   }
 }

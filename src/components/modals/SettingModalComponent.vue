@@ -28,6 +28,14 @@ const exit = () => {
 
 const submit = async () => {
   if (props.inputType === "password") {
+    if (input.value.length < 6) {
+      useNotificationStore().pushAlert({
+        type: "error",
+        message: "Password must be at least 6 characters long",
+      });
+      return;
+    }
+
     const res = await useAuthStore().checkPassword(oldPassword.value);
 
     if (!res) {

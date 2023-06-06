@@ -21,7 +21,7 @@ const loadUserWebsockets = () => {
         activeUser.value.about = data.user.about;
         activeUser.value.displayName = data.user.displayName;
       }
-    }
+    },
   );
 
   socket.on(
@@ -42,7 +42,7 @@ const loadUserWebsockets = () => {
         users.value.get(data.user.userID)!.profilePic = "";
         users.value.get(data.user.userID)!.profilePic = tempPFP;
       }
-    }
+    },
   );
 
   socket.on("session:delete", async () => {

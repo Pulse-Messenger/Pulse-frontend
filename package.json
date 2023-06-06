@@ -17,6 +17,7 @@
     "marked": "^4.3.0",
     "pinia": "^2.0.28",
     "socket.io-client": "^4.5.4",
+    "ua-parser-js": "^1.0.35",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
@@ -24,6 +25,7 @@
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/marked": "^4.0.8",
     "@types/node": "^18.11.12",
+    "@types/ua-parser-js": "^0.7.36",
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.0",

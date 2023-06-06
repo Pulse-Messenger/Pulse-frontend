@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { useChannelStore } from "@/stores/ChannelStore";
-
 import { storeToRefs } from "pinia";
 import { ref, computed, watch } from "vue";
 
+import { useChannelStore } from "@/stores/ChannelStore";
+import { useModalStore } from "@/stores/ModalStore";
+
 const channels = storeToRefs(useChannelStore()).channels;
+const channelModal = storeToRefs(useModalStore()).channelModalData;
 
 const inputValue = ref({
   name: "",
@@ -13,23 +15,17 @@ const inputValue = ref({
 });
 const waiting = ref(false);
 
-const props = defineProps<{
-  channelID?: string;
-  roomID: string;
-  show: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: "close"): void;
-}>();
-
-watch(props, () => {
-  if (props.show && !creating.value) {
-    inputValue.value.name = channels.value.get(props.channelID!)!.name;
+watch(channelModal.value, () => {
+  if (channelModal.value.show && !creating.value) {
+    inputValue.value.name = channels.value.get(
+      channelModal.value.channelID!,
+    )!.name;
     inputValue.value.description = channels.value.get(
-      props.channelID!
+      channelModal.value.channelID!,
     )!.description;
-    inputValue.value.category = channels.value.get(props.channelID!)!.category;
+    inputValue.value.category = channels.value.get(
+      channelModal.value.channelID!,
+    )!.category;
   }
 });
 
@@ -39,33 +35,42 @@ const action = async () => {
     const res = await useChannelStore().createChannel({
       description: inputValue.value.description,
       name: inputValue.value.name,
-      roomID: props.roomID,
+      roomID: channelModal.value.roomID,
       category: inputValue.value.category.trim(),
     });
     waiting.value = false;
 
-    if (res) exit();
+    if (res) {
+      exit();
+    }
   } else {
     waiting.value = true;
     const res = await useChannelStore().updateChannel({
-      channelID: props.channelID as string,
+      channelID: channelModal.value.channelID as string,
       description: inputValue.value.description,
       name: inputValue.value.name,
       category: inputValue.value.category.trim(),
     });
     waiting.value = false;
 
-    if (res) exit();
+    if (res) {
+      exit();
+    }
   }
 };
 
 const exit = () => {
-  inputValue.value.description = "";
-  inputValue.value.name = "";
-  inputValue.value.category = "";
-  waiting.value = false;
+  useModalStore().hideModal("channel");
 
-  emit("close");
+  setTimeout(() => {
+    inputValue.value.description = "";
+    inputValue.value.name = "";
+    inputValue.value.category = "";
+    channelModal.value.channelID = undefined;
+    channelModal.value.roomID = "";
+  }, 200);
+
+  waiting.value = false;
 };
 
 const checkInput = computed(() => {
@@ -78,59 +83,60 @@ const checkInput = computed(() => {
 });
 
 const creating = computed(() => {
-  return !(props.channelID && props.channelID.length > 0);
+  return !(
+    channelModal.value.channelID && channelModal.value.channelID.length > 0
+  );
 });
 
 const changed = computed(() => {
   return (
-    channels.value.get(props.channelID!)?.name !== inputValue.value.name ||
-    channels.value.get(props.channelID!)?.description !==
+    channels.value.get(channelModal.value.channelID!)?.name !==
+      inputValue.value.name ||
+    channels.value.get(channelModal.value.channelID!)?.description !==
       inputValue.value.description ||
-    channels.value.get(props.channelID!)?.category !== inputValue.value.category
+    channels.value.get(channelModal.value.channelID!)?.category !==
+      inputValue.value.category
   );
 });
 </script>
 
 <template>
-  <Teleport to="#app">
-    <Transition name="modal">
-      <div class="channel-modal modal" v-if="props.show">
-        <div class="outside" @click="exit()"></div>
-        <div class="master">
-          <h3>{{ creating ? "Create a channel" : "Edit a channel" }}</h3>
-          <input
-            class="input-common"
-            v-model.trim="inputValue.name"
-            type="text"
-            placeholder="Channel name"
-          />
-          <input
-            class="input-common"
-            v-model.trim="inputValue.description"
-            type="text"
-            placeholder="Channel Description"
-          />
-          <input
-            class="input-common"
-            v-model.trim="inputValue.category"
-            type="text"
-            placeholder="Channel category"
-          />
-
-          <div class="buttons">
-            <button class="button-small exit" @click="exit()">Cancel</button>
-            <button
-              class="button-small"
-              :disabled="waiting || !checkInput || !changed"
-              @click="action()"
-            >
-              {{ creating ? "Create" : "Save" }}
-            </button>
-          </div>
+  <Transition name="modal">
+    <div class="channel-modal modal" v-show="channelModal.show">
+      <div class="outside" @click="exit()"></div>
+      <div class="master">
+        <h3>{{ creating ? "Create a channel" : "Edit a channel" }}</h3>
+        <input
+          class="input-common"
+          v-model.trim="inputValue.name"
+          type="text"
+          placeholder="Channel name"
+        />
+        <input
+          class="input-common"
+          v-model.trim="inputValue.description"
+          type="text"
+          placeholder="Channel Description"
+        />
+        <input
+          class="input-common"
+          v-model.trim="inputValue.category"
+          type="text"
+          placeholder="Channel category"
+        />
+        <div class="buttons">
+          <button class="button-small exit" @click="exit()">Cancel</button>
+          <button
+            class="button-small"
+            :disabled="waiting || !checkInput || !changed"
+            @click="action()"
+          >
+            {{ creating ? "Create" : "Save" }}
+          </button>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </Transition>
 </template>
 
 <style lang="less" scoped>

@@ -1,9 +1,29 @@
 <script setup lang="ts">
-import { useActiveUserStore } from "@/stores/ActiveUserStore";
-import { useCommonStore } from "@/stores/CommonStore";
 import { storeToRefs } from "pinia";
 
+// @ts-ignore
+import UAParser from "ua-parser-js";
+
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useModalStore } from "@/stores/ModalStore";
+
+const modalStore = useModalStore();
+
 const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
+
+const getBrowser = (ua: string) => {
+  const parser = new UAParser(ua);
+  const result = parser.getResult();
+  return (
+    result.browser.name +
+    " - " +
+    result.browser.version +
+    " on " +
+    result.os.name +
+    " " +
+    result.os.version
+  );
+};
 </script>
 
 <template>
@@ -12,7 +32,13 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
       <h3>Devices</h3>
       <button
         class="button-small logout"
-        @click="useActiveUserStore().deleteAllSessions()"
+        @click="
+          () =>
+            modalStore.showConfirmModal(
+              'Are you sure you want to log out everywhere?',
+              () => useActiveUserStore().deleteAllSessions(),
+            )
+        "
       >
         Logout everywhere
       </button>
@@ -24,11 +50,18 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
     >
       <div class="info no-txt-oveflow">
         <p class="ip">{{ session.ip }}</p>
-        <p class="useragent no-txt-oveflow">{{ session.useragent }}</p>
+        <p class="useragent no-txt-oveflow">
+          {{ getBrowser(session.useragent) }}
+        </p>
       </div>
       <button
         class="button-small logout"
-        @click="useActiveUserStore().deleteSession(session.id)"
+        @click="
+          modalStore.showConfirmModal(
+            'Are you sure you want to log out this device?',
+            () => useActiveUserStore().deleteSession(session.id),
+          )
+        "
       >
         Logout
       </button>
@@ -48,8 +81,8 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
   .session {
     background: @background;
     border-radius: 5px;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr auto;
     align-items: center;
     justify-content: space-between;
     padding: 0.3rem;
@@ -58,6 +91,8 @@ const activeUser = storeToRefs(useActiveUserStore()).activeUserData;
       .ip {
         font-weight: 600;
         font-size: 0.5rem;
+        max-width: 10rem;
+        word-break: break-all;
       }
 
       .useragent {

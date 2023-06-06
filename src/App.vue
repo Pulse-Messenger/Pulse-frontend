@@ -6,6 +6,13 @@ import { storeToRefs } from "pinia";
 import { useNotificationStore } from "@/stores/NotificationStore";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 import InteractModalComponent from "./components/modals/InteractModalComponent.vue";
+import ChannelModalComponent from "@/components/modals/ChannelModalComponent.vue";
+import EditRoomModalComponent from "@/components/modals/EditRoomModalComponent.vue";
+import NewFriendModalComponent from "@/components/modals/NewFriendModalComponent.vue";
+import NewRoomModalComponent from "@/components/modals/NewRoomModalComponent.vue";
+import UserModalComponent from "@/components/modals/UserModalComponent.vue";
+import ConfirmModalComponent from "./components/modals/ConfirmModalComponent.vue";
+import ImageModalComponent from "./components/modals/ImageModalComponent.vue";
 
 const alerts = storeToRefs(useNotificationStore()).alerts;
 
@@ -34,6 +41,13 @@ onBeforeMount(() => {
     </TransitionGroup>
   </div>
   <InteractModalComponent></InteractModalComponent>
+  <ChannelModalComponent></ChannelModalComponent>
+  <EditRoomModalComponent></EditRoomModalComponent>
+  <NewFriendModalComponent></NewFriendModalComponent>
+  <NewRoomModalComponent></NewRoomModalComponent>
+  <UserModalComponent></UserModalComponent>
+  <ConfirmModalComponent></ConfirmModalComponent>
+  <ImageModalComponent></ImageModalComponent>
 </template>
 
 <style lang="less" scoped>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 const props = defineProps<{
   min: number;
   max: number;
   step: number;
   default: number;
+  showSteps?: true | boolean;
 }>();
 
 const emit = defineEmits<{
@@ -48,6 +49,28 @@ const procesUpdate = (e: MouseEvent) => {
   thumbEl.value!.style.left = `${pos}px`;
 };
 
+const mouseUp = async (e: any) => {
+  if (thumbDragging === true) {
+    thumbDragging = false;
+    // yes
+    const wait = async () => {
+      return new Promise((resolve) =>
+        setTimeout(() => {
+          emit("input", sliderVal.value!);
+          resolve(true);
+        }, dragBuffer),
+      );
+    };
+    await wait();
+  }
+};
+
+const mouseMove = (e: any) => {
+  if (thumbDragging === true) {
+    procesUpdate(e);
+  }
+};
+
 onMounted(() => {
   sliderVal.value = props.default;
 
@@ -69,27 +92,14 @@ onMounted(() => {
   });
   observer.observe(trackEl.value!);
 
-  document.addEventListener("mousemove", (e) => {
-    if (thumbDragging === true) {
-      procesUpdate(e);
-    }
-  });
+  document.addEventListener("mousemove", mouseMove);
 
-  document.addEventListener("mouseup", async (e) => {
-    if (thumbDragging === true) {
-      thumbDragging = false;
-      // yes
-      const wait = async () => {
-        return new Promise((resolve) =>
-          setTimeout(() => {
-            emit("input", sliderVal.value!);
-            resolve(true);
-          }, dragBuffer)
-        );
-      };
-      await wait();
-    }
-  });
+  document.addEventListener("mouseup", mouseUp);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("mousemove", mouseMove);
+  document.removeEventListener("mouseup", mouseUp);
 });
 </script>
 
@@ -108,7 +118,15 @@ onMounted(() => {
         class="marker"
         v-for="(n, index) in Math.abs(props.max - props.min) / props.step + 1"
         :key="index"
-        :class="{ active: props.min + props.step * (n - 1) === sliderVal }"
+        :class="{
+          active: props.min + props.step * (n - 1) === sliderVal,
+          invisible: !(
+            props.showSteps ||
+            props.min + props.step * (n - 1) === sliderVal ||
+            index === 0 ||
+            index === Math.abs(props.max - props.min) / props.step
+          ),
+        }"
       >
         {{ props.min + props.step * (n - 1) }}
       </div>
@@ -136,6 +154,10 @@ onMounted(() => {
 
     .active {
       color: @accent-s !important;
+    }
+
+    .invisible {
+      opacity: 0;
     }
 
     .marker {

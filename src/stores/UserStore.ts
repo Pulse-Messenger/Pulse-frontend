@@ -15,6 +15,14 @@ export interface User {
 export const useUserStore = defineStore("user", () => {
   const users = ref(new Map<string, User>());
 
+  setInterval(() => {
+    // refresh images
+    users.value.forEach((user) => {
+      const raw = user.profilePic.split("?")[0];
+      user.profilePic = raw + "?" + Date.now();
+    });
+  }, 30000);
+
   const fetchUser = async (userID: string) => {
     try {
       const { data } = await APIInstance.request({
@@ -27,7 +35,7 @@ export const useUserStore = defineStore("user", () => {
         displayName: data.displayName,
         globalRoles: data.globalRoles,
         id: data._id,
-        profilePic: data.profilePic,
+        profilePic: data.profilePic + "?" + Date.now(),
         username: data.username,
       });
       return true;

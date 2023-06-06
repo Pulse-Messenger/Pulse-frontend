@@ -1,20 +1,13 @@
+// custom button component for use in forms
 <script setup lang="ts">
 const props = defineProps<{
   disabled?: boolean;
   class?: string | {};
 }>();
-
-const emit = defineEmits<{
-  (e: "click", value: Event): void;
-}>();
 </script>
 
 <template>
-  <button
-    @click="(event) => emit('click', event)"
-    :class="props.class"
-    :disabled="props.disabled"
-  >
+  <button :class="props.class" :disabled="props.disabled">
     <slot></slot>
   </button>
 </template>

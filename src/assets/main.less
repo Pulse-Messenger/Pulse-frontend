@@ -21,7 +21,7 @@
   width: 100%;
   height: 100%;
   min-width: 100vw;
-  min-height: 100vh;
+  min-height: 100%;
   z-index: 1000;
 
   // for exiting on clicking outside of .master
@@ -113,12 +113,13 @@
 
 .modal-enter-active,
 .modal-leave-active {
-  transition: all 0.1s ease;
+  transition: all 0.2s ease;
 }
 
 .modal-enter-from,
 .modal-leave-to {
-  opacity: 0.1;
+  opacity: 0.01;
+  transform: scale(1.2);
 }
 
 .settings {
@@ -151,4 +152,21 @@
       }
     }
   }
+}
+
+.left-comein-enter-active,
+.left-comein-leave-active,
+.right-comein-enter-active,
+.right-comein-leave-active {
+  transition: all 0.2s ease;
+}
+
+.left-comein-enter-from,
+.left-comein-leave-to {
+  transform: translateX(-100%);
+}
+
+.right-comein-enter-from,
+.right-comein-leave-to {
+  transform: translateX(100%);
 }

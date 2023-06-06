@@ -20,6 +20,7 @@ export interface RegisterData {
   username: string;
   password: string;
   repeatedPassword: string;
+  agreeToTOS: boolean;
 }
 
 export interface LoginData {
@@ -159,9 +160,23 @@ export const useAuthStore = defineStore("auth", () => {
         return false;
       }
 
-      connect({
-        token: `Bearer ${token.value}`,
-      });
+      // Attempt to connect to socket
+      // retry for 10 seconds
+      const start = Date.now();
+      while (
+        !(await connect({
+          token: `Bearer ${token.value}`,
+        }))
+      ) {
+        if (Date.now() - start > 10000) {
+          await clearLocal();
+          console.error("Failed to connect to socket - timed out");
+          break;
+        }
+        // wait a bit
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        continue;
+      }
 
       isLoggedIn.value = true;
 

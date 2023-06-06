@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { ref, computed } from "vue";
+import { storeToRefs } from "pinia";
 
-const emit = defineEmits<{
-  (e: "close"): void;
-}>();
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useModalStore } from "@/stores/ModalStore";
 
-const props = defineProps<{
-  show: boolean;
-}>();
+const modalData = storeToRefs(useModalStore()).newFriendModalData;
 
 const waiting = ref(false);
 const inputValue = ref("");
@@ -35,38 +32,35 @@ const action = async () => {
 
 const exit = () => {
   inputValue.value = "";
-
-  emit("close");
+  useModalStore().hideModal("newFriend");
 };
 </script>
 
 <template>
-  <Teleport to="#app">
-    <Transition name="modal">
-      <div class="new-friend-modal modal" v-if="props.show">
-        <div class="outside" @click="exit()"></div>
-        <div class="master">
-          <h3>Add a friend</h3>
-          <input
-            class="input-common"
-            v-model.trim="inputValue"
-            type="text"
-            placeholder="Username"
-          />
-          <div class="buttons">
-            <button class="button-small exit" @click="exit()">Cancel</button>
-            <button
-              class="button-small"
-              :disabled="!validInput"
-              @click="action()"
-            >
-              Add
-            </button>
-          </div>
+  <Transition name="modal">
+    <div class="new-friend-modal modal" v-show="modalData.show">
+      <div class="outside" @click="exit()"></div>
+      <div class="master">
+        <h3>Add a friend</h3>
+        <input
+          class="input-common"
+          v-model.trim="inputValue"
+          type="text"
+          placeholder="Username"
+        />
+        <div class="buttons">
+          <button class="button-small exit" @click="exit()">Cancel</button>
+          <button
+            class="button-small"
+            :disabled="!validInput"
+            @click="action()"
+          >
+            Add
+          </button>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </Transition>
 </template>
 
 <style lang="less" scoped>

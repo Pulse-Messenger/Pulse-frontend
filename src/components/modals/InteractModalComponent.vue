@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onMounted, watch, ref, nextTick } from "vue";
+import { onMounted, watch, ref, nextTick, onUnmounted } from "vue";
 
-import { useCommonStore } from "@/stores/CommonStore";
+import { useModalStore } from "@/stores/ModalStore";
 
-const modalData = useCommonStore().interactModalData;
+const modalData = useModalStore().interactModalData;
 
 const modal = ref<HTMLElement>();
 const mousePos = ref({
@@ -30,24 +30,35 @@ watch(modalData, async () => {
       mousePos.value.y - modal.value!.offsetHeight + "px";
 });
 
+const mouseDown = (evt: any) => {
+  mousePos.value.x = evt.clientX;
+  mousePos.value.y = evt.clientY;
+
+  if (!modalData.show) return;
+
+  if (
+    evt.clientX > modal.value!.offsetLeft + modal.value!.offsetWidth ||
+    evt.clientX < modal.value!.offsetLeft ||
+    evt.clientY > modal.value!.offsetTop + modal.value!.offsetHeight ||
+    evt.clientY < modal.value!.offsetTop
+  ) {
+    useModalStore().hideModal("interact");
+  }
+};
+
+const mouseMove = (evt: any) => {
+  mousePos.value.x = evt.clientX;
+  mousePos.value.y = evt.clientY;
+};
+
 onMounted(() => {
-  document.addEventListener("mousemove", (evt) => {
-    mousePos.value.x = evt.clientX;
-    mousePos.value.y = evt.clientY;
-  });
+  document.addEventListener("mousedown", mouseDown);
+  document.addEventListener("mousemove", mouseMove);
+});
 
-  document.addEventListener("mousedown", (evt) => {
-    if (!modalData.show) return;
-
-    if (
-      evt.clientX > modal.value!.offsetLeft + modal.value!.offsetWidth ||
-      evt.clientX < modal.value!.offsetLeft ||
-      evt.clientY > modal.value!.offsetTop + modal.value!.offsetHeight ||
-      evt.clientY < modal.value!.offsetTop
-    ) {
-      useCommonStore().hideModal();
-    }
-  });
+onUnmounted(() => {
+  document.removeEventListener("mousedown", mouseDown);
+  document.removeEventListener("mousemove", mouseMove);
 });
 </script>
 

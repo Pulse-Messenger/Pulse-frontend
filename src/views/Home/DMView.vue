@@ -1,14 +1,14 @@
 <script lang="ts" setup>
 import { useRoute } from "vue-router";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { storeToRefs } from "pinia";
 
-import UserModalComponent from "@/components/modals/UserModalComponent.vue";
 import MessageListComponent from "@/components/messages/MessageListComponent.vue";
 import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import { useRoomStore } from "@/stores/RoomStore";
 import { useUserStore } from "@/stores/UserStore";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useModalStore } from "@/stores/ModalStore";
 
 const channels = storeToRefs(useChannelStore()).channels;
 const users = storeToRefs(useUserStore()).users;
@@ -36,37 +36,20 @@ const channel = computed(() => {
 
   return channel;
 });
-
-const userModal = ref({
-  show: false,
-  userID: DMData(DMID.value),
-});
 </script>
 
 <template>
-  <div class="channel">
+  <div class="channel" v-full-height>
     <div class="head">
       <h2
         class="name no-txt-overflow"
-        @click="
-          userModal.show = true;
-          userModal.userID = users.get(DMData(DMID))!.id;
-        "
+        @click="useModalStore().showUserModal(users.get(DMData(DMID))!.id)"
       >
         {{ users.get(DMData(DMID))?.displayName ?? "" }}
       </h2>
     </div>
     <MessageListComponent :channelID="channel.id"></MessageListComponent>
   </div>
-  <UserModalComponent
-    :show="userModal.show"
-    :userID="userModal.userID!"
-    @close="
-      () => {
-        userModal.show = false;
-      }
-    "
-  ></UserModalComponent>
 </template>
 
 <style lang="less" scoped>
@@ -74,12 +57,12 @@ const userModal = ref({
 
 .channel {
   grid-column: 2;
-  max-height: 100vh;
   background: @background;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   max-width: 100%;
+  width: 100%;
   overflow: hidden;
 
   .head {

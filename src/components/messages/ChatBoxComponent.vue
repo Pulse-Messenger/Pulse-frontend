@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { ref, onMounted, computed, nextTick, watch } from "vue";
+import { storeToRefs } from "pinia";
+
 import XIcon from "@/icons/XIcon.vue";
 import UploadIcon from "@/icons/UploadIcon.vue";
 import { useChannelStore } from "@/stores/ChannelStore";
-
-import { ref, onMounted, computed, nextTick, watch } from "vue";
 import { useNotificationStore } from "@/stores/NotificationStore";
+import SendIcon from "@/icons/SendIcon.vue";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useUserStore } from "@/stores/UserStore";
+import { useRoomStore } from "@/stores/RoomStore";
 
 const channelStore = useChannelStore();
+const users = storeToRefs(useUserStore()).users;
 
 const textarea = ref<HTMLTextAreaElement>();
 const messageContent = ref("");
@@ -20,7 +26,15 @@ const autoGrow = () => {
 const processMessage = async (evt: any) => {
   if (sendingMessage) return;
 
-  if (evt.which === 13 && evt.shiftKey) return;
+  if (useActiveUserStore().baseFontSize === 28) {
+    if (evt.key === "Enter" && evt.shiftKey) {
+      return;
+    }
+  } else {
+    if (evt.key === "Enter") {
+      return;
+    }
+  }
   evt.preventDefault();
 
   if (
@@ -31,6 +45,25 @@ const processMessage = async (evt: any) => {
 
   sendingMessage = true;
 
+  const roomMembers = useRoomStore().rooms.get(
+    channelStore.channels.get(props.channelID)!.room,
+  )!.members;
+
+  messageContent.value = messageContent.value.replace(
+    /@[\w-]+(?=\s|$)/g,
+    (username) => {
+      let user;
+
+      roomMembers.forEach((mem) => {
+        if (users.value.get(mem)?.username === username.slice(1)) {
+          user = `[!${mem}]`;
+        }
+      });
+
+      return user ?? username;
+    },
+  );
+
   if (!isEditing.value) {
     await channelStore.sendMessage(messageContent.value, props.channelID);
   } else {
@@ -40,6 +73,7 @@ const processMessage = async (evt: any) => {
   sendingMessage = false;
 
   messageContent.value = "";
+  textarea.value!.value = "";
   await nextTick();
   autoGrow();
 };
@@ -50,7 +84,7 @@ const insertTab = async (evt: any) => {
   const cursorPos = textarea.value!.selectionStart;
   const textBeforeCursor = textarea.value!.value.substring(0, cursorPos);
   const textAfterCursor = textarea.value!.value.substring(
-    textarea.value!.selectionEnd
+    textarea.value!.selectionEnd,
   );
 
   const tabCharacter = "\t";
@@ -60,7 +94,7 @@ const insertTab = async (evt: any) => {
   await nextTick();
   textarea.value!.setSelectionRange(
     cursorPos + tabCharacter.length,
-    cursorPos + tabCharacter.length
+    cursorPos + tabCharacter.length,
   );
 };
 
@@ -77,6 +111,8 @@ const props = defineProps<{
 const isEditing = computed(() => {
   return props.mode === "edit" && props.messageID;
 });
+
+const uploading = ref(false);
 
 const uploadFiles = async (files: FileList) => {
   if (files.length > 10) {
@@ -99,7 +135,9 @@ const uploadFiles = async (files: FileList) => {
     formData.append("files", files[i]);
   }
 
+  uploading.value = true;
   const fileRes = await channelStore.uploadFiles(formData);
+  uploading.value = false;
   if (!fileRes) return;
 
   await channelStore.sendMessage(fileRes.files.join("\n"), props.channelID);
@@ -150,6 +188,9 @@ watch(props, async () => {
         <span>Editing message</span
         ><XIcon @click="cancelEdit" class="close-edit"></XIcon>
       </div>
+      <div class="mode" v-if="uploading">
+        <span>Uploading file(s)...</span>
+      </div>
       <textarea
         id="chatbox"
         spellcheck="false"
@@ -167,6 +208,7 @@ watch(props, async () => {
         @keydown.tab="(evt) => insertTab(evt)"
       ></textarea>
     </div>
+    <SendIcon class="send" @click="processMessage"></SendIcon>
   </div>
 </template>
 
@@ -214,6 +256,13 @@ watch(props, async () => {
         display: none;
       }
     }
+  }
+
+  .send {
+    min-width: 0.8rem;
+    width: 0.8rem;
+    padding-right: 0.2rem;
+    cursor: pointer;
   }
 
   .main {

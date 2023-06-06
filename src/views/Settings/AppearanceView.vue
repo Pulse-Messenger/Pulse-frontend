@@ -36,7 +36,7 @@ const subcategories: { [key: string]: Setting[] } = {
   ],
   Scale: [
     {
-      title: "Global scale",
+      title: "Global",
       type: "slider",
       sliderData: {
         eventCallback: (val: number) =>
@@ -47,6 +47,18 @@ const subcategories: { [key: string]: Setting[] } = {
         default: preferences.value?.appearance.scale ?? 100,
       },
     },
+    // {
+    //   title: "Chat",
+    //   type: "slider",
+    //   sliderData: {
+    //     eventCallback: (val: number) =>
+    //       (preferences.value!.appearance.chatScale = val),
+    //     max: 200,
+    //     min: 50,
+    //     step: 10,
+    //     default: preferences.value?.appearance.chatScale ?? 100,
+    //   },
+    // },
   ],
 };
 

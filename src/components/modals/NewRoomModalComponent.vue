@@ -2,19 +2,14 @@
 import { ref } from "vue";
 
 import { useRoomStore } from "@/stores/RoomStore";
+import { useModalStore } from "@/stores/ModalStore";
+import { storeToRefs } from "pinia";
 
+const newRoomData = storeToRefs(useModalStore()).newRoomModalData;
 const roomStore = useRoomStore();
 const inputValue = ref("");
 const waiting = ref(false);
 const mode = ref<"create" | "join">("create");
-
-const emit = defineEmits<{
-  (e: "close"): void;
-}>();
-
-const props = defineProps<{
-  show: boolean;
-}>();
 
 const toggle = () => {
   inputValue.value = "";
@@ -42,48 +37,46 @@ const exit = () => {
   inputValue.value = "";
   waiting.value = false;
 
-  emit("close");
+  useModalStore().hideModal("newRoom");
 };
 </script>
 
 <template>
-  <Teleport to="#app">
-    <Transition name="modal">
-      <div class="new-room-modal modal" v-if="props.show">
-        <div class="outside" @click="exit()"></div>
-        <div class="master">
-          <h3>{{ mode === "create" ? "Create a room" : "Join a room" }}</h3>
-          <input
-            class="input-common"
-            v-model.trim="inputValue"
-            type="text"
-            :placeholder="mode === 'create' ? 'Room name' : 'Invite code'"
-          />
+  <Transition name="modal">
+    <div class="new-room-modal modal" v-show="newRoomData.show">
+      <div class="outside" @click="exit()"></div>
+      <div class="master">
+        <h3>{{ mode === "create" ? "Create a room" : "Join a room" }}</h3>
+        <input
+          class="input-common"
+          v-model.trim="inputValue"
+          type="text"
+          :placeholder="mode === 'create' ? 'Room name' : 'Invite code'"
+        />
 
-          <div class="nav">
-            <span @click="toggle" class="toggle">{{
-              mode === "create" ? "Join one instead" : "Create one instead"
-            }}</span>
-            <div class="buttons">
-              <button class="button-small exit" @click="exit()">Cancel</button>
-              <button
-                class="button-small"
-                :disabled="
-                  waiting ||
-                  ((inputValue.length < 5 || inputValue.length > 20) &&
-                    mode === 'create') ||
-                  (inputValue.length === 0 && mode === 'join')
-                "
-                @click="action()"
-              >
-                {{ mode === "create" ? "Create" : "Join" }}
-              </button>
-            </div>
+        <div class="nav">
+          <span @click="toggle" class="toggle">{{
+            mode === "create" ? "Join one instead" : "Create one instead"
+          }}</span>
+          <div class="buttons">
+            <button class="button-small exit" @click="exit()">Cancel</button>
+            <button
+              class="button-small"
+              :disabled="
+                waiting ||
+                ((inputValue.length < 5 || inputValue.length > 20) &&
+                  mode === 'create') ||
+                (inputValue.length === 0 && mode === 'join')
+              "
+              @click="action()"
+            >
+              {{ mode === "create" ? "Create" : "Join" }}
+            </button>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+    </div>
+  </Transition>
 </template>
 
 <style lang="less" scoped>
@@ -114,7 +107,7 @@ const exit = () => {
       width: 100%;
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: center;
       column-gap: 0.5rem;
 
       .toggle {

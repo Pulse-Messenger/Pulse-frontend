@@ -30,6 +30,14 @@ export const useRoomStore = defineStore("room", () => {
   const activeUserStore = useActiveUserStore();
   const notificationStore = useNotificationStore();
 
+  setInterval(() => {
+    // refresh images
+    rooms.value.forEach((room) => {
+      const raw = room.profilePic.split("?")[0];
+      room.profilePic = raw + "?" + Date.now();
+    });
+  }, 30000);
+
   const sortedRoom = computed(() => {
     return activeUserStore.activeUserData?.rooms;
   });
@@ -110,7 +118,7 @@ export const useRoomStore = defineStore("room", () => {
     rooms.value.set(roomID, {
       id: roomID,
       name: room.name,
-      profilePic: room.profilePic,
+      profilePic: room.profilePic + "?" + Date.now(),
       timeCreated: room.timeCreated,
       members: room.members,
       channels: room.channels,
@@ -343,6 +351,26 @@ export const useRoomStore = defineStore("room", () => {
     }
   };
 
+  const generateInvite = async (roomID: string) => {
+    try {
+      const res = await APIInstance.request({
+        method: "POST",
+        url: `/invites/create/${roomID}`,
+      });
+      const invite = res.data.invite;
+      await navigator.clipboard.writeText(invite.code);
+      useNotificationStore().pushAlert({
+        type: "info",
+        message: "Invite code copied to clipboard",
+      });
+    } catch (_) {
+      useNotificationStore().pushAlert({
+        type: "error",
+        message: "Failed to create invite",
+      });
+    }
+  };
+
   return {
     rooms,
     sortedRoom,
@@ -360,5 +388,6 @@ export const useRoomStore = defineStore("room", () => {
     updateRoom,
     DMs,
     init,
+    generateInvite,
   };
 });

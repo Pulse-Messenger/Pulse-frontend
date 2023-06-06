@@ -1,16 +1,23 @@
 <script setup lang="ts">
-import { useRoomStore } from "@/stores/RoomStore";
 import { storeToRefs } from "pinia";
-import { RouterLink, useRoute, useRouter } from "vue-router";
-import { ref } from "vue";
+import { RouterLink, useRouter } from "vue-router";
 
+import { useRoomStore } from "@/stores/RoomStore";
 import SettingIcon from "@/icons/SettingIcon.vue";
 import PlusIcon from "@/icons/PlusIcon.vue";
-import NewRoomModalComponent from "@/components/modals/NewRoomModalComponent.vue";
 import HouseIcon from "@/icons/HouseIcon.vue";
+import { useModalStore } from "@/stores/ModalStore";
+import { useCommonStore } from "@/stores/CommonStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import UserIcon from "@/icons/UserIcon.vue";
+import HashtagIcon from "@/icons/HashtagIcon.vue";
+import PencilIcon from "@/icons/PencilIcon.vue";
+import DeleteIcon from "@/icons/DeleteIcon.vue";
+import ExitIcon from "@/icons/ExitIcon.vue";
 
 const router = useRouter();
-const route = useRoute();
+const activeUserStore = useActiveUserStore();
+const modalStore = useModalStore();
 
 const rooms = storeToRefs(useRoomStore()).rooms;
 
@@ -33,22 +40,74 @@ const toRoom = async (roomID: string) => {
     });
 };
 
-const showRoomModal = ref(false);
+const showRoomOptions = (roomID: string) => {
+  const roomOwner =
+    useRoomStore().rooms.get(roomID)?.creatorID ==
+    activeUserStore.activeUserData?.id;
+
+  modalStore.showInteractModal([
+    {
+      condition: () => roomOwner,
+      action: () => useRoomStore().generateInvite(roomID),
+      icon: UserIcon,
+      title: "Invite people",
+    },
+    {
+      condition: () => roomOwner,
+      action: async () => {
+        modalStore.showChannelModal(roomID);
+      },
+      icon: HashtagIcon,
+      title: "Create channel",
+    },
+    {
+      condition: () => roomOwner,
+      action: async () => modalStore.showEditRoomModal(roomID),
+      icon: PencilIcon,
+      title: "Edit room",
+    },
+    {
+      condition: () => roomOwner,
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this room?",
+          async () => await useRoomStore().deleteRoom(roomID),
+        ),
+      icon: DeleteIcon,
+      title: "Delete room",
+    },
+    {
+      condition: () => !roomOwner,
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to leave this room?",
+          async () => await useRoomStore().leaveRoom(roomID),
+        ),
+      icon: ExitIcon,
+      title: "Leave room",
+    },
+  ]);
+};
 </script>
 
 <template>
   <main>
-    <NewRoomModalComponent
-      :show="showRoomModal"
-      @close="showRoomModal = false"
-    ></NewRoomModalComponent>
     <nav class="user-nav">
       <div class="rooms">
-        <RouterLink class="home room-icon" :to="{ name: 'Me' }">
+        <RouterLink
+          class="home room-icon"
+          name="home"
+          :to="{ name: 'Me' }"
+          @click="useCommonStore().clearSwipe()"
+        >
           <HouseIcon></HouseIcon>
         </RouterLink>
         <div
-          @click="toRoom(item)"
+          @click="
+            toRoom(item);
+            useCommonStore().clearSwipe();
+          "
+          @contextmenu="showRoomOptions(item)"
           class="room-icon"
           :class="{
             'router-link-active': $route.params.roomID === item,
@@ -57,12 +116,22 @@ const showRoomModal = ref(false);
           :key="item"
           :roomID="item"
         >
-          <img :src="rooms.get(item)?.profilePic ?? '/icons/Room.svg'" />
+          <img
+            alt="pfp"
+            :src="rooms.get(item)?.profilePic ?? '/icons/Room.svg'"
+          />
         </div>
       </div>
       <div class="options">
-        <PlusIcon class="new-server" @click="showRoomModal = true"></PlusIcon>
-        <RouterLink :to="{ name: 'Profile' }">
+        <PlusIcon
+          class="new-server"
+          @click="useModalStore().showNewRoomModal()"
+        ></PlusIcon>
+        <RouterLink
+          :to="{ name: 'Profile' }"
+          name="settings"
+          @click="useCommonStore().clearSwipe()"
+        >
           <SettingIcon></SettingIcon>
         </RouterLink>
       </div>
@@ -91,6 +160,7 @@ main {
     max-height: 100vh;
     min-width: 2.3rem;
     z-index: 11;
+    background: @background-light;
 
     .options {
       display: flex;
@@ -123,12 +193,24 @@ main {
       row-gap: 0.2rem;
       overflow-y: auto;
       height: 100%;
+      width: 100%;
 
       .home {
         padding: 0.4rem;
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+
+      @keyframes roomActive {
+        0% {
+          transform: translateY(-50%) scale(0.5);
+          opacity: 0.5;
+        }
+        100% {
+          transform: translateY(-50%) scale(1);
+          opacity: 1;
+        }
       }
 
       .router-link-active::after {
@@ -142,6 +224,7 @@ main {
         z-index: 100;
         top: 50%;
         transform: translateY(-50%);
+        animation: roomActive 0.2s ease;
       }
 
       .room-icon {

@@ -12,10 +12,13 @@ import { useRoomStore } from "@/stores/RoomStore";
 import { useNotificationStore } from "@/stores/NotificationStore";
 import ChatBoxComponent from "@/components/messages/ChatBoxComponent.vue";
 import { useCommonStore } from "@/stores/CommonStore";
+import { useModalStore } from "@/stores/ModalStore";
+import { useUserStore } from "@/stores/UserStore";
 
 const messagesRef = ref<HTMLElement>();
 const activeUserData = storeToRefs(useActiveUserStore());
 const commonStore = useCommonStore();
+const modalStore = useModalStore();
 const roomStore = useRoomStore();
 const channelStore = useChannelStore();
 
@@ -45,10 +48,14 @@ const triggerInteract = (messageID: string) => {
     useChannelStore().channels.get(props.channelID)?.messages.get(messageID)
       ?.sender == activeUserData.activeUserData.value?.id;
 
-  commonStore.showModal([
+  modalStore.showInteractModal([
     {
       condition: () => roomOwner || messageSender,
-      action: async () => await useChannelStore().deleteMessage(messageID),
+      action: () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this message?",
+          async () => useChannelStore().deleteMessage(messageID),
+        ),
       icon: DeleteIcon,
       title: "Delete Message",
     },
@@ -57,11 +64,8 @@ const triggerInteract = (messageID: string) => {
       action: async () => {
         try {
           await navigator.clipboard.writeText(
-            (
-              messagesRef.value?.querySelector(
-                `[messageid="${messageID}"]`
-              ) as HTMLElement
-            ).innerText
+            channelStore.channels.get(props.channelID)!.messages.get(messageID)!
+              .content,
           );
           useNotificationStore().pushAlert({
             type: "info",
@@ -104,7 +108,7 @@ const scrollMethod = async () => {
     const oldHeight = messagesRef.value?.scrollHeight ?? 0;
 
     const newMessages = await useChannelStore().fetchMoreMessages(
-      props.channelID
+      props.channelID,
     );
 
     if (newMessages) {
@@ -117,7 +121,24 @@ const scrollMethod = async () => {
   }
 };
 
+const openProfile = (evt: MessageEvent) => {
+  if (evt.data.type !== "openProfile") return;
+
+  if (useUserStore().users.get(evt.data.userID) === undefined) return;
+
+  useModalStore().showUserModal(evt.data.userID);
+};
+
+const openImage = (evt: MessageEvent) => {
+  if (evt.data.type !== "openImage") return;
+
+  useModalStore().showImageModal(evt.data.src);
+};
+
 onMounted(async () => {
+  window.addEventListener("message", openProfile);
+  window.addEventListener("message", openImage);
+
   await nextTick();
 
   messagesRef.value!.scrollTop =
@@ -165,6 +186,8 @@ onMounted(async () => {
 
 onUnmounted(() => {
   messagesRef.value?.removeEventListener("scroll", scrollMethod);
+  window.removeEventListener("message", openProfile);
+  window.removeEventListener("message", openImage);
 });
 
 const chatBox = ref({
@@ -174,12 +197,17 @@ const chatBox = ref({
 </script>
 
 <template>
-  <div class="messages" ref="messagesRef">
+  <!-- 
+    message continues if the previous one
+    is from the same author and less than 5mins old
+  -->
+  <div class="messages" ref="messagesRef" id="messageList">
     <MessageComponent
       :message="item!"
-      class="message"
       v-for="(item, index) in channelData.messages.values()"
-      :continuing="false"
+      :continuing="index > 0 &&
+      item!.sender === [...channelData.messages.values()][index - 1]!.sender &&
+      item!.timestamp - [...channelData.messages.values()][index - 1]!.timestamp < 5 * 60 * 1000"
       :key="index"
       :messageID="item!.id"
       @contextmenu="triggerInteract(item!.id)"

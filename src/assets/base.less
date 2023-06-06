@@ -19,7 +19,7 @@ Common Vars
 #app.dark {
   --background: #1d1c20;
   --background-light: #292930;
-  --foreground: #d1cbd3;
+  --foreground: #eeeeee;
   --foreground-light: #fdfdfd;
   --special: #fdfdfd3a;
   --accent: #f84e6a;
@@ -79,15 +79,21 @@ Base Properties
   color: @foreground-light;
   user-select: none;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 html,
 body,
 #app {
   width: 100vw;
-  height: 100vh;
+  height: 100%;
+  max-height: 100vh;
   background: @background;
-  overflow: hidden;
+  overflow-x: hidden;
+  ::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 ::-webkit-scrollbar {

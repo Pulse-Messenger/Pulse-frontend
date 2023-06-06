@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import { useRoomStore } from "@/stores/RoomStore";
 import { APIInstance } from "@/utils/Axios";
 import { useNotificationStore } from "@/stores/NotificationStore";
-import { useCommonStore } from "@/stores/CommonStore";
-import ChannelModalComponent from "@/components/modals/ChannelModalComponent.vue";
+import { useModalStore } from "@/stores/ModalStore";
 import MenuIcon from "@/icons/MenuIcon.vue";
 import UserIcon from "@/icons/UserIcon.vue";
 import DeleteIcon from "@/icons/DeleteIcon.vue";
@@ -16,17 +15,43 @@ import Hashtag from "@/icons/HashtagIcon.vue";
 import { useChannelStore, type Channel } from "@/stores/ChannelStore";
 import PencilIcon from "@/icons/PencilIcon.vue";
 import CopyIcon from "@/icons/CopyIcon.vue";
-import UserModalComponent from "@/components/modals/UserModalComponent.vue";
-import EditRoomModalComponent from "@/components/modals/EditRoomModalComponent.vue";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { useCommonStore } from "@/stores/CommonStore";
 
 const rooms = storeToRefs(useRoomStore()).rooms;
-const commonStore = useCommonStore();
+const modalStore = useModalStore();
 const activeUserStore = useActiveUserStore();
 
 const roomID = computed(() => {
   return useRoute().params.roomID.toString();
 });
+
+const navRef = ref<HTMLDivElement>();
+const membersRef = ref<HTMLDivElement>();
+
+const gestureData = storeToRefs(useCommonStore()).commonData.value.swipeData;
+const baseFontSize = storeToRefs(useActiveUserStore()).baseFontSize;
+
+const resize = () => {
+  if (baseFontSize.value === 28) {
+    navRef.value!.style.position = "static";
+    membersRef.value!.style.position = "static";
+  } else {
+    navRef.value!.style.position = "absolute";
+    navRef.value!.style.top = "0px";
+    navRef.value!.style.left = "0px";
+
+    membersRef.value!.style.position = "absolute";
+    membersRef.value!.style.top = "0px";
+    membersRef.value!.style.right = "0px";
+  }
+};
+
+watch(baseFontSize, () => {
+  resize();
+});
+
+onMounted(() => resize());
 
 const channels = computed(() => {
   const chs = useRoomStore().getRoomChannels(roomID.value);
@@ -44,8 +69,6 @@ const channels = computed(() => {
   return categories;
 });
 
-const channelsRef = ref();
-
 const members = computed(() => {
   return useRoomStore().getRoomMembers(roomID.value);
 });
@@ -57,21 +80,6 @@ const toChannel = (channelID: string) => {
   };
 };
 
-const userModal = ref({
-  show: false,
-  userID: "",
-});
-
-const channelModal = ref({
-  show: false,
-  channelID: "",
-});
-
-const roomModal = ref({
-  show: false,
-  roomID: "",
-});
-
 const getProfilePic = (uid: string) => {
   return members.value.get(uid)?.profilePic ?? "/icons/User.svg";
 };
@@ -80,7 +88,7 @@ const copyChannel = async (channelID: string) => {
   try {
     await navigator.clipboard.writeText(
       (document.querySelector(`[channelid="${channelID}"]`) as HTMLElement)
-        .innerText
+        .innerText,
     );
     useNotificationStore().pushAlert({
       type: "info",
@@ -100,36 +108,44 @@ const openRoomOptions = () => {
     useRoomStore().rooms.get(roomID.value)?.creatorID ==
     activeUserStore.activeUserData?.id;
 
-  commonStore.showModal([
+  modalStore.showInteractModal([
     {
       condition: () => roomOwner,
-      action: generateInvite,
+      action: () => useRoomStore().generateInvite(roomID.value),
       icon: UserIcon,
       title: "Invite people",
     },
     {
       condition: () => roomOwner,
       action: async () => {
-        channelModal.value.show = true;
+        modalStore.showChannelModal(roomID.value);
       },
       icon: Hashtag,
       title: "Create channel",
     },
     {
       condition: () => roomOwner,
-      action: async () => (roomModal.value.show = true),
+      action: async () => modalStore.showEditRoomModal(roomID.value),
       icon: PencilIcon,
       title: "Edit room",
     },
     {
       condition: () => roomOwner,
-      action: async () => await useRoomStore().deleteRoom(roomID.value),
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this room?",
+          async () => await useRoomStore().deleteRoom(roomID.value),
+        ),
       icon: DeleteIcon,
       title: "Delete room",
     },
     {
       condition: () => !roomOwner,
-      action: async () => await useRoomStore().leaveRoom(roomID.value),
+      action: async () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to leave this room?",
+          async () => await useRoomStore().leaveRoom(roomID.value),
+        ),
       icon: ExitIcon,
       title: "Leave room",
     },
@@ -141,7 +157,7 @@ const openChannelOptions = (channelID: string) => {
     useRoomStore().rooms.get(roomID.value)?.creatorID ==
     activeUserStore.activeUserData?.id;
 
-  commonStore.showModal([
+  modalStore.showInteractModal([
     {
       condition: () => true,
       action: async () => await copyChannel(channelID),
@@ -151,119 +167,92 @@ const openChannelOptions = (channelID: string) => {
     {
       condition: () => roomOwner,
       action: async () => {
-        channelModal.value.channelID = channelID;
-        channelModal.value.show = true;
+        modalStore.showChannelModal(roomID.value, channelID);
       },
       icon: PencilIcon,
       title: "Edit channel",
     },
     {
       condition: () => roomOwner,
-      action: async () => await useChannelStore().deleteChannel(channelID),
+      action: () =>
+        modalStore.showConfirmModal(
+          "Are you sure you want to delete this channel?",
+          async () => await useChannelStore().deleteChannel(channelID),
+        ),
       icon: DeleteIcon,
       title: "Delete channel",
     },
   ]);
 };
-
-const generateInvite = async () => {
-  try {
-    const res = await APIInstance.request({
-      method: "POST",
-      url: `/invites/create/${roomID.value}`,
-    });
-    const invite = res.data.invite;
-    await navigator.clipboard.writeText(invite.code);
-    useNotificationStore().pushAlert({
-      type: "info",
-      message: "Invite code copied to clipboard",
-    });
-  } catch (_) {
-    useNotificationStore().pushAlert({
-      type: "error",
-      message: "Failed to create invite",
-    });
-  }
-};
 </script>
 
 <template>
   <div class="room">
-    <nav class="room-nav">
-      <div class="head">
-        <h2 class="name no-txt-overflow">{{ rooms.get(roomID)?.name }}</h2>
-        <MenuIcon class="room-settings" @click="openRoomOptions"></MenuIcon>
-        <ChannelModalComponent
-          :channelID="channelModal.channelID"
-          :roomID="roomID"
-          :show="channelModal.show"
-          @close="
+    <Transition name="left-comein">
+      <nav
+        class="room-nav"
+        v-show="gestureData.swipedRight || baseFontSize === 28"
+        ref="navRef"
+        v-full-height
+      >
+        <div class="head">
+          <h2 class="name no-txt-overflow">{{ rooms.get(roomID)?.name }}</h2>
+          <MenuIcon class="room-settings" @click="openRoomOptions"></MenuIcon>
+        </div>
+        <div class="channels">
+          <div
+            class="category"
+            v-for="(cat, catIndex) in channels"
+            :key="catIndex"
+          >
+            <h3>{{ catIndex ?? "none" }}</h3>
+            <RouterLink
+              :to="toChannel(channelIndex.toString())"
+              class="channel no-txt-overflow"
+              v-for="(channel, channelIndex) in cat"
+              :key="channelIndex"
+              :channelID="channelIndex"
+              @contextmenu="openChannelOptions(channel.id)"
+            >
+              <Hashtag class="channel-tag"></Hashtag>
+              {{ channel.name }}
+            </RouterLink>
+          </div>
+        </div>
+      </nav>
+    </Transition>
+    <RouterView
+      v-if="useRoute().params['channelID']"
+      v-full-height
+    ></RouterView>
+    <div class="fill" v-else />
+    <Transition name="right-comein">
+      <div
+        class="room-members"
+        v-show="gestureData.swipedLeft || baseFontSize === 28"
+        ref="membersRef"
+        v-full-height
+      >
+        <div
+          class="member"
+          v-for="(item, index) in members.values()"
+          :key="index"
+          :memberID="item.id"
+          @click="
             () => {
-              channelModal.channelID = '';
-              channelModal.show = false;
+              useModalStore().showUserModal(item.id);
             }
           "
-        ></ChannelModalComponent>
-      </div>
-      <div class="channels" ref="channelsRef">
-        <div
-          class="category"
-          v-for="(cat, catIndex) in channels"
-          :key="catIndex"
         >
-          <h3>{{ catIndex ?? "none" }}</h3>
-          <RouterLink
-            :to="toChannel(channelIndex.toString())"
-            class="channel no-txt-overflow"
-            v-for="(channel, channelIndex) in cat"
-            :key="channelIndex"
-            :channelID="channelIndex"
-            @contextmenu="openChannelOptions(channel.id)"
-          >
-            <Hashtag class="channel-tag"></Hashtag>
-            {{ channel.name }}
-          </RouterLink>
+          <div class="member-image">
+            <img :src="getProfilePic(item.id)" alt="pfp" />
+          </div>
+          <span class="no-txt-overflow">
+            {{ item.displayName }}
+          </span>
         </div>
       </div>
-    </nav>
-    <RouterView v-if="useRoute().params['channelID']"></RouterView>
-    <div class="fill" v-else />
-    <div class="room-members">
-      <div
-        class="member"
-        v-for="(item, index) in members.values()"
-        :key="index"
-        :memberID="item.id"
-        @click="
-          () => {
-            userModal.show = true;
-            userModal.userID = item.id;
-          }
-        "
-      >
-        <div class="member-image">
-          <img :src="getProfilePic(item.id)" />
-        </div>
-        <span class="no-txt-overflow">
-          {{ item.displayName }}
-        </span>
-      </div>
-    </div>
-    <UserModalComponent
-      :show="userModal.show"
-      :userID="userModal.userID"
-      @close="
-        () => {
-          userModal.show = false;
-          userModal.userID = '';
-        }
-      "
-    ></UserModalComponent>
-    <EditRoomModalComponent
-      :show="roomModal.show"
-      :roomID="roomID"
-      @close="roomModal.show = false"
-    ></EditRoomModalComponent>
+    </Transition>
   </div>
 </template>
 
@@ -274,7 +263,6 @@ const generateInvite = async () => {
   display: grid;
   grid-template-columns: auto 1fr auto;
   width: 100%;
-  height: 100%;
   margin: 0 auto;
 
   ::-webkit-scrollbar {
@@ -364,6 +352,8 @@ const generateInvite = async () => {
     overflow-y: auto;
     padding: 0.3rem 0.1rem;
     box-shadow: -5px 0px 5px @background;
+    background: @background-light;
+    z-index: 10;
 
     .member {
       padding: 0.1rem 0.2rem;
