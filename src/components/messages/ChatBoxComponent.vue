@@ -49,7 +49,9 @@ const processMessage = async (evt: any) => {
     channelStore.channels.get(props.channelID)!.room,
   )!.members;
 
-  messageContent.value = messageContent.value.replace(
+  let finalContent = messageContent.value;
+
+  finalContent = messageContent.value.replace(
     /@[\w-]+(?=\s|$)/g,
     (username) => {
       let user;
@@ -64,16 +66,16 @@ const processMessage = async (evt: any) => {
     },
   );
 
+  messageContent.value = "";
+
   if (!isEditing.value) {
-    await channelStore.sendMessage(messageContent.value, props.channelID);
+    await channelStore.sendMessage(finalContent, props.channelID);
   } else {
-    await channelStore.editMessage(messageContent.value, props.messageID!);
+    await channelStore.editMessage(finalContent, props.messageID!);
     emit("cancelEdit");
   }
   sendingMessage = false;
 
-  messageContent.value = "";
-  textarea.value!.value = "";
   await nextTick();
   autoGrow();
 };

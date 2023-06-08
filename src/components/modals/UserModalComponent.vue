@@ -26,7 +26,7 @@ const note = ref("");
 const copyUsername = async () => {
   try {
     await navigator.clipboard.writeText(
-      users.value.get(modalData.value.userID)!.username,
+      "@" + users.value.get(modalData.value.userID)!.username,
     );
 
     useNotificationStore().pushAlert({

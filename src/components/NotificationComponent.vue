@@ -55,7 +55,8 @@ const emit = defineEmits<{
   flex-direction: column;
   row-gap: 0.1em;
   cursor: pointer;
-  width: 11rem;
+  width: 80vmin;
+  max-width: 11rem;
   max-height: 4rem;
   z-index: 2000;
 

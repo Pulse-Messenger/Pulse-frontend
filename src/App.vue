@@ -59,7 +59,7 @@ onBeforeMount(() => {
   position: absolute;
   z-index: 2000;
   top: 1rem;
-  right: 1rem;
+  right: 0.5rem;
 }
 
 .list-move,
