@@ -92,14 +92,26 @@ const messageContent = computed(() => {
 <style lang="less">
 @import "@/assets/main.less";
 
+@keyframes message-come-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5em);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .message {
   display: grid;
   grid-template-columns: 1.6rem auto;
 
   column-gap: @gap-small;
-  transition: @transition-all-fast;
+  transition: ease 0.2s background;
   padding: 0 0.2rem !important;
   border-radius: @border-r-small;
+  animation: message-come-in 0.2s ease;
 
   * {
     word-break: break-all;
@@ -127,7 +139,7 @@ const messageContent = computed(() => {
     font-size: @font-s-mini;
     font-weight: @font-w-bold;
     opacity: 0;
-    transition: @transition-all-rapid;
+    transition: ease 0.1s opacity;
     text-align: center;
   }
 

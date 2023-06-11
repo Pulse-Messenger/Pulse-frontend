@@ -62,7 +62,8 @@ onBeforeMount(() => {
 
   position: absolute;
   z-index: 2000;
-  top: 1rem;
+  top: 0;
+  padding-top: 1rem;
   right: 0.5rem;
 }
 
