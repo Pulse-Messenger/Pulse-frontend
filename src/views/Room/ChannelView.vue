@@ -54,7 +54,7 @@ const getChannel = computed(() => {
 
   .head {
     width: 100%;
-    padding: 0.3rem;
+    padding: @padding-small;
     min-height: 1.5rem;
     background: @background-light;
     display: flex;
@@ -62,8 +62,8 @@ const getChannel = computed(() => {
     z-index: 1;
 
     .name {
-      font-size: 0.5rem;
-      font-weight: 500;
+      font-size: @font-s-medium;
+      font-weight: @font-w-normal;
       width: fit-content;
       cursor: pointer;
     }

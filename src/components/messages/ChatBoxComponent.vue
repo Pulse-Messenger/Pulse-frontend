@@ -220,14 +220,14 @@ watch(props, async () => {
 .chatbox {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  column-gap: 0.3rem;
+  column-gap: @gap-medium;
   justify-content: center;
   align-items: center;
-  padding: 0.4rem 0.2rem;
+  padding: @padding-medium 0.2rem;
   margin: 0.2rem;
   border: 2px solid @background;
   background: @background-light;
-  border-radius: 10px;
+  border-radius: @border-r-big;
   cursor: text;
 
   &,
@@ -276,7 +276,7 @@ watch(props, async () => {
       align-items: center;
       text-align: left;
       width: 100%;
-      font-size: 0.4rem;
+      font-size: @font-s-tiny;
 
       .close-edit {
         width: 0.8rem;
@@ -287,13 +287,13 @@ watch(props, async () => {
 
     textarea {
       width: 100%;
-      font-size: 0.45rem;
+      font-size: @font-s-small;
       background: none;
       color: @foreground-light;
       resize: none;
       outline: none;
       border: none;
-      font-weight: 500;
+      font-weight: @font-w-normal;
       max-height: 30vh;
       height: 0.45rem;
     }

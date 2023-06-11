@@ -49,8 +49,8 @@ const emit = defineEmits<{
 
 .notification {
   background: @background-light;
-  border-radius: 5px;
-  padding: 0.2rem;
+  border-radius: @border-r-small;
+  padding: @padding-tiny;
   display: flex;
   flex-direction: column;
   row-gap: 0.1em;
@@ -65,11 +65,11 @@ const emit = defineEmits<{
   }
 
   h2 {
-    font-size: 0.55rem;
+    font-size: @font-s-large;
   }
 
   p {
-    font-size: 0.45rem;
+    font-size: @font-s-small;
   }
 
   &.info {
@@ -95,14 +95,14 @@ const emit = defineEmits<{
     display: flex;
     flex-direction: row;
     border: @accent 2px solid;
-    column-gap: 0.3rem;
+    column-gap: @gap-medium;
     padding: 0.2em;
     align-items: center;
 
     .content {
       display: flex;
       flex-direction: column;
-      row-gap: 0.2rem;
+      row-gap: @gap-tiny;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -114,14 +114,14 @@ const emit = defineEmits<{
         column-gap: 0.5em;
 
         h2 {
-          font-size: 0.45rem;
-          font-weight: 600;
+          font-size: @font-s-small;
+          font-weight: @font-w-bold;
         }
-        font-size: 0.45rem;
+        font-size: @font-s-small;
       }
 
       p {
-        font-size: 0.45rem;
+        font-size: @font-s-small;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -136,7 +136,7 @@ const emit = defineEmits<{
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 1000px;
+        border-radius: @border-r-circle;
       }
     }
   }

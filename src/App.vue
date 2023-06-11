@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeMount } from "vue";
-import { RouterView } from "vue-router";
+import { RouterView, useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 
 import { useNotificationStore } from "@/stores/NotificationStore";
@@ -16,10 +16,12 @@ import ImageModalComponent from "./components/modals/ImageModalComponent.vue";
 
 const alerts = storeToRefs(useNotificationStore()).alerts;
 
+const route = useRoute();
+
 onBeforeMount(() => {
   // opens custom context menu
   document.addEventListener("contextmenu", (evt) => {
-    evt.preventDefault();
+    if (route.name !== "Landing") evt.preventDefault();
   });
 
   document.addEventListener("mousedown", (evt) => {
@@ -51,6 +53,8 @@ onBeforeMount(() => {
 </template>
 
 <style lang="less" scoped>
+@import "@/assets/main.less";
+
 .alerts {
   & > div > div {
     margin-bottom: 0.5rem;
@@ -65,7 +69,7 @@ onBeforeMount(() => {
 .list-move,
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.5s ease;
+  transition: @transition-all-lazy;
 }
 
 .list-enter-from,

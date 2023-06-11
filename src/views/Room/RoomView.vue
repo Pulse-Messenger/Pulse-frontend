@@ -284,16 +284,16 @@ const openChannelOptions = (channelID: string) => {
     z-index: 10;
 
     .head {
-      padding: 0.3rem;
+      padding: @padding-small;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      column-gap: 0.5rem;
+      column-gap: @gap-xlarge;
       box-shadow: 5px 3px 5px @background;
       height: 1.5rem;
 
       .room-settings {
-        padding: 0.1rem;
+        padding: @padding-mini;
         width: 1rem;
         height: 1rem;
         min-width: 1rem;
@@ -302,8 +302,8 @@ const openChannelOptions = (channelID: string) => {
       }
 
       .name {
-        font-size: 0.5rem;
-        font-weight: 600;
+        font-size: @font-s-medium;
+        font-weight: @font-w-bold;
         height: fit-content;
       }
     }
@@ -311,22 +311,22 @@ const openChannelOptions = (channelID: string) => {
     .channels {
       display: flex;
       flex-direction: column;
-      padding: 0.3rem 0.2rem;
+      padding: @padding-small 0.2rem;
 
       .category {
-        padding: 0.3rem 0;
+        padding: @padding-small 0;
         & > h3 {
-          font-size: 0.45rem;
+          font-size: @font-s-small;
         }
         .channel {
           width: 100%;
-          padding: 0.2rem 0.2rem;
+          padding: @padding-tiny 0.2rem;
           cursor: pointer;
-          font-size: 0.49rem;
-          border-radius: 5px;
-          transition: 0.2s ease all;
+          font-size: @font-s-medium;
+          border-radius: @border-r-small;
+          transition: @transition-all-fast;
           display: flex;
-          column-gap: 0.2rem;
+          column-gap: @gap-tiny;
           align-items: center;
           color: @foreground;
 
@@ -350,20 +350,20 @@ const openChannelOptions = (channelID: string) => {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    padding: 0.3rem 0.1rem;
+    padding: @padding-small 0.1rem;
     box-shadow: -5px 0px 5px @background;
     background: @background-light;
     z-index: 10;
 
     .member {
-      padding: 0.1rem 0.2rem;
+      padding: @padding-mini 0.2rem;
       cursor: pointer;
-      font-size: 0.45rem;
-      border-radius: 5px;
+      font-size: @font-s-small;
+      border-radius: @border-r-small;
       display: flex;
       align-items: center;
       column-gap: 0.5em;
-      transition: 0.2s ease all;
+      transition: @transition-all-fast;
 
       .member-image {
         width: 1.1rem;
@@ -375,7 +375,7 @@ const openChannelOptions = (channelID: string) => {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          border-radius: 1000px;
+          border-radius: @border-r-circle;
         }
       }
 

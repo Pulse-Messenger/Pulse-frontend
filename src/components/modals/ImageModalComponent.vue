@@ -87,13 +87,13 @@ const copyURL = async () => {
       object-fit: contain;
       background: @background;
       width: 80vmin;
-      border-radius: 5px;
+      border-radius: @border-r-small;
     }
 
     .copy {
       width: 100%;
       cursor: pointer;
-      font-size: 0.45rem;
+      font-size: @font-s-small;
       text-align: right;
     }
   }

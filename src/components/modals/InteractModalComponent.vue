@@ -90,19 +90,19 @@ onUnmounted(() => {
   background: @background-light;
   display: flex;
   flex-direction: column;
-  padding: 0.2rem;
-  border-radius: 5px;
+  padding: @padding-tiny;
+  border-radius: @border-r-small;
   box-shadow: 4px 4px 10px @special;
   width: 6rem;
-  row-gap: 0.1rem;
+  row-gap: @gap-mini;
 
   .option {
-    padding: 0.2rem 0.2rem;
+    padding: @padding-tiny 0.2rem;
     text-align: left;
-    font-size: 0.4rem;
-    border-radius: 5px;
+    font-size: @font-s-tiny;
+    border-radius: @border-r-small;
     cursor: pointer;
-    transition: 0.2s ease all;
+    transition: @transition-all-fast;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

@@ -124,13 +124,13 @@ const changed = computed(() => {
     justify-content: center;
     align-items: center;
     background: @background;
-    border-radius: 5px;
-    padding: 0.5rem;
-    row-gap: 0.5rem;
+    border-radius: @border-r-small;
+    padding: @padding-xlarge;
+    row-gap: @gap-xlarge;
     width: 12rem;
 
     h3 {
-      font-size: 0.7rem;
+      font-size: @font-s-big;
       text-align: left;
       width: 100%;
     }
@@ -140,11 +140,11 @@ const changed = computed(() => {
       height: 5rem;
       min-width: 5rem;
       min-height: 5rem;
-      padding: 0.5rem;
+      padding: @padding-xlarge;
       position: relative;
 
       img {
-        border-radius: 1000px;
+        border-radius: @border-r-circle;
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -157,7 +157,7 @@ const changed = computed(() => {
         width: 100%;
         height: 100%;
         opacity: 0;
-        border-radius: 1000px;
+        border-radius: @border-r-circle;
 
         cursor: pointer;
       }
@@ -168,7 +168,7 @@ const changed = computed(() => {
       justify-content: flex-end;
       align-items: center;
       width: 100%;
-      column-gap: 0.5rem;
+      column-gap: @gap-xlarge;
 
       .exit {
         background: @accent;

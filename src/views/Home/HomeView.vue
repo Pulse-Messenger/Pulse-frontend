@@ -155,7 +155,7 @@ main {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    row-gap: 0.1rem;
+    row-gap: @gap-mini;
     box-shadow: 0 5px 5px @background;
     max-height: 100vh;
     min-width: 2.3rem;
@@ -165,7 +165,7 @@ main {
     .options {
       display: flex;
       flex-direction: column;
-      row-gap: 0.2rem;
+      row-gap: @gap-tiny;
       justify-content: center;
       align-items: center;
       padding: 0 0.2rem 0.2rem 0.2rem;
@@ -176,7 +176,7 @@ main {
         cursor: pointer;
         background: @background;
         padding: 0.35em;
-        border-radius: 1000px;
+        border-radius: @border-r-circle;
         display: flex;
         justify-content: center;
       }
@@ -187,16 +187,16 @@ main {
     }
 
     .rooms {
-      padding: 0.3rem 0.3rem 0rem 0.3rem;
+      padding: @padding-small 0.3rem 0rem 0.3rem;
       display: flex;
       flex-direction: column;
-      row-gap: 0.2rem;
+      row-gap: @gap-tiny;
       overflow-y: auto;
       height: 100%;
       width: 100%;
 
       .home {
-        padding: 0.4rem;
+        padding: @padding-medium;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -216,7 +216,7 @@ main {
       .router-link-active::after {
         width: 0.15rem;
         height: 1.4rem;
-        border-radius: 0 5px 5px 0;
+        border-radius: 0 @border-r-small @border-r-small 0;
         background: @accent;
         left: -0.3rem;
         content: "";
@@ -232,7 +232,7 @@ main {
         height: 1.6rem;
         min-width: 1.6rem;
         min-height: 1.6rem;
-        border-radius: 10px;
+        border-radius: @border-r-big;
         background: @background;
         cursor: pointer;
 
@@ -240,7 +240,7 @@ main {
           width: 100%;
           height: 100%;
           object-fit: cover;
-          border-radius: 10px;
+          border-radius: @border-r-big;
         }
       }
     }

@@ -80,23 +80,23 @@ const getBrowser = (ua: string) => {
   }
   .session {
     background: @background;
-    border-radius: 5px;
+    border-radius: @border-r-small;
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
     justify-content: space-between;
-    padding: 0.3rem;
+    padding: @padding-small;
 
     .info {
       .ip {
-        font-weight: 600;
-        font-size: 0.5rem;
+        font-weight: @font-w-bold;
+        font-size: @font-s-medium;
         max-width: 10rem;
         word-break: break-all;
       }
 
       .useragent {
-        font-size: 0.45rem;
+        font-size: @font-s-small;
       }
     }
   }

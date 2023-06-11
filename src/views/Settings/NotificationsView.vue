@@ -62,7 +62,7 @@ const save = async () => {
 .category {
   .buttons {
     display: flex;
-    column-gap: 0.5rem;
+    column-gap: @gap-xlarge;
   }
 }
 </style>

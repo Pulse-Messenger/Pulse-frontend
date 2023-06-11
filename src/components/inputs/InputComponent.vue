@@ -34,8 +34,8 @@ const inputRef = ref();
 @import (less) "@/assets/base.less";
 
 input {
-  border-radius: 5px;
-  padding: 0.45rem;
+  border-radius: @border-r-small;
+  padding: @padding-large;
   border: 2px solid @accent-s;
   width: 100%;
   transition: border 0.2s ease;
@@ -45,8 +45,8 @@ input {
     border: 2px solid @accent;
   }
 
-  font-weight: 500;
-  font-size: 0.5rem;
+  font-weight: @font-w-normal;
+  font-size: @font-s-medium;
   outline: none;
   background: none;
   color: @foreground;

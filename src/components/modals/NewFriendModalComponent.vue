@@ -78,20 +78,20 @@ const exit = () => {
     justify-content: center;
     align-items: flex-start;
     background: @background;
-    border-radius: 5px;
-    padding: 0.5rem;
-    row-gap: 0.5rem;
+    border-radius: @border-r-small;
+    padding: @padding-xlarge;
+    row-gap: @gap-xlarge;
     width: 10rem;
 
     h3 {
-      font-size: 0.7rem;
+      font-size: @font-s-big;
     }
 
     .buttons {
       display: flex;
       justify-content: flex-end;
       width: 100%;
-      column-gap: 0.5rem;
+      column-gap: @gap-xlarge;
 
       .exit {
         background: @accent;

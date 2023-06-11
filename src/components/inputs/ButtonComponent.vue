@@ -16,11 +16,11 @@ const props = defineProps<{
 @import "@/assets/base.less";
 
 button {
-  border-radius: 5px;
-  padding: 0.45rem;
+  border-radius: @border-r-small;
+  padding: @padding-large;
   border: 2px solid @accent-s;
   width: 100%;
-  transition: all 0.2s ease;
+  transition: @transition-all-fast;
   cursor: pointer;
 
   &:hover {
@@ -51,8 +51,8 @@ button {
     border: none;
   }
 
-  font-weight: 500;
-  font-size: 0.5rem;
+  font-weight: @font-w-normal;
+  font-size: @font-s-medium;
   outline: none;
   background: none;
   color: @foreground;

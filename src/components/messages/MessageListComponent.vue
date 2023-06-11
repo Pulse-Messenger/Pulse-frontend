@@ -230,9 +230,9 @@ const chatBox = ref({
   display: flex;
   flex-direction: column;
   align-content: flex-start;
-  row-gap: 0.1rem;
+  row-gap: @gap-mini;
   height: 100%;
-  padding: 0.3rem 0.2rem;
+  padding: @padding-small 0.2rem;
   overflow-y: auto;
   overflow-x: hidden;
   align-items: stretch;
