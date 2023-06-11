@@ -50,20 +50,20 @@ const modalData = storeToRefs(useModalStore()).confirmModalData;
     justify-content: center;
     align-items: flex-start;
     background: @background;
-    border-radius: 5px;
-    padding: 0.5rem;
-    row-gap: 1rem;
+    border-radius: @border-r-small;
+    padding: @padding-xlarge;
+    row-gap: @gap-big;
     width: 11rem;
 
     h3 {
-      font-size: 0.6rem;
+      font-size: @font-s-xlarge;
     }
 
     .buttons {
       width: 100%;
       display: flex;
       justify-content: flex-end;
-      column-gap: 0.5rem;
+      column-gap: @gap-xlarge;
       .exit {
         background: @accent;
       }

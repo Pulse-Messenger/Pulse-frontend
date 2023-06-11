@@ -67,14 +67,14 @@ const channel = computed(() => {
 
   .head {
     width: 100%;
-    padding: 0.3rem;
+    padding: @padding-small;
     min-height: 1.5rem;
     background: @background-light;
     display: flex;
 
     .name {
-      font-size: 0.5rem;
-      font-weight: 500;
+      font-size: @font-s-medium;
+      font-weight: @font-w-normal;
       cursor: pointer;
     }
   }

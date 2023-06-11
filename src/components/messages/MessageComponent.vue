@@ -92,14 +92,26 @@ const messageContent = computed(() => {
 <style lang="less">
 @import "@/assets/main.less";
 
+@keyframes message-come-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5em);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .message {
   display: grid;
   grid-template-columns: 1.6rem auto;
 
-  column-gap: 0.25rem;
-  transition: 0.2s ease background;
+  column-gap: @gap-small;
+  transition: ease 0.2s background;
   padding: 0 0.2rem !important;
-  border-radius: 5px;
+  border-radius: @border-r-small;
+  animation: message-come-in 0.2s ease;
 
   * {
     word-break: break-all;
@@ -124,10 +136,10 @@ const messageContent = computed(() => {
   .continuingTimestamp {
     width: 1.6rem;
     padding-top: 0.1rem;
-    font-size: 0.33rem;
-    font-weight: 600;
+    font-size: @font-s-mini;
+    font-weight: @font-w-bold;
     opacity: 0;
-    transition: 0.1s ease all;
+    transition: ease 0.1s opacity;
     text-align: center;
   }
 
@@ -137,7 +149,7 @@ const messageContent = computed(() => {
     min-width: 1.3rem;
     min-height: 1.3rem;
     margin: 0.1rem 0.3rem 0.1rem 0.1rem;
-    border-radius: 1000px;
+    border-radius: @border-r-circle;
     background: @background-light;
     cursor: pointer;
 
@@ -145,7 +157,7 @@ const messageContent = computed(() => {
       object-fit: cover;
       width: 100%;
       height: 100%;
-      border-radius: 1000px;
+      border-radius: @border-r-circle;
     }
   }
 
@@ -161,23 +173,23 @@ const messageContent = computed(() => {
       align-items: flex-end;
 
       .author {
-        font-size: 0.45rem;
-        font-weight: 600;
+        font-size: @font-s-small;
+        font-weight: @font-w-bold;
         color: @accent-s;
         cursor: pointer;
         max-width: 4rem;
       }
 
       .timestamp {
-        font-size: 0.39rem;
-        font-weight: 600;
+        font-size: @font-s-tiny;
+        font-weight: @font-w-bold;
         color: @foreground-light;
       }
     }
 
     .content {
       width: 100%;
-      font-size: 0.46rem;
+      font-size: @font-s-small;
       color: @foreground-light;
       overflow: hidden;
       position: relative;
@@ -195,21 +207,21 @@ const messageContent = computed(() => {
       }
 
       strong {
-        font-weight: 600;
+        font-weight: @font-w-bold;
       }
 
       code {
         background: @background-light;
         padding: 0.5em;
         margin: 0.3em 0;
-        border-radius: 5px;
+        border-radius: @border-r-small;
         border: 1px solid @special;
         display: inline-block;
         overflow-y: scroll;
 
         &,
         & * {
-          font-size: 1em !important;
+          font-size: @font-s-base !important;
           font-family: "Roboto Mono" !important;
           white-space: break-spaces;
         }
@@ -246,17 +258,12 @@ const messageContent = computed(() => {
 
       img {
         display: block;
-        /*
-          height will be overwritten
-          in the message parser once the image is loaded
-          - we need to set a fixed height for autoscroll
-        */
         height: 10rem;
         max-height: 13rem;
         width: 100%;
         max-width: 13rem;
         object-fit: cover;
-        border-radius: 5px;
+        border-radius: @border-r-small;
         overflow: hidden;
         margin-bottom: 0.2rem;
         cursor: pointer;
@@ -266,28 +273,28 @@ const messageContent = computed(() => {
         height: 10rem;
         max-width: 100%;
         max-height: 100%;
-        border-radius: 5px;
+        border-radius: @border-r-small;
       }
 
       audio {
         width: 10rem;
         max-width: 100%;
         max-height: 100%;
-        border-radius: 5px;
+        border-radius: @border-r-small;
       }
 
       .file {
         display: grid;
         grid-template-columns: auto 1fr;
         background: @background-light;
-        padding: 0.4rem;
-        border-radius: 5px;
+        padding: @padding-medium;
+        border-radius: @border-r-small;
         max-width: 11rem;
         width: 100%;
         border: 1px solid @background;
         align-items: center;
         margin-bottom: 0.2rem;
-        gap: 0.5rem;
+        gap: @gap-xlarge;
 
         &:last-of-type {
           margin-bottom: 0;
@@ -307,8 +314,8 @@ const messageContent = computed(() => {
       .mention {
         color: @accent;
         padding: 0.05rem;
-        transition: 0.2s ease all;
-        border-radius: 4px;
+        transition: @transition-all-fast;
+        border-radius: @border-r-small;
         cursor: pointer;
         width: fit-content;
 
@@ -323,15 +330,15 @@ const messageContent = computed(() => {
         border: 2px solid @special;
         border-collapse: collapse;
         text-align: center;
-        padding: 0.2rem;
+        padding: @padding-tiny;
       }
 
       li::marker {
-        font-weight: 600;
+        font-weight: @font-w-bold;
       }
 
       th {
-        font-weight: 600;
+        font-weight: @font-w-bold;
       }
 
       .hr {

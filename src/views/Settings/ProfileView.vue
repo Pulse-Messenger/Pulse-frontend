@@ -256,12 +256,12 @@ const undo = async () => {
 
 .category {
   .user-card {
-    border-radius: 10px;
+    border-radius: @border-r-big;
     background: @background;
     padding: 0.7rem;
     display: flex;
     flex-direction: column;
-    row-gap: 0.5rem;
+    row-gap: @gap-xlarge;
     max-width: 25rem;
 
     .head {
@@ -274,21 +274,21 @@ const undo = async () => {
         width: 100%;
         background: @background-light;
         border: 1px solid @special;
-        border-radius: 5px;
-        padding: 0.3rem;
+        border-radius: @border-r-small;
+        padding: @padding-small;
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto auto;
         cursor: text;
 
         .label {
-          font-size: 0.5rem;
-          font-weight: 600;
+          font-size: @font-s-medium;
+          font-weight: @font-w-bold;
           padding-bottom: 0.3rem;
         }
 
         .count {
-          font-size: 0.5rem;
+          font-size: @font-s-medium;
           text-align: right;
         }
 
@@ -302,8 +302,8 @@ const undo = async () => {
           border: none;
           height: 2rem;
           resize: none;
-          font-size: 0.45rem;
-          font-weight: 500;
+          font-size: @font-s-small;
+          font-weight: @font-w-normal;
           justify-content: space-between;
           color: @foreground;
           grid-column-start: 1;
@@ -320,11 +320,11 @@ const undo = async () => {
         height: 3.9rem;
         min-width: 3.9rem;
         min-height: 3.9rem;
-        padding: 0.5rem;
+        padding: @padding-xlarge;
         position: relative;
 
         img {
-          border-radius: 1000px;
+          border-radius: @border-r-circle;
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -337,7 +337,7 @@ const undo = async () => {
           width: 100%;
           height: 100%;
           opacity: 0;
-          border-radius: 1000px;
+          border-radius: @border-r-circle;
 
           cursor: pointer;
         }
@@ -345,15 +345,15 @@ const undo = async () => {
     }
 
     .info {
-      border-radius: 5px;
+      border-radius: @border-r-small;
       display: flex;
       flex-direction: column;
-      row-gap: 0.5rem;
+      row-gap: @gap-xlarge;
 
       .section {
         background: @background-light;
-        padding: 0.3rem;
-        border-radius: 5px;
+        padding: @padding-small;
+        border-radius: @border-r-small;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -364,12 +364,12 @@ const undo = async () => {
           flex-direction: column;
 
           .label {
-            font-size: 0.45rem;
-            font-weight: 700;
+            font-size: @font-s-small;
+            font-weight: @font-w-bolder;
           }
 
           .value {
-            font-size: 0.5rem;
+            font-size: @font-s-medium;
             color: @foreground;
           }
         }
@@ -380,7 +380,7 @@ const undo = async () => {
       width: 100%;
       display: flex;
       justify-content: flex-end;
-      column-gap: 0.5rem;
+      column-gap: @gap-xlarge;
     }
   }
 }

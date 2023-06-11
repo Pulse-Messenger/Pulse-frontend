@@ -133,7 +133,7 @@ onMounted(() => {
   grid-template-columns: auto 1fr;
   .nav {
     width: 7rem;
-    padding: 0.3rem;
+    padding: @padding-small;
     box-shadow: 5px 3px 5px @background;
     overflow-y: auto;
     background: @background-light;
@@ -149,10 +149,10 @@ onMounted(() => {
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      padding: 0.3rem 0.2rem;
-      font-size: 0.49rem;
-      border-radius: 5px;
-      transition: all 0.2s ease;
+      padding: @padding-small 0.2rem;
+      font-size: @font-s-medium;
+      border-radius: @border-r-small;
+      transition: @transition-all-fast;
       color: @foreground;
 
       &:hover {
@@ -170,15 +170,15 @@ onMounted(() => {
       flex-direction: column;
 
       .DM {
-        padding: 0.1rem 0.2rem;
+        padding: @padding-mini 0.2rem;
         cursor: pointer;
-        font-size: 0.45rem;
-        border-radius: 5px;
+        font-size: @font-s-small;
+        border-radius: @border-r-small;
         display: grid;
         grid-template-columns: auto 1fr auto;
         align-items: center;
         column-gap: 0.5em;
-        transition: 0.2s ease all;
+        transition: @transition-all-fast;
 
         &:hover {
           background: @background;
@@ -194,7 +194,7 @@ onMounted(() => {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 1000px;
+            border-radius: @border-r-circle;
           }
         }
 

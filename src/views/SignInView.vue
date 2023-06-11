@@ -282,12 +282,12 @@ main {
   @media screen and (max-height: 500px) {
     justify-content: flex-start;
   }
-  row-gap: 1rem;
+  row-gap: @gap-big;
 
   h1 {
     color: @accent;
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: @font-s-huge;
+    font-weight: @font-w-bold;
   }
 
   .inputs {
@@ -295,7 +295,7 @@ main {
     min-width: 10rem;
     display: flex;
     flex-direction: column;
-    row-gap: 0.5rem;
+    row-gap: @gap-xlarge;
   }
 
   .agree {
@@ -303,7 +303,7 @@ main {
     align-items: center;
 
     p {
-      font-size: 0.5rem;
+      font-size: @font-s-medium;
       color: @foreground;
       a {
         color: @accent;
@@ -321,10 +321,10 @@ main {
       height: 0.7rem;
       min-width: 0.7rem;
       min-height: 0.7rem;
-      border-radius: 5px;
+      border-radius: @border-r-small;
       cursor: pointer;
       background: @background;
-      transition: 0.1s ease;
+      transition: @transition-all-rapid;
       border: 2px solid @accent-s;
       outline: none;
 
@@ -356,7 +356,7 @@ main {
 
   .switch-mode {
     color: @accent;
-    font-size: 0.5rem;
+    font-size: @font-s-medium;
     cursor: pointer;
     width: fit-content;
   }

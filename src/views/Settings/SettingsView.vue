@@ -115,7 +115,7 @@ onMounted(() => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 0.3rem 0.2rem;
+    padding: @padding-small 0.2rem;
     width: 7rem;
     background: @background-light;
     z-index: 1;
@@ -123,11 +123,11 @@ onMounted(() => {
 
     .category-link {
       width: 100%;
-      padding: 0.2rem 0.2rem;
+      padding: @padding-tiny 0.2rem;
       cursor: pointer;
-      font-size: 0.55rem;
-      border-radius: 5px;
-      transition: 0.2s ease all;
+      font-size: @font-s-large;
+      border-radius: @border-r-small;
+      transition: @transition-all-fast;
       display: flex;
       column-gap: 0.2rem;
       align-items: center;

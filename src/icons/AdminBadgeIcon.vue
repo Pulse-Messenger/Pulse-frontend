@@ -12,7 +12,7 @@
 
 svg {
   fill: @accent;
-  transition: 0.3s ease all;
+  transition: @transition-all-medium;
 }
 
 svg:hover {

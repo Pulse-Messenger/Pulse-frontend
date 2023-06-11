@@ -49,10 +49,10 @@ const props = defineProps<{
   flex-direction: column;
   padding-bottom: 1rem;
   border-bottom: 2px solid @special;
-  row-gap: 0.3rem;
+  row-gap: @gap-medium;
 
   h4 {
-    font-size: 0.6rem;
+    font-size: @font-s-xlarge;
     padding-bottom: 0.5rem;
   }
 }

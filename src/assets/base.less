@@ -57,9 +57,46 @@ Common Vars
 @foreground: var(--foreground);
 @foreground-light: var(--foreground-light);
 
-@common-border: 10px;
+@border-r-small: 5px;
+@border-r-big: 10px;
+@border-r-circle: 1000px;
 
-@font-normal: 500;
+@font-w-light: 400;
+@font-w-normal: 500;
+@font-w-bold: 600;
+@font-w-bolder: 700;
+
+@font-s-mini: 0.33rem;
+@font-s-tiny: 0.4rem;
+@font-s-small: 0.45rem;
+@font-s-medium: 0.5rem;
+@font-s-large: 0.55rem;
+@font-s-xlarge: 0.6rem;
+@font-s-xxlarge: 0.63rem;
+@font-s-big: 0.7rem;
+@font-s-base: 1rem;
+@font-s-huge: 1.5rem;
+
+@transition-all-rapid: ease all 0.1s;
+@transition-all-fast: ease all 0.2s;
+@transition-all-medium: ease all 0.3s;
+@transition-all-lazy: ease all 0.5s;
+
+@gap-mini: 0.1rem;
+@gap-tiny: 0.2rem;
+@gap-small: 0.25rem;
+@gap-medium: 0.3rem;
+@gap-large: 0.4rem;
+@gap-xlarge: 0.5rem;
+@gap-big: 1rem;
+
+@padding-mini: 0.1rem;
+@padding-tiny: 0.2rem;
+@padding-small: 0.3rem;
+@padding-medium: 0.4rem;
+@padding-large: 0.45rem;
+@padding-xlarge: 0.5rem;
+@padding-big: 1rem;
 
 /*
 
@@ -72,7 +109,7 @@ Base Properties
 *::after {
   padding: 0;
   margin: 0;
-  font-weight: @font-normal;
+  font-weight: @font-w-normal;
   box-sizing: border-box;
   text-decoration: none;
   font-family: Poppins;

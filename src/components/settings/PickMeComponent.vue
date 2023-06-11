@@ -24,11 +24,11 @@ const emit = defineEmits<{
 .pickme {
   cursor: pointer;
   background: @background;
-  border-radius: 5px;
+  border-radius: @border-r-small;
   display: flex;
   justify-content: space-between;
-  padding: 0.2rem 0.5rem;
-  font-size: 0.6rem;
+  padding: @padding-tiny 0.5rem;
+  font-size: @font-s-xlarge;
   color: @foreground;
   align-items: center;
 

@@ -202,7 +202,7 @@ const manageFriendship = async (
 @import "@/assets/base.less";
 
 .friendlist {
-  padding: 1rem 2rem;
+  padding: @padding-big 2rem;
   width: 100%;
   height: 100%;
   max-width: 30rem;
@@ -211,10 +211,10 @@ const manageFriendship = async (
 
   grid-template-columns: 0.2fr 1fr;
   grid-template-rows: auto 1fr;
-  column-gap: 0.3rem;
+  column-gap: @gap-medium;
 
   .noFriends {
-    font-size: 0.7rem;
+    font-size: @font-s-big;
   }
 
   .new-friend {
@@ -229,8 +229,8 @@ const manageFriendship = async (
     outline: none;
     background: @background;
     border: 2px solid @special;
-    border-radius: 5px;
-    padding: 0.3rem;
+    border-radius: @border-r-small;
+    padding: @padding-small;
     margin: 0.5rem 0;
     height: fit-content;
     width: 100%;
@@ -242,19 +242,19 @@ const manageFriendship = async (
     grid-column: 1 / 3;
 
     .row {
-      font-size: 0.5rem;
+      font-size: @font-s-medium;
       display: flex;
       justify-content: space-between;
-      column-gap: 0.3rem;
+      column-gap: @gap-medium;
       align-items: center;
-      padding: 0.3rem 0;
+      padding: @padding-small 0;
 
       border-bottom: 1px solid @special;
 
       .status {
         display: flex;
         align-items: center;
-        column-gap: 0.4rem;
+        column-gap: @gap-large;
 
         .pending {
           color: @warn;
@@ -275,7 +275,7 @@ const manageFriendship = async (
       .username {
         display: flex;
         align-items: center;
-        column-gap: 0.2rem;
+        column-gap: @gap-tiny;
         cursor: pointer;
 
         .pfp {
@@ -284,7 +284,7 @@ const manageFriendship = async (
           cursor: pointer;
 
           img {
-            border-radius: 1000px;
+            border-radius: @border-r-circle;
             width: 100%;
             height: 100%;
             object-fit: cover;

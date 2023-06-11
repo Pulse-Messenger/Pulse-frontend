@@ -125,15 +125,15 @@ watch(modalData.value, () => {
     justify-content: center;
     align-items: flex-start;
     background: @background;
-    border-radius: 5px;
-    padding: 0.5rem;
-    row-gap: 0.5rem;
+    border-radius: @border-r-small;
+    padding: @padding-xlarge;
+    row-gap: @gap-xlarge;
     width: 16rem;
 
     .head {
       display: flex;
       justify-content: center;
-      column-gap: 0.5rem;
+      column-gap: @gap-xlarge;
       align-items: center;
       width: 100%;
 
@@ -143,10 +143,10 @@ watch(modalData.value, () => {
 
         min-width: 4.5rem;
         min-height: 4.5rem;
-        padding: 0.5rem;
+        padding: @padding-xlarge;
 
         img {
-          border-radius: 1000px;
+          border-radius: @border-r-circle;
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -157,7 +157,7 @@ watch(modalData.value, () => {
         display: flex;
         flex-direction: column;
         padding: 0.8rem;
-        row-gap: 0.2rem;
+        row-gap: @gap-tiny;
         justify-content: center;
         width: 100%;
 
@@ -167,8 +167,8 @@ watch(modalData.value, () => {
           margin-top: 0.5rem;
 
           .title {
-            font-size: 0.45rem;
-            font-weight: 700;
+            font-size: @font-s-small;
+            font-weight: @font-w-bolder;
           }
 
           textarea {
@@ -177,8 +177,8 @@ watch(modalData.value, () => {
             outline: none;
             border: none;
             resize: none;
-            font-size: 0.4rem;
-            font-weight: 500;
+            font-size: @font-s-tiny;
+            font-weight: @font-w-normal;
             justify-content: space-between;
             color: @foreground;
             grid-column-start: 1;
@@ -195,11 +195,11 @@ watch(modalData.value, () => {
         .badges {
           display: flex;
           background: @background-light;
-          padding: 0.3rem;
+          padding: @padding-small;
           width: fit-content;
           max-width: 50%;
-          border-radius: 10px;
-          column-gap: 0.3rem;
+          border-radius: @border-r-big;
+          column-gap: @gap-medium;
           overflow-x: auto !important;
 
           svg {
@@ -215,13 +215,13 @@ watch(modalData.value, () => {
           flex-direction: column;
           width: 100%;
           .display-name {
-            font-size: 0.6rem;
-            font-weight: 700;
+            font-size: @font-s-xlarge;
+            font-weight: @font-w-bolder;
           }
 
           .username {
-            font-size: 0.5rem;
-            font-weight: 500;
+            font-size: @font-s-medium;
+            font-weight: @font-w-normal;
             color: @accent;
             cursor: pointer;
           }
@@ -234,7 +234,7 @@ watch(modalData.value, () => {
           content: "";
           height: 100%;
           width: 3px;
-          border-radius: 10px;
+          border-radius: @border-r-big;
           background: linear-gradient(45deg, @accent, @accent-s);
         }
       }
@@ -253,10 +253,10 @@ watch(modalData.value, () => {
 
       .about {
         background: @background-light;
-        border-radius: 5px;
-        padding: 0.4rem;
-        font-size: 0.45rem;
-        font-weight: 500;
+        border-radius: @border-r-small;
+        padding: @padding-medium;
+        font-size: @font-s-small;
+        font-weight: @font-w-normal;
         border: 1px solid @special;
         width: 100%;
         height: 100%;

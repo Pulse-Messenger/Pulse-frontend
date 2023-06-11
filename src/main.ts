@@ -33,7 +33,9 @@ const init = async () => {
   }
 
   router.beforeEach((to, from, next) => {
-    if (!auth.isLoggedIn && to.name !== "SignIn") next({ name: "SignIn" });
+    if (!auth.isLoggedIn && to.name !== "SignIn" && to.name !== "Landing")
+      next({ name: "SignIn" });
+    if (auth.isLoggedIn && to.name === "SignIn") next({ name: "Main" });
     else next();
   });
 

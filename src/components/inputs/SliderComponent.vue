@@ -139,17 +139,17 @@ onUnmounted(() => {
 @import "@/assets/base.less";
 
 .slider-input {
-  padding: 1.2rem 0.5rem;
+  padding: 1.2rem @padding-xlarge;
   .track {
     width: 100%;
     height: 0.3rem;
     content: "";
     display: flex;
     background: @special;
-    border-radius: 5px;
+    border-radius: @border-r-small;
     position: relative;
     cursor: pointer;
-    transition: 0.2s ease all;
+    transition: @transition-all-fast;
     justify-content: space-between;
 
     .active {
@@ -162,14 +162,14 @@ onUnmounted(() => {
 
     .marker {
       margin-top: -1.1rem;
-      font-size: 0.5rem;
-      font-weight: 600;
+      font-size: @font-s-medium;
+      font-weight: @font-w-bold;
       width: 0px;
       text-align: center;
       overflow: visible;
       display: flex;
       justify-content: center;
-      transition: 0.2s ease all;
+      transition: @transition-all-fast;
     }
 
     &:hover {
@@ -182,7 +182,7 @@ onUnmounted(() => {
       content: "";
       height: 1rem;
       width: 0.35rem;
-      border-radius: 10px;
+      border-radius: @border-r-big;
       background: @accent;
       top: 50%;
       transform: translateY(-50%);
