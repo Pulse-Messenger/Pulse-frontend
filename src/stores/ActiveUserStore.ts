@@ -279,7 +279,7 @@ export const useActiveUserStore = defineStore("activeUser", () => {
       });
 
       return true;
-    } catch {
+    } catch (err) {
       useNotificationStore().pushAlert({
         type: "error",
         message: data.error,

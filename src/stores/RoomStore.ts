@@ -171,7 +171,7 @@ export const useRoomStore = defineStore("room", () => {
           id: user._id,
           username: user.username ?? "",
           displayName: user.displayName ?? "",
-          profilePic: user.profilePic ?? "",
+          profilePic: user.profilePic + "?" + Date.now() ?? "",
           about: user.about ?? "",
           globalRoles: user.globalRoles ?? [],
         });

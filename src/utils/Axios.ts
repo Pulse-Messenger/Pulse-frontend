@@ -14,8 +14,6 @@ export const mediaInstance: AxiosInstance = axios.create({
 APIInstance.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (!err.response) throw err;
-
     if (err.response.status === 429) {
       useNotificationStore().pushAlert({
         type: "warn",
@@ -23,7 +21,7 @@ APIInstance.interceptors.response.use(
           "Woah there! You're sending too many requests. Please slow down.",
       });
     }
+
+    throw err;
   },
 );
-
-mediaInstance.interceptors.response.use();

@@ -6,7 +6,7 @@
       Welcome to<br />
       <span class="pulse-gradient">Pulse Messenger</span>
     </h1>
-    <RouterLink :to="{ name: 'SignIn' }" class="to-app">Open App</RouterLink>
+    <RouterLink :to="{ name: 'Main' }" class="to-app">Open App</RouterLink>
     <div class="cards">
       <card>
         <div>
@@ -21,7 +21,7 @@
       </card>
       <div class="review">
         <h2>Our users are satisfied with the product</h2>
-        <img src="matic.png" alt="plan" />
+        <img src="/matic.png" alt="plan" />
         <q>
           It doesn't matter who we are, what matters is that Pulse is a great
           chat app
@@ -33,14 +33,14 @@
   </main>
   <footer>
     <div>
-      <img width="100" src="Logo.webp" />
+      <img width="100" src="/Logo.webp" />
       <div>
         <h3>Pulse Messenger</h3>
         <h5>by <a href="https://studen.me">David Studen</a></h5>
         <a href="https://github.com/Pulse-Messenger">Source</a>
       </div>
     </div>
-    <RouterLink :to="{ name: 'SignIn' }" class="button-small"
+    <RouterLink :to="{ name: 'Main' }" class="button-small"
       >Open App</RouterLink
     >
   </footer>

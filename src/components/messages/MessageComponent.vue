@@ -6,6 +6,7 @@ import { useUserStore } from "@/stores/UserStore";
 import type { User } from "@/stores/UserStore";
 import type { Message } from "@/stores/ChannelStore";
 import { useModalStore } from "@/stores/ModalStore";
+import { useActiveUserStore } from "@/stores/ActiveUserStore";
 
 const modalStore = useModalStore();
 
@@ -19,12 +20,43 @@ const sender = computed((): User => {
 });
 
 const contentRef = ref<HTMLDivElement>();
+const pinged = ref(false);
 
+// THIS IS THE REALEST CODE IN THIS PROJECT
 const messageContent = computed(() => {
+  let output = "";
+  let inCodeBlock = false;
+
+  for (let i = 0; i < props.message.content.length; i++) {
+    let char = props.message.content[i];
+
+    if (char === "`" && (i === 0 || props.message.content[i - 1] !== "\\")) {
+      inCodeBlock = !inCodeBlock;
+    }
+
+    if (!inCodeBlock) {
+      char = char.replace(/[&<>"']/g, (tag) => {
+        return (
+          {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&apos;",
+            '"': "&quot;",
+          }[tag] || tag
+        );
+      });
+    }
+
+    output += char;
+  }
+
   // real
-  const msg = props.message.content
+  const msg = output
     .replace(/\[![a-fA-F0-9]{24}\]/g, (userID) => {
       const user = useUserStore().users.get(userID.slice(2, -1));
+      if (user?.id === useActiveUserStore().activeUserData?.id)
+        pinged.value = true;
 
       return `<span class="mention" onclick="window.postMessage({type: 'openProfile',userID: '${
         user?.id ?? "unknown"
@@ -38,6 +70,7 @@ const messageContent = computed(() => {
   return marked(msg);
 });
 
+// TODO
 // watch(messageContent, async () => {
 //   await nextTick();
 
@@ -48,7 +81,7 @@ const messageContent = computed(() => {
 </script>
 
 <template>
-  <div class="message" :class="{ continuing }">
+  <div class="message" :class="{ continuing, pinged }">
     <div
       class="profilePic"
       v-if="!continuing"
@@ -121,10 +154,6 @@ const messageContent = computed(() => {
     padding-top: 0.2rem !important;
   }
 
-  &:last-child {
-    padding-bottom: 0.2rem !important;
-  }
-
   &:hover {
     background: @background-light;
 
@@ -141,6 +170,11 @@ const messageContent = computed(() => {
     opacity: 0;
     transition: ease 0.1s opacity;
     text-align: center;
+  }
+
+  &.pinged {
+    background: hsl(40 0.8 * 86.4% 56.9% / 0.2);
+    border-left: 2px solid @warn;
   }
 
   .profilePic {
@@ -221,7 +255,7 @@ const messageContent = computed(() => {
 
         &,
         & * {
-          font-size: @font-s-base !important;
+          font-size: @font-s-small !important;
           font-family: "Roboto Mono" !important;
           white-space: break-spaces;
         }
