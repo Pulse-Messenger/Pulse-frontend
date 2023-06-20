@@ -99,10 +99,10 @@ watch(modalData.value, () => {
             </div>
           </div>
         </div>
-        <div class="body" v-if="users.get(modalData.userID)?.about">
+        <div class="body" v-if="user?.about">
           <div class="hr" />
           <div class="about">
-            <pre>{{ users.get(modalData.userID)?.about }}</pre>
+            <pre>{{ user?.about }}</pre>
           </div>
         </div>
       </div>

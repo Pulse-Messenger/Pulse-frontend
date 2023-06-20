@@ -13,7 +13,6 @@
           <h2>The fun messaging solution</h2>
           <ul>
             <li>simple</li>
-            <li>secure(enough)</li>
             <li>open</li>
             <li>free</li>
           </ul>
@@ -21,13 +20,9 @@
       </card>
       <div class="review">
         <h2>Our users are satisfied with the product</h2>
-        <img src="/matic.png" alt="plan" />
-        <q>
-          It doesn't matter who we are, what matters is that Pulse is a great
-          chat app
-        </q>
-        <br />
-        <p>-Matic Babnik</p>
+        <img src="/user.png" title="real user of this app" />
+        <q>Very cool app!</q>
+        <p>-Nik Janoš</p>
       </div>
     </div>
   </main>
@@ -133,6 +128,8 @@ main {
         width: 100%;
         max-width: 128px;
         max-height: 128px;
+        min-width: 128px;
+        min-height: 128px;
         margin-bottom: 1rem;
         border-radius: @border-r-circle;
         object-fit: cover;

@@ -20,7 +20,19 @@ const sender = computed((): User => {
 });
 
 const contentRef = ref<HTMLDivElement>();
-const pinged = ref(false);
+const pinged = computed(() => {
+  let valid = false;
+
+  const exp = /\[![a-fA-F0-9]{24}\]/g;
+  const match = exp.exec(props.message.content);
+  match?.forEach((userID) => {
+    if (userID.slice(2, -1) === useActiveUserStore().activeUserData?.id) {
+      valid = true;
+    }
+  });
+
+  return valid;
+});
 
 // THIS IS THE REALEST CODE IN THIS PROJECT
 const messageContent = computed(() => {
@@ -55,12 +67,10 @@ const messageContent = computed(() => {
   const msg = output
     .replace(/\[![a-fA-F0-9]{24}\]/g, (userID) => {
       const user = useUserStore().users.get(userID.slice(2, -1));
-      if (user?.id === useActiveUserStore().activeUserData?.id)
-        pinged.value = true;
 
       return `<span class="mention" onclick="window.postMessage({type: 'openProfile',userID: '${
         user?.id ?? "unknown"
-      }'})">${user?.displayName ?? "Deleted User"}</span>`;
+      }'})">@${user?.displayName ?? "Deleted User"}</span>`;
     })
     .replace(
       /([\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1F1E0}-\u{1F1FF}])/gu,
@@ -141,7 +151,7 @@ const messageContent = computed(() => {
   grid-template-columns: 1.6rem auto;
 
   column-gap: @gap-small;
-  transition: ease 0.2s background;
+  transition: ease 0.2s transform;
   padding: 0 0.2rem !important;
   border-radius: @border-r-small;
   animation: message-come-in 0.2s ease;
@@ -175,6 +185,7 @@ const messageContent = computed(() => {
   &.pinged {
     background: hsl(40 0.8 * 86.4% 56.9% / 0.2);
     border-left: 2px solid @warn;
+    margin-left: -2px;
   }
 
   .profilePic {
@@ -198,7 +209,7 @@ const messageContent = computed(() => {
   .main {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
     width: 100%;
     overflow: hidden;
 

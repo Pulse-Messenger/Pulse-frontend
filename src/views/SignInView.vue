@@ -196,7 +196,7 @@ const login = async () => {
             Please agree to our
             <a
               target="_blank"
-              href="https://s3.eu-central-2.wasabisys.com/cdn.pulse-messenger.com/misc/USER_AGREEMENT.pdf"
+              href="https://cdn.pulse-messenger.com/misc/USER_AGREEMENT.pdf"
               >Terms Of Service</a
             >
             to continue.

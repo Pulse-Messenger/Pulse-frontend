@@ -98,7 +98,7 @@ export const useActiveUserStore = defineStore("activeUser", () => {
         username: user.data.username,
         rooms: user.data.rooms,
         DMs: user.data.DMs,
-        profilePic: user.data.profilePic,
+        profilePic: user.data.profilePic + "?" + Date.now(),
         sessions: user.data.sessions.map(({ _id, ...ses }: any) => {
           return {
             id: _id,
