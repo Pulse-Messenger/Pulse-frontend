@@ -34,7 +34,7 @@ export const useRoomStore = defineStore("room", () => {
     // refresh images
     rooms.value.forEach((room) => {
       const raw = room.profilePic.split("?")[0];
-      room.profilePic = raw + "?" + Date.now();
+      room.profilePic = raw;
     });
   }, 30000);
 
@@ -118,7 +118,7 @@ export const useRoomStore = defineStore("room", () => {
     rooms.value.set(roomID, {
       id: roomID,
       name: room.name,
-      profilePic: room.profilePic + "?" + Date.now(),
+      profilePic: room.profilePic,
       timeCreated: room.timeCreated,
       members: room.members,
       channels: room.channels,
@@ -171,7 +171,7 @@ export const useRoomStore = defineStore("room", () => {
           id: user._id,
           username: user.username ?? "",
           displayName: user.displayName ?? "",
-          profilePic: user.profilePic + "?" + Date.now() ?? "",
+          profilePic: user.profilePic ?? "",
           about: user.about ?? "",
           globalRoles: user.globalRoles ?? [],
         });

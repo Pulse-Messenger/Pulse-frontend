@@ -18,7 +18,7 @@ const setTheme = (newTheme: "dark" | "light") => {
 const subcategories: { [key: string]: Setting[] } = {
   Theme: [
     {
-      title: "Lavender",
+      title: "Platinum",
       type: "pickMe",
       pickMeData: {
         active: () => preferences.value!.appearance.theme === "light",
@@ -26,7 +26,7 @@ const subcategories: { [key: string]: Setting[] } = {
       },
     },
     {
-      title: "Eerie Black",
+      title: "Jet Black",
       type: "pickMe",
       pickMeData: {
         active: () => preferences.value!.appearance.theme === "dark",

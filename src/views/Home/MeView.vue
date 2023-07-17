@@ -168,6 +168,7 @@ onMounted(() => {
     .DMs {
       display: flex;
       flex-direction: column;
+      row-gap: @gap-tiny;
 
       .DM {
         padding: @padding-mini 0.2rem;

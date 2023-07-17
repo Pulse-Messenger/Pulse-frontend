@@ -354,6 +354,7 @@ const openChannelOptions = (channelID: string) => {
     box-shadow: -5px 0px 5px @background;
     background: @background-light;
     z-index: 10;
+    row-gap: @gap-tiny;
 
     .member {
       padding: @padding-mini 0.2rem;
@@ -362,7 +363,7 @@ const openChannelOptions = (channelID: string) => {
       border-radius: @border-r-small;
       display: flex;
       align-items: center;
-      column-gap: 0.5em;
+      column-gap: @gap-medium;
       transition: @transition-all-fast;
 
       .member-image {

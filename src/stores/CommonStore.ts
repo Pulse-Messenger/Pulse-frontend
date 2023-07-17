@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { onMounted, onUnmounted, onUpdated, ref } from "vue";
+import { onMounted, onUpdated, ref } from "vue";
 
 export interface CommonData {
   channelScroll: { [key: string]: number };
@@ -13,6 +13,7 @@ export interface CommonData {
     swipedRight: boolean;
     swipedLeft: boolean;
   };
+  preferedVolume: number;
 }
 
 export interface Setting {
@@ -48,6 +49,8 @@ export const useCommonStore = defineStore("common", () => {
       swipedRight: false,
       swipedLeft: false,
     },
+    // CMIYGL
+    preferedVolume: 0.41424514,
   });
 
   const clearSwipe = () => {

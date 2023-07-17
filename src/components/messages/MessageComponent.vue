@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { marked } from "marked";
 
 import { useUserStore } from "@/stores/UserStore";
@@ -7,8 +7,12 @@ import type { User } from "@/stores/UserStore";
 import type { Message } from "@/stores/ChannelStore";
 import { useModalStore } from "@/stores/ModalStore";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
+import { loadVideoPlayers, loadAudioPlayers } from "@/utils/Players";
+import { storeToRefs } from "pinia";
 
 const modalStore = useModalStore();
+
+const baseFontSize = storeToRefs(useActiveUserStore()).baseFontSize;
 
 const props = defineProps<{
   message: Message;
@@ -80,14 +84,16 @@ const messageContent = computed(() => {
   return marked(msg);
 });
 
-// TODO
-// watch(messageContent, async () => {
-//   await nextTick();
+const mobileView = computed(() => {
+  return baseFontSize.value !== 28;
+});
 
-//   contentRef.value
-//     ?.querySelectorAll(".video-controls")
-//     .forEach((controls) => {});
-// });
+onMounted(() => {
+  // @ts-ignore
+  loadVideoPlayers(contentRef);
+  // @ts-ignore
+  loadAudioPlayers(contentRef);
+});
 </script>
 
 <template>
@@ -127,7 +133,12 @@ const messageContent = computed(() => {
           }}
         </span>
       </div>
-      <div class="content" v-html="messageContent" ref="contentRef"></div>
+      <div
+        class="content"
+        :class="{ mobileView }"
+        v-html="messageContent"
+        ref="contentRef"
+      ></div>
     </div>
   </div>
 </template>
@@ -142,7 +153,6 @@ const messageContent = computed(() => {
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
@@ -152,8 +162,7 @@ const messageContent = computed(() => {
 
   column-gap: @gap-small;
   transition: ease 0.2s transform;
-  padding: 0 0.2rem !important;
-  border-radius: @border-r-small;
+  padding: 0 @padding-medium !important;
   animation: message-come-in 0.2s ease;
 
   * {
@@ -314,18 +323,345 @@ const messageContent = computed(() => {
         cursor: pointer;
       }
 
-      video {
-        height: 10rem;
-        max-width: 100%;
-        max-height: 100%;
-        border-radius: @border-r-small;
+      &.mobileView {
+        .video-container {
+          .controls {
+            #volume {
+              #volume-bar {
+                display: none;
+              }
+            }
+          }
+        }
       }
 
-      audio {
-        width: 10rem;
-        max-width: 100%;
-        max-height: 100%;
+      .video-container {
+        position: relative;
+        width: fit-content;
+
+        video {
+          display: block;
+          height: clamp(7rem, 20vw, 10rem);
+          border-radius: @border-r-small;
+          cursor: pointer;
+          width: 100%;
+        }
+
+        &.fullscreen {
+          video {
+            height: 100vh;
+            width: 100vw;
+            border-radius: 0;
+          }
+        }
+
+        &:hover {
+          .controls {
+            opacity: 1;
+            padding-bottom: @padding-tiny;
+          }
+        }
+
+        .controls {
+          opacity: 0;
+          position: absolute;
+          z-index: 9;
+          left: 0;
+          bottom: 0;
+          padding: 0 @padding-small;
+          background: linear-gradient(
+            to bottom,
+            transparent,
+            hsl(0 0% 0% / 0.8)
+          );
+          transition: @transition-all-fast;
+          width: 100%;
+          display: grid;
+          grid-template-columns: auto auto 1fr auto auto;
+          align-items: center;
+          column-gap: 0.5rem;
+
+          #playpause {
+            &:not(.playing) {
+              .pause {
+                display: none;
+              }
+            }
+            &.playing {
+              .play {
+                display: none;
+              }
+            }
+          }
+
+          #time {
+            color: #fff;
+          }
+
+          #progress {
+            appearance: none;
+            outline: none;
+
+            width: 100%;
+            height: 0.2rem;
+
+            cursor: pointer;
+            background: @background;
+            border-radius: 4px;
+
+            &::-webkit-slider-thumb {
+              outline: none;
+              appearance: none;
+              -webkit-appearance: none;
+              width: 0.5rem;
+              height: 0.5rem;
+              background: @accent-s;
+              border-radius: 1000px;
+              cursor: pointer;
+            }
+            &::-moz-range-thumb {
+              outline: none;
+
+              width: 0.5rem;
+              height: 0.5rem;
+              background: @accent-s;
+              border-radius: 1000px;
+              border: none;
+              cursor: pointer;
+            }
+          }
+
+          #playpause,
+          #fullscreen {
+            width: 0.6rem;
+            height: 0.6rem;
+            cursor: pointer;
+
+            * {
+              width: 0.6rem;
+              height: 0.6rem;
+              min-width: 0.6rem;
+              min-height: 0.6rem;
+              fill: @accent;
+            }
+          }
+
+          #volume {
+            display: flex;
+            column-gap: @gap-tiny;
+            cursor: pointer;
+            align-items: center;
+
+            &:not(.muted) {
+              .muted {
+                display: none;
+              }
+            }
+            &.muted {
+              .unmuted {
+                display: none;
+              }
+            }
+
+            #mute {
+              width: 0.6rem;
+              height: 0.6rem;
+              svg {
+                width: 0.6rem;
+                height: 0.6rem;
+                min-width: 0.6rem;
+                min-height: 0.6rem;
+                fill: @accent;
+              }
+            }
+
+            #volume-bar {
+              appearance: none;
+              outline: none;
+
+              width: 2.5rem;
+              height: 0.2rem;
+
+              cursor: pointer;
+              background: @background;
+              border-radius: 4px;
+
+              &::-webkit-slider-thumb {
+                outline: none;
+                appearance: none;
+                -webkit-appearance: none;
+                width: 0.5rem;
+                height: 0.5rem;
+                background: @accent-s;
+                border-radius: 1000px;
+                cursor: pointer;
+              }
+              &::-moz-range-thumb {
+                outline: none;
+
+                width: 0.5rem;
+                height: 0.5rem;
+                background: @accent-s;
+                border-radius: 1000px;
+                border: none;
+                cursor: pointer;
+              }
+            }
+          }
+        }
+      }
+
+      .audio-container {
+        background: @background-light;
+        padding: @padding-medium;
         border-radius: @border-r-small;
+        width: clamp(6rem, 100%, 13rem);
+        border: 1px solid @background;
+        align-items: center;
+        margin-bottom: 0.2rem;
+
+        .controls {
+          width: 100%;
+          display: grid;
+          grid-template-columns: auto auto 1fr auto auto;
+          grid-template-rows: 1fr 1fr;
+          align-items: center;
+          gap: @gap-tiny;
+
+          #playpause {
+            grid-column: 1;
+
+            &:not(.playing) {
+              .pause {
+                display: none;
+              }
+            }
+            &.playing {
+              .play {
+                display: none;
+              }
+            }
+          }
+
+          #time {
+            color: #fff;
+            grid-column: 2;
+          }
+
+          #progress {
+            appearance: none;
+            outline: none;
+
+            width: 100%;
+            height: 0.2rem;
+
+            cursor: pointer;
+            background: @background;
+            border-radius: 4px;
+            grid-column: 1/6;
+            grid-row: 1/2;
+
+            &::-webkit-slider-thumb {
+              outline: none;
+              appearance: none;
+              -webkit-appearance: none;
+              width: 0.5rem;
+              height: 0.5rem;
+              background: @accent-s;
+              border-radius: 1000px;
+              cursor: pointer;
+            }
+            &::-moz-range-thumb {
+              outline: none;
+
+              width: 0.5rem;
+              height: 0.5rem;
+              background: @accent-s;
+              border-radius: 1000px;
+              border: none;
+              cursor: pointer;
+            }
+          }
+
+          #playpause,
+          #fullscreen {
+            width: 0.6rem;
+            height: 0.6rem;
+            cursor: pointer;
+
+            * {
+              width: 0.6rem;
+              height: 0.6rem;
+              min-width: 0.6rem;
+              min-height: 0.6rem;
+              fill: @accent;
+            }
+          }
+
+          #volume {
+            display: flex;
+            column-gap: @gap-tiny;
+            cursor: pointer;
+            align-items: center;
+            grid-column: 5;
+
+            &:not(.muted) {
+              .muted {
+                display: none;
+              }
+            }
+            &.muted {
+              .unmuted {
+                display: none;
+              }
+            }
+
+            #mute {
+              width: 0.6rem;
+              height: 0.6rem;
+              svg {
+                width: 0.6rem;
+                height: 0.6rem;
+                min-width: 0.6rem;
+                min-height: 0.6rem;
+                fill: @accent;
+              }
+            }
+
+            #volume-bar {
+              appearance: none;
+              outline: none;
+
+              width: 2.5rem;
+              height: 0.2rem;
+
+              cursor: pointer;
+              background: @background;
+              border-radius: 4px;
+
+              &::-webkit-slider-thumb {
+                outline: none;
+                appearance: none;
+                -webkit-appearance: none;
+                width: 0.5rem;
+                height: 0.5rem;
+                background: @accent-s;
+                border-radius: 1000px;
+                cursor: pointer;
+              }
+              &::-moz-range-thumb {
+                outline: none;
+
+                width: 0.5rem;
+                height: 0.5rem;
+                background: @accent-s;
+                border-radius: 1000px;
+                border: none;
+                cursor: pointer;
+              }
+            }
+          }
+        }
       }
 
       .file {

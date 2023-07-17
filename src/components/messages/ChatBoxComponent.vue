@@ -224,7 +224,7 @@ watch(props, async () => {
   justify-content: center;
   align-items: center;
   padding: @padding-medium 0.2rem;
-  margin: 0.2rem;
+  margin: @padding-large @padding-medium;
   border: 2px solid @background;
   background: @background-light;
   border-radius: @border-r-big;

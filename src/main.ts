@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+
 import App from "@/App.vue";
 import router from "@/router";
 import { useAuthStore } from "./stores/AuthStore";
@@ -30,7 +31,6 @@ app.directive("full-height", setFullHeight);
   router.beforeEach((to, from, next) => {
     if (!auth.isLoggedIn && to.meta.requiresAuth) next({ name: "SignIn" });
     else if (auth.isLoggedIn && to.name === "SignIn") {
-      console.log("a");
       next({ name: "Main" });
     } else next();
   });
