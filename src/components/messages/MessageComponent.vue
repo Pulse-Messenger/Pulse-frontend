@@ -325,6 +325,10 @@ onMounted(() => {
 
       &.mobileView {
         .video-container {
+          video {
+            min-width: unset !important;
+          }
+
           .controls {
             #volume {
               #volume-bar {
@@ -338,13 +342,17 @@ onMounted(() => {
       .video-container {
         position: relative;
         width: fit-content;
+        padding: @padding-tiny 0;
 
         video {
           display: block;
-          height: clamp(7rem, 20vw, 10rem);
+          height: 10rem;
+          max-width: 20rem;
+          min-width: 12rem;
+          width: 100%;
           border-radius: @border-r-small;
           cursor: pointer;
-          width: 100%;
+          background: black;
         }
 
         &.fullscreen {
@@ -367,13 +375,9 @@ onMounted(() => {
           position: absolute;
           z-index: 9;
           left: 0;
-          bottom: 0;
+          bottom: @gap-tiny;
           padding: 0 @padding-small;
-          background: linear-gradient(
-            to bottom,
-            transparent,
-            hsl(0 0% 0% / 0.8)
-          );
+          background: linear-gradient(to bottom, transparent, hsl(0, 0%, 0%));
           transition: @transition-all-fast;
           width: 100%;
           display: grid;
@@ -523,13 +527,43 @@ onMounted(() => {
         .controls {
           width: 100%;
           display: grid;
-          grid-template-columns: auto auto 1fr auto auto;
-          grid-template-rows: 1fr 1fr;
+          grid-template-columns: auto auto auto 1fr auto;
+          grid-template-rows: 1fr 1fr 1fr 1fr;
           align-items: center;
-          gap: @gap-tiny;
+          column-gap: @gap-small;
+
+          #albumCover {
+            height: 3.5rem;
+            width: 3.5rem;
+            grid-column: 1;
+            grid-row: 1 / 5;
+
+            img {
+              display: block;
+              height: 100%;
+              width: 100%;
+              object-fit: cover;
+              border-radius: @border-r-small;
+              overflow: hidden;
+              margin-bottom: 0;
+              cursor: unset;
+            }
+          }
+
+          #title {
+            grid-column: 2 / 4;
+            grid-row: 1;
+            font-weight: 700;
+          }
+
+          #author {
+            grid-column: 2 / 4;
+            grid-row: 2;
+          }
 
           #playpause {
-            grid-column: 1;
+            grid-column: 2;
+            grid-row: 4;
 
             &:not(.playing) {
               .pause {
@@ -545,7 +579,8 @@ onMounted(() => {
 
           #time {
             color: #fff;
-            grid-column: 2;
+            grid-column: 3;
+            grid-row: 4;
           }
 
           #progress {
@@ -558,8 +593,8 @@ onMounted(() => {
             cursor: pointer;
             background: @background;
             border-radius: 4px;
-            grid-column: 1/6;
-            grid-row: 1/2;
+            grid-column: 2 / 6;
+            grid-row: 3;
 
             &::-webkit-slider-thumb {
               outline: none;
@@ -604,6 +639,7 @@ onMounted(() => {
             cursor: pointer;
             align-items: center;
             grid-column: 5;
+            grid-row: 4;
 
             &:not(.muted) {
               .muted {

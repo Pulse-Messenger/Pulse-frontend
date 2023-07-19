@@ -20,7 +20,7 @@ export const loadVideoPlayers = (messageContentRef: Ref<HTMLDivElement>) => {
       const mute = volume!.querySelector<HTMLDivElement>("#mute")!;
 
       video!.onloadeddata = () => {
-        progress.max = Math.ceil(video!.duration).toString();
+        progress.max = video!.duration.toFixed(1).toString();
 
         const minutes = Math.floor(video!.currentTime / 60);
         const seconds = Math.floor(video!.currentTime - minutes * 60);
