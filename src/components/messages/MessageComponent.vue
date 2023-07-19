@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { marked } from "marked";
+import { storeToRefs } from "pinia";
 
 import { useUserStore } from "@/stores/UserStore";
 import type { User } from "@/stores/UserStore";
@@ -8,7 +9,6 @@ import type { Message } from "@/stores/ChannelStore";
 import { useModalStore } from "@/stores/ModalStore";
 import { useActiveUserStore } from "@/stores/ActiveUserStore";
 import { loadVideoPlayers, loadAudioPlayers } from "@/utils/Players";
-import { storeToRefs } from "pinia";
 
 const modalStore = useModalStore();
 
@@ -93,6 +93,14 @@ onMounted(() => {
   loadVideoPlayers(contentRef);
   // @ts-ignore
   loadAudioPlayers(contentRef);
+
+  watch(messageContent, async () => {
+    await nextTick();
+    // @ts-ignore
+    loadVideoPlayers(contentRef);
+    // @ts-ignore
+    loadAudioPlayers(contentRef);
+  });
 });
 </script>
 
