@@ -100,7 +100,7 @@ const walkTokens = async (token: any) => {
         if (href.endsWith(ext)) {
           token.type = "html";
           token.text = `
-            <div class="audio-container">
+            <div class="audio-container no-cover">
               <audio><source src="${href}">
               </audio>
               <div class="controls">
@@ -112,16 +112,16 @@ const walkTokens = async (token: any) => {
                       : 'this.src="/fallbackImageDark.svg";'
                   }>
                 </div>
-                <p id="title">Test</p>
-                <p id="author">Test author</p>
-                <div id="playpause">
+                <p id="title" class="coverart-fix no-txt-overflow">Unknown Track</p>
+                <p id="author" class="coverart-fix no-txt-overflow">Unknown Artist</p>
+                <div id="playpause" class="coverart-fix">
                   <svg class="play" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>
                   <svg class="pause" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/></svg>
                 </div>
                 <div id="time">
                   <span id="current-time"></span>
                 </div>
-                <input id="progress" type="range" step="0.1" value="0" />
+                <input id="progress" class="coverart-fix" type="range" step="0.1" value="0" />
                 <div id="volume">
                   <div id="mute">
                     <svg class="unmuted" xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M301.1 34.8C312.6 40 320 51.4 320 64V448c0 12.6-7.4 24-18.9 29.2s-25 3.1-34.4-5.3L131.8 352H64c-35.3 0-64-28.7-64-64V224c0-35.3 28.7-64 64-64h67.8L266.7 40.1c9.4-8.4 22.9-10.4 34.4-5.3zM412.6 181.5C434.1 199.1 448 225.9 448 256s-13.9 56.9-35.4 74.5c-10.3 8.4-25.4 6.8-33.8-3.5s-6.8-25.4 3.5-33.8C393.1 284.4 400 271 400 256s-6.9-28.4-17.7-37.3c-10.3-8.4-11.8-23.5-3.5-33.8s23.5-11.8 33.8-3.5z"/></svg>

@@ -13,7 +13,8 @@
         "./src/*"
       ]
     },
-    "target": "ES2017",
+    "target": "ES2022",
+    "ignoreDeprecations": "5.0" // TODO: switch to the other fix
   },
   "references": [
     {
