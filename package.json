@@ -14,6 +14,7 @@
     "axios": "^1.2.2",
     "highlight.js": "^11.7.0",
     "less": "^4.1.3",
+    "mami-chan": "1.1.0",
     "marked": "^4.3.0",
     "pinia": "^2.0.28",
     "socket.io-client": "^4.5.4",

@@ -524,6 +524,24 @@ onMounted(() => {
         align-items: center;
         margin-bottom: 0.2rem;
 
+        &.no-cover {
+          #albumCover {
+            width: 0 !important;
+            img {
+              opacity: 0 !important;
+            }
+          }
+
+          .coverart-fix {
+            margin-left: -@gap-small;
+          }
+        }
+
+        .coverart-fix {
+          margin-left: 0;
+          transition: 0.3s ease margin-left;
+        }
+
         .controls {
           width: 100%;
           display: grid;
@@ -537,8 +555,11 @@ onMounted(() => {
             width: 3.5rem;
             grid-column: 1;
             grid-row: 1 / 5;
+            transition: 0.3s ease width;
 
             img {
+              transition: 0.3s cubic-bezier(0.55, 0.06, 0.68, 0.19) opacity;
+              opacity: 1;
               display: block;
               height: 100%;
               width: 100%;
@@ -551,13 +572,13 @@ onMounted(() => {
           }
 
           #title {
-            grid-column: 2 / 4;
+            grid-column: 2 / 6;
             grid-row: 1;
             font-weight: 700;
           }
 
           #author {
-            grid-column: 2 / 4;
+            grid-column: 2 / 6;
             grid-row: 2;
           }
 

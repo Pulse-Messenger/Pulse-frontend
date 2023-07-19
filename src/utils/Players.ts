@@ -1,5 +1,6 @@
 import type { Ref } from "vue";
 import { storeToRefs } from "pinia";
+import { getCommonMetadata } from "mami-chan";
 
 import { useCommonStore } from "@/stores/CommonStore";
 
@@ -108,6 +109,14 @@ export const loadVideoPlayers = (messageContentRef: Ref<HTMLDivElement>) => {
     });
 };
 
+function getFileName(url: string) {
+  const urlParts = url.split("/");
+  const fileName = urlParts[urlParts.length - 1];
+
+  // cheap hack to remove the timestamp prefix
+  return decodeURI(fileName).replace(/^\d{13}_/, "");
+}
+
 export const loadAudioPlayers = (messageContentRef: Ref<HTMLDivElement>) => {
   const { commonData } = storeToRefs(useCommonStore());
 
@@ -121,8 +130,33 @@ export const loadAudioPlayers = (messageContentRef: Ref<HTMLDivElement>) => {
       const volume = controls!.querySelector<HTMLDivElement>("#volume")!;
       const volumeBar =
         controls!.querySelector<HTMLInputElement>("#volume-bar")!;
-
       const mute = volume!.querySelector<HTMLDivElement>("#mute")!;
+
+      const { src } = audio!.querySelector<HTMLSourceElement>("source")!;
+      const titleParagraph =
+        container.querySelector<HTMLParagraphElement>("#title")!;
+      const authorParagraph =
+        container.querySelector<HTMLParagraphElement>("#author")!;
+      const coverImage =
+        container.querySelector<HTMLImageElement>("#albumCover > img")!;
+
+      titleParagraph.innerText = getFileName(src);
+      getCommonMetadata(src)
+        .then(async (data) => {
+          if (data.title) titleParagraph.innerText = data.title;
+
+          if (data.artist) {
+            authorParagraph.innerText =
+              data.artist + (data.album ? ` (${data.album})` : "");
+          }
+
+          if (data.cover) {
+            coverImage.src = data.cover;
+            await coverImage.decode();
+            container.classList.remove("no-cover");
+          }
+        })
+        .catch(() => "unlucky");
 
       audio!.onloadeddata = () => {
         progress.max = Math.ceil(audio!.duration).toString();
